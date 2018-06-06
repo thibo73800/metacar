@@ -1,0 +1,14 @@
+{
+  "name": "metacar-demo",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Thibault Neveu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
