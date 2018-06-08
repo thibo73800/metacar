@@ -122,18 +122,16 @@ function readBuffer(buffer) {
 }
 */
 
-/*
-function readDump(e, callback) {
-    var input = e.target;
+export function readDump(dump: any, callback: any) {
+    var input = dump.target;
     var file = input.files[0];
-
     var reader = new FileReader();
     reader.readAsText(file, "UTF-8");
-    reader.onload = (evt) => {
+    reader.onload = (evt:any) => {
         callback(evt.target.result);
     }
 }
-*/
+
 
 export function shuffleArray(array: number[]) {
     /**
@@ -174,7 +172,7 @@ export function keyboard(keyCode: any ) {
         key.isDown = true;
         key.isUp = false;
       }
-      event.preventDefault();
+      //event.preventDefault();
     };
   
     key.upHandler = (event: any) => {
@@ -183,9 +181,9 @@ export function keyboard(keyCode: any ) {
         key.isDown = false;
         key.isUp = true;
       }
-      event.preventDefault();
+      //event.preventDefault();
     };
-  
+
     //Attach event listeners
     window.addEventListener(
       "keydown", key.downHandler.bind(key), false

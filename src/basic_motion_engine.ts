@@ -77,15 +77,15 @@ export class BasicMotionEngine extends MotionEngine {
         }
     }
 
-    turnLeft(){
+    turnLeft():void {
         /*
             Turn left
         */
-        this.car.rotation -= this.rotationStep*Math.PI;
-        this.lidar.rotation = this.car.rotation;
+       this.car.rotation -= this.rotationStep*Math.PI
+       this.lidar.rotation = this.car.rotation;
     }
 
-    turnRight(){
+    turnRight():void {
         /*
             Turn right
         */
@@ -93,14 +93,14 @@ export class BasicMotionEngine extends MotionEngine {
         this.lidar.rotation = this.car.rotation;
     }
 
-    moveForward(){
+    moveForward():void {
         /*
             Move forward
         */
         this.car.v = 1;
     }
 
-    moveBackward(){
+    moveBackward():void {
         /*
             Move backward
         */

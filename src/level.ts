@@ -60,6 +60,15 @@ export class Level {
         });
     }
 
+    render(val: boolean){
+        if (val){
+            this.app.ticker.start();
+        }
+        else{
+            this.app.ticker.stop();
+        }
+    }
+
     createLevel(info: LevelInfo){
         /*
             Create the level
@@ -96,14 +105,6 @@ export class Level {
             this.agent = this.am.createAgent(this.map, info, textures);
         // Set up the main loop
         this.app.ticker.add((delta: number) => this.loop(delta));
-    }
-
-    render(){
-        /*
-            If the rendering has been stopped, this Method
-            restart the rendering.
-        */
-        this.app.ticker.start();
     }
 
     reset(){
