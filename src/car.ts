@@ -4,7 +4,8 @@
     This class create the agent and the associated sensor (lidar)
 */
 
-import {Level, LevelInfo} from "./level";
+import {Level} from "./level";
+import {Editor} from "./editor";
 
 import {
     CAR_IMG, Sprite, MAP, ROADSIZE, Container, Graphics
@@ -49,17 +50,22 @@ export interface CarSprite extends PIXI.Sprite {
     agent?: boolean;
 }
 
+export interface LidarChild extends PIXI.Graphics {
+    // Is a lidar point
+    pt?: boolean;
+}
+
 export class Car {
 
-    public level: Level;
+    public level: Level|Editor;
     public core: CarSprite;
     public lidar: any;
 
     private info: CarInfo;
     private motion: any;
-    private turnedRandom: any;
+    public turnedRandom: any;
 
-    constructor(level: Level, info: CarInfo, textures: any, options:CarOptions={}) {
+    constructor(level: Level|Editor, info: CarInfo, textures: any, options:CarOptions={}) {
         /*
             @level (Level class)
             @info: (CarInfo) Info from the json file about the car
@@ -200,9 +206,9 @@ export class Car {
                 @height: Height of the lidar (in proportion to the car)
         */
         this.lidar = new Container();
-
         // Area of the lidar
-        let area = new Graphics();
+        let area: LidarChild = new Graphics();
+        area.pt = false;
         area.alpha = 0.5;
         area.beginFill(0x515151);
         area.drawRect(0, 0, this.core.width*lidarOptions.width, this.core.height*lidarOptions.height);
@@ -216,8 +222,8 @@ export class Car {
 
                 let x = (x_step/4) + xs * x_step;
                 let y = (y_step/4) + ys * y_step;
-
-                let pt = new Graphics();
+                let pt: LidarChild = new Graphics();
+                pt.pt = true;
                 pt.beginFill(0xffffff);
                 pt.drawRect(x, y, 5, 5);
                 pt.endFill();
@@ -227,8 +233,10 @@ export class Car {
 
         this.lidar.pts = lidarOptions.pts;
         this.lidar.addChild(area);
+
         this.lidar.x = this.core.x;
         this.lidar.y = this.core.y;
+
         this.lidar.pivot.y = this.lidar.height/2;
         this.lidar.pivot.x = this.core.width/2 - (lidarOptions.pos*this.core.width);
         this.lidar.rotation = this.core.rotation;

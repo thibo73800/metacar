@@ -1,3 +1,5 @@
+import {embeddedContent} from "./embedded";
+
 /*
     File with some usefull methods
 */
@@ -19,6 +21,33 @@ export function loadJSON(url: string, callback: any) {
     xobj.send(null);
 }
 
+export function loadEmbeddedURL(url: string, callback: any):void {
+    let split = url.split("//");
+    split = split[1].split("/");
+    callback(embeddedContent[split[0]][split[1]]);
+}
+
+export function loadLocalStorageURL(url: string, callback: any):void{
+}
+
+export function loadCustomURL(url: string, callback: any):void {
+    /**
+     * @url: CustomURL to load
+         *  localstorage://level-name
+         *  http(s)://
+         *  embedded:://
+       @callback function onece the content is loaded
+    */
+   const customCall: any = {
+        "embedded:": loadEmbeddedURL,
+        "http://": loadJSON,
+        "https://": loadJSON,
+        "localstorage://": loadLocalStorageURL
+   }
+   const split = url.split("//");
+   customCall[split[0]](url, callback);
+}
+
 export function mod(n: number, m:number) {
   return ((n % m) + m) % m;
 }
@@ -33,7 +62,7 @@ export function argMax(array: number[]) {
     return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
 }
 
-export function mean(array: number){
+export function mean(array: number[]){
     /**
      * Return the mean of the array
     */
@@ -44,7 +73,7 @@ export function mean(array: number){
     return avg;
 }
 
-function saveAs(content: string, name: string) {
+export function saveAs(content: string, name: string) {
     var a = document.createElement("a");
     //a.style = "display: none";
     document.body.appendChild(a);

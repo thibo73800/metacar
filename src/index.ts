@@ -1,2 +1,9 @@
 import {MetaCar} from "./metacar";
-export default MetaCar;
+import {embeddedUrl} from "./embedded";
+
+const metacar = {
+    env: MetaCar,
+    level: embeddedUrl
+}
+
+export default metacar;

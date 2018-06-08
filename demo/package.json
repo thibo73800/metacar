@@ -9,6 +9,7 @@
   "author": "Thibault Neveu",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "pixi.js": "^4.8.1"
   }
 }

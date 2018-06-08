@@ -13,7 +13,7 @@ export const Graphics      = PIXI.Graphics;
 export const Container     = PIXI.Container;
 
 // Textures files
-export const JSON_TEXTURES = "textures/textures.json";
+export const JSON_TEXTURES = "public/textures/textures.json";
 // Level foler
 export const LEVEL_FOLDER = "/level/";
 

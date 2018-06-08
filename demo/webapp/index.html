@@ -5,6 +5,26 @@
   <title>Hello World</title>
 </head>
 <body>
+
+    <div class="canvas" id="canvas"></div>
+
+    <div class="mainButton">
+        <button id="train">Train</button>
+        <button id="play">Play</button>
+        <button id="stop">Stop</button>
+        <button id="reset">Reset</button>
+        <button id="saveAgent">Save</button>
+        <button onclick="document.getElementById('dumpFile').click();">Load</button>
+        <input id="dumpFile" type='file' accept='*/*' style="display: none">
+        <br>
+        <br>
+        <span id="rewardDisplay"></span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js"></script>
     <script src="/dist/metacar.min.js"></script>
+
+    <script type="text/javascript" src="/public/js/full_city.js"></script>
+
 </body>
 </html>

@@ -8,9 +8,9 @@ import * as U from "./utils";
 import {
     LEVEL_FOLDER, ROADSIZE, Loader, JSON_TEXTURES
 } from "./global";
-import {AssetManger, RoadSprite, SimpleSprite, AssetInfo, } from "./asset_manager";
+import {AssetManger, RoadSprite} from "./asset_manager";
 
-import {Car} from "./car";
+import {Car, CarSprite} from "./car";
 
 export interface LevelInfo {
     map: (string|number)[][];
@@ -24,26 +24,27 @@ export interface Roads {
 
 export class Level {
 
-    private app: any = null; // The pixi app.
-    private name: string = null; // Name fo the level
+    public app: any = null; // The pixi app.
     private info: LevelInfo = null;  // Information of the loaded level
     private envs: any[] = [] // Used to list all elements the car can crash with
     private map: (string|number)[][] = null; // Use the roads positions of the level
-    private agent: any = null; // (@Car class) for the agent
+    public agent: any = null; // (@Car class) for the agent
     // Object to store all the roads assets
     // Each road is accesible as follow this.roads[[my, mx]]
     // with my and mx the (x, y) position relative to the map (not pixel).
-    private roads: Roads;
-    private cars: any; // Array used to store all the cars assets
+    private roads: Roads = {};
+    private cars: Car[] = []; // Array used to store all the cars assets
     private loop: any; // Loop method called for each render
     private am: AssetManger;  // The AssetManger is used to set most of the elements on the map
     private canvasId: string; // Id of the target canvas
 
-    constructor(levelName: string, canvasId: string) {
+    constructor(levelContent: LevelInfo, canvasId: string) {
         /*
-            @levelName: Name of the level to load (.json)
+            @levelContent: Content of the level
+            @canvasID: HTML canvas id
         */
-        this.name = levelName;
+        this.info = levelContent;
+        this.map = this.info.map;
         this.canvasId = canvasId;
         this.am = new AssetManger(this);
     }
@@ -55,13 +56,7 @@ export class Level {
         */
         this.loop = loop;
         return new Promise((resolve, reject) => {
-            // Load the level
-            U.loadJSON(LEVEL_FOLDER + this.name, (response: string) => {
-                // Parse JSON string into object
-                this.info = JSON.parse(response);
-                this.map = this.info.map; // Store the map to let it accessible faster later on.
-                this.createLevel(this.info).then(() => resolve());
-            });
+            this.createLevel(this.info).then(() => resolve());
         });
     }
 
@@ -81,7 +76,7 @@ export class Level {
         document.getElementById(this.canvasId).appendChild(this.app.view);
 
         return new Promise((resolve, reject) => {
-            Loader.add(["textures/textures.json", "textures/textures.png"]).load(() => {
+            Loader.add(["public/textures/textures.json", "public/textures/textures.png"]).load(() => {
                     this.setup(info); // Set up the level (Add assets)
                     resolve();
             });
@@ -192,6 +187,10 @@ export class Level {
 
     getRoad(my: number, mx: number){
         return this.roads[[my.toString(), mx.toString()].toString()];
+    }
+
+    getRoads(){
+        return this.roads;
     }
     
     findCarById(id: number){

@@ -1,0 +1,183 @@
+{"frames": {
+
+"bench.png":
+{
+	"frame": {"x":0,"y":0,"w":31,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":31,"h":16},
+	"sourceSize": {"w":31,"h":16},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"car.png":
+{
+	"frame": {"x":31,"y":0,"w":42,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":24},
+	"sourceSize": {"w":42,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"car_agent.png":
+{
+	"frame": {"x":73,"y":0,"w":42,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":24},
+	"sourceSize": {"w":42,"h":24},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"house.png":
+{
+	"frame": {"x":0,"y":469,"w":88,"h":62},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":88,"h":62},
+	"sourceSize": {"w":88,"h":62},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"house2.png":
+{
+	"frame": {"x":0,"y":264,"w":60,"h":85},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":85},
+	"sourceSize": {"w":60,"h":85},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"house3.png":
+{
+	"frame": {"x":0,"y":531,"w":89,"h":67},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":89,"h":67},
+	"sourceSize": {"w":89,"h":67},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_d2.png":
+{
+	"frame": {"x":0,"y":349,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_l2.png":
+{
+	"frame": {"x":60,"y":264,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_r.png":
+{
+	"frame": {"x":0,"y":409,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_r2.png":
+{
+	"frame": {"x":60,"y":409,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_rotate_dl.png":
+{
+	"frame": {"x":60,"y":349,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_rotate_ld.png":
+{
+	"frame": {"x":60,"y":204,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_rotate_rl.png":
+{
+	"frame": {"x":0,"y":84,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_rotate_ul.png":
+{
+	"frame": {"x":48,"y":24,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_rp.png":
+{
+	"frame": {"x":60,"y":84,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_u.png":
+{
+	"frame": {"x":0,"y":204,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_u2.png":
+{
+	"frame": {"x":0,"y":144,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"road_up.png":
+{
+	"frame": {"x":60,"y":144,"w":60,"h":60},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":60},
+	"sourceSize": {"w":60,"h":60},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"tree.png":
+{
+	"frame": {"x":0,"y":24,"w":48,"h":46},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":48,"h":46},
+	"sourceSize": {"w":48,"h":46},
+	"pivot": {"x":0.5,"y":0.5}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "textures.png",
+	"format": "RGBA8888",
+	"size": {"w":120,"h":598},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:8bfcaef7ab9440b3c4c801d035ca0e1a:71d4ef3f85e164cd8a50ee71cd767fd7:cf827d152df04949dfee256cd0c8efd8$"
+}
+}

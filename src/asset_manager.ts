@@ -14,6 +14,7 @@ import {CarOptions, Car} from "./car";
 import {BasicMotionEngine} from "./basic_motion_engine";
 import {ControlMotionEngine} from "./control_motion_engine";
 import {BotMotionEngine} from "./bot_motion_engine";
+import { Editor } from "./editor";
 
 export interface AssetInfo {
     readonly mx?: number;
@@ -38,6 +39,7 @@ export interface RoadSprite extends PIXI.Sprite {
     // (x, y position) Relatif to the map
     mx?: number;
     my?: number;
+    isremove?: boolean;
 }
 
 export interface SimpleSprite extends PIXI.Sprite {
@@ -45,17 +47,18 @@ export interface SimpleSprite extends PIXI.Sprite {
     // name of the asset (not the name of the image)
     type?: string;
     mapId?: number;
+    isremove?: boolean;
 }
 
 export class AssetManger {
 
-    private level: Level;
+    private level: Level|Editor;
     // Used to list the differents MotionEngine possible to add on the car
     private motion: any;
     // List of all items on the map
-    private assets: SimpleSprite[] = [];
+    public assets: SimpleSprite[] = [];
 
-    constructor(level: Level) {
+    constructor(level: Level|Editor) {
         this.level = level;
         this.motion = {
             "BasicMotionEngine": BasicMotionEngine,
@@ -111,7 +114,8 @@ export class AssetManger {
         */
         if (line == undefined)
             line = 0;
-        if (road.cars.length >= 1 && this.level.findCarById(road.cars[0]).core.line == line){
+        let carById = this.level.findCarById(road.cars[0]);
+        if (road.cars.length >= 1 && carById && carById.core.line == line){
             line = line == 0 ? 1:0;
         }
         if (road.cars.length >= 2){
@@ -129,10 +133,10 @@ export class AssetManger {
         let y_margin = (ROADSIZE*1/4);
         // transform to map x coordinate
         // transform to map y coordinate
-        road.orientation = (Math.floor(road.orientation / car.rotation_step)*car.rotation_step);
-        let theta = -road.orientation*(Math.PI);
-        let x_m = (Math.cos(theta) * x_margin) - (y_margin * Math.sin(theta));
-        let y_m = (Math.cos(theta) * y_margin) + (x_margin * Math.sin(theta));
+        road.orientation = (Math.floor(road.orientation / car.rotationStep)*car.rotationStep);
+        let th = -road.orientation*(Math.PI); // theta
+        let x_m = (Math.cos(th) * x_margin) - (y_margin * Math.sin(th));
+        let y_m = (Math.cos(th) * y_margin) + (x_margin * Math.sin(th));
 
         let line_side_factor = line == 0 ? 1:-1;
         let line_side_factor_t = line == 0 ? 0:Math.PI;
@@ -143,7 +147,7 @@ export class AssetManger {
         car.mx = Math.floor(car.x / ROADSIZE);
         car.my = Math.floor(car.y / ROADSIZE);
         // Car rotation
-        car.rotation = (theta+line_side_factor_t);
+        car.rotation = (th+line_side_factor_t);
         // Set the new road of the car
         car.checkAndsetNewRoad(road);
     }
@@ -169,7 +173,7 @@ export class AssetManger {
         this.assets.push(asset);
     }
 
-    createMap(map: (string|number)[][], info: LevelInfo, textures: PIXI.Texture, roadside:boolean=true){
+    createMap(map: (string|number)[][], info: LevelInfo, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary), roadside:boolean=true){
         /*
             Method used to create the map with all assets (except the cars)
             @map (2dim Array)
@@ -204,7 +208,7 @@ export class AssetManger {
         }
     }
 
-    createCars(map: (string|number)[][], info: LevelInfo, textures: PIXI.Texture){
+    createCars(map: (string|number)[][], info: any, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary)){
         /*
             Method used to create all the cars
             @map (2dim Array)
@@ -213,7 +217,7 @@ export class AssetManger {
         */
         // Go through all the bot cars on the map
         for (let c in info.cars){
-            let options: CarOptions = {lidar: false, lidarInfo: {pts: 2, width: 0.5, height: 1, pos: 1}};
+            let options: CarOptions = {lidar: true, lidarInfo: {pts: 2, width: 0.5, height: 1, pos: 1}};
             if (info.cars[c].auto){
                 options.lidar = true;
                 options.motionEngine = new BotMotionEngine(this.level);
@@ -221,10 +225,11 @@ export class AssetManger {
             let n_car = new Car(this.level, info.cars[c], textures, options);
             // Append the car to the canvas
             this.level.addCar(n_car);
+            //this.level.addChild(n_car.lidar);
         }
     }
 
-    createAgent(map: (string|number)[][], info: LevelInfo, textures: PIXI.Texture){
+    createAgent(map: (string|number)[][], info: any, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary)){
         /*
             Method used to create the agent's car.
             @map (2dim Array)
@@ -244,6 +249,10 @@ export class AssetManger {
         return agent;
     }
 
+    addAsset(asset: any){
+        this.assets.push(asset);
+    }
+    
     exportMap(width: number, height: number, file_name: string){
         /*
             Export the map
@@ -251,8 +260,9 @@ export class AssetManger {
             @height (Integer) Height of the new map
             @file_name (String) name of the file to export
         */
-        var file = {"cars": []};
+        var file: any = {"cars": []};
         let map = [];
+        let envs = this.level.getEnvs();
         for (var y = 0; y < height; y++) {
             let line = [];
             for (var x = 0; x < width; x++) {
@@ -260,8 +270,8 @@ export class AssetManger {
             }
             map.push(line);
         }
-        for (var e = 0; e < this.level.envs.length; e++) {
-            let elem = this.level.envs[e];
+        for (var e = 0; e < envs.length; e++) {
+            let elem = envs[e];
             if (!elem.isremove){
                 // Add the cars
                 if (elem.mapId == MAP.CAR && !elem.agent && elem.is_valid){
@@ -300,7 +310,7 @@ export class AssetManger {
                 "motion": {
                     "type": "BasicMotionEngine",
                     "options":{
-                        "rotation_step": 0.5,
+                        "rotationStep": 0.5,
                         "actions": ["UP", "LEFT", "RIGHT", "DOWN", "WAIT"]
                     }
                 }

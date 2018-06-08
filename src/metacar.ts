@@ -2,26 +2,52 @@
     Main class of the project
 */
 
-import {Level} from "./level";
+import {Level, LevelInfo} from "./level";
+import * as U from "./utils";
 
 export class MetaCar {
 
     private isPlaying: boolean;
     private agent: any;
     private level: Level;
+    private canvasId: string;
+    private levelUrl: string;
 
-    constructor() {
+    constructor(canvasId: string, levelUrl: string) {
+        /**
+         * @canvasId: HTML canvas ID to used
+         * @level: URL or Local storage URL.
+         *  localstorage://level-name
+         *  embedded://
+         *  http(s)://
+        */
+        if (!canvasId || this.levelUrl){
+            console.error("You must specify the canvasId and the levelUrl");
+        }
+        this.isPlaying = false;
+        this.canvasId = canvasId;
+        this.levelUrl = levelUrl;
     }
 
-    load(level: string, agent: any){
+    load(level: string, agent: any): Promise<void>{
         /*
             Load the environement
             @level (String) Name of the json level to load
             @agent (Agent class)
         */
-        this.isPlaying = false;
+
+        return new Promise((resolve, reject) => {
+            U.loadCustomURL(this.levelUrl, (content: LevelInfo) => {
+                this.level = new Level(content, this.canvasId);
+                this.level.load((delta: number) => this.loop(delta));
+                resolve();
+            });
+        });
+
+        /*
+        
         this.agent = agent;
-        this.level = new Level(level);
+        this.level = new Level(level, "canvas");
         this.level.load((delta: number) => this.loop(delta));
 
         document.getElementById("train").addEventListener("click", () => {
@@ -45,6 +71,7 @@ export class MetaCar {
         document.getElementById("dumpFile").addEventListener("change", (e) => {
             //readDump(e, (content) => this.agent.restore(this, content));
         });
+        */
     }
 
     render(){
@@ -59,7 +86,7 @@ export class MetaCar {
         /*
             Save the agent
         */
-        saveAs(content, file_name);
+        U.saveAs(content, file_name);
     }
 
     actionSpace(){
@@ -97,10 +124,11 @@ export class MetaCar {
             This position
         */
         this.level.agent.last_position = [];
-        let keys = Object.keys(this.level.roads);
+        let roads = this.level.getRoads();
+        let keys = Object.keys(roads);
         keys.sort(function() {return Math.random()-0.5;});
         for (let k in keys){
-            let road = this.level.roads[keys[k]];
+            let road = roads[keys[k]];
             if (road.cars.length == 0){
                 road.setCarPosition(this.level.agent.core);
                 break;
@@ -115,7 +143,6 @@ export class MetaCar {
         else {
             this.level.step(delta);
         }
-        document.getElementById("rewardDisplay").innerHTML = this.level.last_reward;
     }
 
 }
