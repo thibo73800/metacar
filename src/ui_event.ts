@@ -5,17 +5,18 @@
 import {Level} from "./level";
 import {eventLoadOptions} from "./metacar";
 import * as U from "./utils";
+import { Editor } from "./editor";
 
 export class UIEvent {
 
     private playing: boolean;
     private canvasId: string;
     private buttonsContainer: HTMLDivElement;
-    private level: Level;
+    private level: Level|Editor;
 
     public playCallback: any;
 
-    constructor(level: Level, canvasId: string){
+    constructor(level: Level|Editor, canvasId: string){
         this.level = level;
         this.canvasId = this.canvasId;
         // Insert the event div
@@ -128,4 +129,18 @@ export class UIEvent {
             }
         });
     }
+
+    createEditorEvents(){
+
+        // [Input] Width
+        var input_file = document.createElement('input'); // create new textarea
+        input_file.type = "range";
+        input_file.min = "5";
+        input_file.max = "15";
+        input_file.value = "5";
+        input_file.classList.add("metacar_width_input");
+        input_file.id = "metacar_"+ this.canvasId + "_width_input";
+        this.buttonsContainer.appendChild(input_file);
+    }
+
 }

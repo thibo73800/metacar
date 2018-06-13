@@ -48,6 +48,7 @@ export interface CarSprite extends PIXI.Sprite {
     line?: number;
     haveTurned?: boolean;
     agent?: boolean;
+    v?: number;
 }
 
 export interface LidarChild extends PIXI.Graphics {
@@ -60,9 +61,9 @@ export class Car {
     public level: Level|Editor;
     public core: CarSprite;
     public lidar: any;
+    public motion: any;
 
     private info: CarInfo;
-    private motion: any;
     public turnedRandom: any;
 
     constructor(level: Level|Editor, info: CarInfo, textures: any, options:CarOptions={}) {

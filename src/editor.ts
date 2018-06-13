@@ -3,6 +3,8 @@ import { AssetManger, RoadSprite } from "./asset_manager";
 import { Car} from "./car";
 import {Loader, Sprite, JSON_TEXTURES, ROADSIZE, MAP, LEVEL_FOLDER} from "./global";
 import * as U from "./utils";
+import {UIEvent} from "./ui_event";
+import { World } from "./world";
 
 /*
     @Level class
@@ -10,33 +12,57 @@ import * as U from "./utils";
     services in the game (assets, map, agents...).
 */
 
-export class Editor {
+export class Editor extends World {
 
-    public app: PIXI.Application = null; // The pixi app.
-    // Informations on the level
-    private levelName: string;
-    private info: LevelInfo = null;
-    private envs: any[] = [] // Used to list all elements the car can crash with
-    public am: AssetManger;
-    public map: (string|number)[][] = null; // Use the roads positions of the level
-    public agent: any = null; // (@Car class) for the agent
-    // Object to store all the roads assets
-    // Each road is accesible as follow this.roads[[my, mx]]
-    // with my and mx the (x, y) position relative to the map (not pixel).
-    private cars: Car[] = []; // Array used to store all the cars assets
-    private loop: any = null; // Loop method called for each render
     // Current selector items by the editor
-    public selectedItems: any = null;
-    private canvasId: string; // Id of the target canvas
-    private roads: Roads = {};
+    private selectedItems: any = null;
+    private event: UIEvent;
     
-    constructor(levelName: string, canvasId: string) {
+    constructor(levelContent: LevelInfo, canvasId: string) {
         /*
             @levelName (String) Name of the level to load (.json)
         */
-        this.levelName = levelName;
-        this.canvasId = canvasId;
+        super(levelContent, canvasId);
         this.am = new AssetManger(this);
+    }
+
+    private _setEvents(): void{
+
+    }
+
+    protected _setup(info: LevelInfo){
+        /*
+            Setup all the element of the map
+            @info (Object) Level's json.
+        */
+        this._setEvents();
+        // Load the textures file
+        let textures = Loader.resources[JSON_TEXTURES].textures;
+        // Load all elements of the car
+        this.am.createMap(this.map, info, textures, false);
+        this.am.createCars(this.map, info, textures);
+        if (info.agent)
+            this.agent = this.am.createAgent(this.map, info, textures);
+
+        var that = this;
+        for (var i = 0; i < this.envs.length; i++) {
+            this.envs[i].interactive = true;
+            this.envs[i].on("rightclick", function(this: any) {that.removeItem(this)});
+        }
+        for (var i = 0; i < this.am.assets.length; i++) {
+            this.am.assets[i].interactive = true;
+            this.am.assets[i].on("rightclick", function(this: any) {that.removeItem(this)});
+        }
+
+        // Set up the main loop
+        this.app.ticker.add(delta => this.loop(delta));
+    }
+
+    public resize(width: number, height: number){
+        /*
+            Resize the map
+        */
+        this.app.renderer.resize(width * ROADSIZE, height * ROADSIZE);
     }
 
     selectedItem(item: any){
@@ -122,132 +148,6 @@ export class Editor {
         }
         this.app.stage.removeChild(this.selectedItems);
         this.selectedItems = null;
-    }
-
-    load(loop: any){
-        /*
-            Load the map from the file given in the constructor of the class
-            @loop (Method) This method will be call for each render
-        */
-        this.loop = loop;
-        return new Promise((resolve, reject) => {
-            // Load the level
-            U.loadJSON(LEVEL_FOLDER + this.levelName, (response: any) => {
-                // Parse JSON string into object
-                this.info = JSON.parse(response);
-                this.createLevel(this.info).then(() => resolve());
-            });
-        });
-    }
-
-    createLevel(info: LevelInfo){
-        /*
-            Create the level
-            @info (Object) Level's json.
-        */
-        this.map = info.map; // Store the map to let it accessible faster later on.
-        //Create the Pixi Application
-        this.app = new PIXI.Application({
-            width: this.map[0].length * ROADSIZE,
-            height: this.map.length * ROADSIZE,
-            backgroundColor: 0x80bf3e
-          }
-        );
-        // Append the app to the body
-        document.getElementById(this.canvasId).appendChild(this.app.view);
-
-        return new Promise((resolve, reject) => {
-            Loader.add(["textures/textures.json", "textures/textures.png"]).load(() => {
-                    this.setup(info); // Set up the level (Add assets)
-                    resolve();
-            });
-        });
-    }
-
-    setup(info: any){
-        /*
-            Setup all the element of the map
-            @info (Object) Level's json.
-        */
-        // Load the textures file
-        let textures = Loader.resources[JSON_TEXTURES].textures;
-        // Load all elements of the car
-        this.am.createMap(this.map, info, textures, false);
-        this.am.createCars(this.map, info, textures);
-        if (info.agent)
-            this.agent = this.am.createAgent(this.map, info, textures);
-
-        var that = this;
-        for (var i = 0; i < this.envs.length; i++) {
-            this.envs[i].interactive = true;
-            this.envs[i].on("rightclick", function(this: any) {that.removeItem(this)});
-        }
-        for (var i = 0; i < this.am.assets.length; i++) {
-            this.am.assets[i].interactive = true;
-            this.am.assets[i].on("rightclick", function(this: any) {that.removeItem(this)});
-        }
-
-        // Set up the main loop
-        this.app.ticker.add(delta => this.loop(delta));
-    }
-
-    resize(width: number, height: number){
-        /*
-            Resize the map
-        */
-        this.app.renderer.resize(width * ROADSIZE, height * ROADSIZE);
-    }
-
-    addChild(child: any){
-        /**
-         * Add child to the app
-         */
-        this.app.stage.addChild(child);
-    }
-
-    addCar(car: Car){
-        /**
-         * Add car to the level
-        */
-       this.cars.push(car);
-       this.app.stage.addChild(car.core);
-       this.envs.push(car.core);
-    }
-
-    getMap(): (string|number)[][] {
-        return this.map;
-    }
-
-    getEnvs(): any[] {
-        /**
-         * Return the list of envs
-         * /
-        */
-       return this.envs;
-    }
-
-    addRoad(road: RoadSprite){
-        /*
-            Add road using the mx and my positions
-        */
-       this.roads[[road.my.toString(), road.mx.toString()].toString()] = road;
-       this.envs.push(road);
-       this.app.stage.addChild(road);
-    }
-
-    findCarById(id: number){
-        /*
-            Find car by @id
-        */
-        return this.cars.find((e: any) => {return e.car_id == id});
-    }
-
-    getRoad(my: number, mx: number){
-        return this.roads[[my.toString(), mx.toString()].toString()];
-    }
-
-    getRoads(){
-        return this.roads;
     }
 }
 

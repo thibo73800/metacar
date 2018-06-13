@@ -165,7 +165,6 @@ export class MetaCar {
         /*
             This position
         */
-        this.level.agent.last_position = [];
         let roads = this.level.getRoads();
         let keys = Object.keys(roads);
         keys.sort(function() {return Math.random()-0.5;});

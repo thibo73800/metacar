@@ -10,6 +10,7 @@ import {
 import {AssetManger, RoadSprite} from "./asset_manager";
 
 import {Car, CarSprite} from "./car";
+import {World} from "./world";
 
 export interface LevelInfo {
     map: (string|number)[][];
@@ -21,77 +22,19 @@ export interface Roads {
     [key: string]: RoadSprite
 }
 
-export class Level {
-
-    public app: any = null; // The pixi app.
-    private info: LevelInfo = null;  // Information of the loaded level
-    private envs: any[] = [] // Used to list all elements the car can crash with
-    private map: (string|number)[][] = null; // Use the roads positions of the level
-    public agent: any = null; // (@Car class) for the agent
-    // Object to store all the roads assets
-    // Each road is accesible as follow this.roads[[my, mx]]
-    // with my and mx the (x, y) position relative to the map (not pixel).
-    private roads: Roads = {};
-    private cars: Car[] = []; // Array used to store all the cars assets
-    private loop: any; // Loop method called for each render
-    private am: AssetManger;  // The AssetManger is used to set most of the elements on the map
-    private canvasId: string; // Id of the target canvas
+export class Level extends World {
 
     constructor(levelContent: LevelInfo, canvasId: string) {
         /*
             @levelContent: Content of the level
             @canvasID: HTML canvas id
         */
-        this.info = levelContent;
+        super(levelContent, canvasId);
         this.map = this.info.map;
-        this.canvasId = canvasId;
         this.am = new AssetManger(this);
     }
 
-    load(loop: any){
-        /*
-            Load the map from the file given in the constructor of the class
-            @loop (Method) This method will be call for each render
-        */
-        this.loop = loop;
-        return new Promise((resolve, reject) => {
-            this.createLevel(this.info).then(() => resolve());
-        });
-    }
-
-    render(val: boolean){
-        if (val){
-            this.app.ticker.start();
-        }
-        else{
-            this.app.ticker.stop();
-        }
-    }
-
-    createLevel(info: LevelInfo){
-        /*
-            Create the level
-            @info Information about the level
-        */
-        //Create the Pixi Application
-        this.app = new PIXI.Application({
-            width: this.map[0].length * ROADSIZE,
-            height: this.map.length * ROADSIZE,
-            backgroundColor: 0x80bf3e
-          }
-        );
-        // Append the app to the body
-        document.getElementById(this.canvasId).appendChild(this.app.view);
-
-        return new Promise((resolve, reject) => {
-            Loader.add(["public/textures/textures.json", "public/textures/textures.png"]).load(() => {
-                    this.setup(info); // Set up the level (Add assets)
-                    resolve();
-            });
-        });
-    }
-
-    setup(info: LevelInfo){
+    protected _setup(info: LevelInfo){
         /*
             Setup all the element of the map
         */
@@ -106,7 +49,7 @@ export class Level {
         this.app.ticker.add((delta: number) => this.loop(delta));
     }
 
-    reset(){
+    public reset(){
         /*
             Reset the game.
             For the moment, only the agent position is reset.
@@ -158,57 +101,5 @@ export class Level {
          * Stop to render the canvas
         */
        this.app.ticker.stop();
-    }
-
-    addChild(child: any){
-        /**
-         * Add child to the app
-         */
-        this.app.stage.addChild(child);
-    }
-
-    addRoad(road: RoadSprite){
-        /*
-            Add road using the mx and my positions
-        */
-       this.roads[[road.my.toString(), road.mx.toString()].toString()] = road;
-       this.envs.push(road);
-       this.app.stage.addChild(road);
-    }
-
-    addCar(car: Car){
-        /**
-         * Add car to the level
-        */
-       this.cars.push(car);
-       this.app.stage.addChild(car.core);
-       this.envs.push(car.core);
-    }
-
-    getRoad(my: number, mx: number){
-        return this.roads[[my.toString(), mx.toString()].toString()];
-    }
-
-    getRoads(){
-        return this.roads;
-    }
-
-    findCarById(id: number){
-        /*
-            Find car by @id
-        */
-        return this.cars.find((e: any) => {return e.car_id == id});
-    }
-
-    getEnvs(): any[] {
-        /**
-         * Return the list of envs
-         * /
-        */
-       return this.envs;
-    }
-
-    getMap(): (string|number)[][] {
-        return this.map;
     }
 }
