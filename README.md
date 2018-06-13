@@ -5,6 +5,6 @@
 </ul>
 
 
-###Getting-started
+###Getting started
 
 Here is the getting started
