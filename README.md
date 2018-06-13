@@ -1,56 +1,41 @@
-# Quickstart for Node.js in the App Engine flexible environment
+# Documentation
 
-This is the sample application for the
-[Quickstart for Node.js in the App Engine flexible environment][tutorial]
-tutorial found in the [Google App Engine Node.js flexible environment][appengine]
-documentation.
+### Table of contents:
+1. [Getting Started](#getting-started)
+2. [Your first environement](#first-env)
+2. [Interact with the environement](#interact-env)
+2. [Other events](#interact-env)
 
-* [Setup](#setup)
-* [Running locally](#running-locally)
-* [Deploying to App Engine](#deploying-to-app-engine)
-* [Running the tests](#running-the-tests)
+<a id='getting-started'></a>
+Getting Started
 
-## Setup
+npm install, from typescript and from include.
+Say ton include pixi.js!
 
-Before you can run or deploy the sample, you need to do the following:
+------------
 
-1.  Refer to the [appengine/README.md][readme] file for instructions on
-    running and deploying.
-1.  Install dependencies:
+<a id='first-env'></a>
+Your first environement
+------------
 
-    With `npm`:
+<a id='interact-env'></a>
+Interact with the environement
+------------
 
-        npm install
+#### Create your first event
+#### Train your agent
 
-    or with `yarn`:
+<a id='interact-env'></a>
+Other events
+------------
 
-        yarn install
+#### event1
+Description
 
-## Running locally
+#### event2
+Description
 
-With `npm`:
+#### Custom event
+Custom event description
 
-    npm start
 
-or with `yarn`:
-
-    yarn start
-
-## Deploying to App Engine
-
-With `npm`:
-
-    npm run deploy
-
-or with `yarn`:
-
-    yarn run deploy
-
-## Running the tests
-
-See [Contributing][contributing].
-
-[appengine]: https://cloud.google.com/appengine/docs/flexible/nodejs
-[tutorial]: https://cloud.google.com/appengine/docs/flexible/nodejs/quickstart
-[readme]: ../../README.md
-[contributing]: https://github.com/GoogleCloudPlatform/nodejs-docs-samples/blob/master/CONTRIBUTING.md
