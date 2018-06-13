@@ -15,6 +15,18 @@ export interface MotionOption{
     readonly actions: string[];
 }
 
+/**
+ * Structure used to describe the action space.
+ * @type: Discrete or continous values
+ * @size: Number of expected values.
+ * @range: Range of each values
+*/
+export interface actionSpaceDescription {
+    type: "Discrete"|"Continous"
+    size: number,
+    range: number[]
+}
+
 export class MotionEngine {
 
     protected level: Level|Editor;

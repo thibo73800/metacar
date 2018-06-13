@@ -1,5 +1,4 @@
 /*
-    @Level class
     This is the core of game, the class is used create all the differents
     services in the game (assets, map, agents...).
 */
@@ -122,7 +121,7 @@ export class Level {
             TODO: Let's the reward define in the agent class
         */
         let reward = -0.1;
-        if (action == 0 || this.agent.core.vx == 1)
+        if (action == 0 || this.agent.core.v == 1)
             reward += 0.5;
         if (agent_col.length > 0){
             reward = -10;
@@ -193,7 +192,7 @@ export class Level {
     getRoads(){
         return this.roads;
     }
-    
+
     findCarById(id: number){
         /*
             Find car by @id

@@ -173,7 +173,7 @@ export class Car {
         }
     }
 
-    getState(){
+    getState(): number[][]{
         /*
             Get the current state of the car
             The state is the current value of each point

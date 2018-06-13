@@ -6,6 +6,7 @@ import {
 } from "./global";
 
 import * as U from "./utils";
+import {actionSpaceDescription} from "./motion_engine";
 
 export class BasicMotionEngine extends MotionEngine {
     /*
@@ -123,12 +124,15 @@ export class BasicMotionEngine extends MotionEngine {
         return {agent_col, on_road};
     }
 
-    actionSpace(){
+    actionSpace(): actionSpaceDescription{
         /*
-            Return an array with all possibles actions
-            Ex: [0, 1, 2]
+            Return a description of the action space.
         */
-        return Array.apply(null, {length: this.actions.length}).map(Number.call, Number);
+        return {
+            type: "Discrete",
+            size: 1,
+            range: [0, 2]
+        }
     }
 
     step(delta: number){
