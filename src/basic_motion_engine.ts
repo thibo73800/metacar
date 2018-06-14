@@ -1,4 +1,4 @@
-import { MotionEngine, MotionOption } from "./motion_engine";
+import { MotionEngine} from "./motion_engine";
 import {Level} from "./level";
 
 import {
@@ -7,6 +7,11 @@ import {
 
 import * as U from "./utils";
 import {actionSpaceDescription} from "./motion_engine";
+
+export interface BasicMotionOptions{
+    readonly rotationStep?: number;
+    readonly actions?: string[];
+}
 
 export class BasicMotionEngine extends MotionEngine {
     /*
@@ -17,10 +22,10 @@ export class BasicMotionEngine extends MotionEngine {
     private rotationStep: number;
     private actions: string[];
 
-    constructor(level: Level, options: MotionOption) {
+    constructor(level: Level, options: BasicMotionOptions) {
         super(level);
-        this.rotationStep = options.rotationStep;
-        this.actions = options.actions;
+        this.rotationStep = options.rotationStep || 0.5;
+        this.actions = options.actions || ["UP", "LEFT", "RIGHT", "DOWN", "WAIT"];
     }
 
     setUp(car: any, lidar: any){
@@ -131,7 +136,7 @@ export class BasicMotionEngine extends MotionEngine {
         return {
             type: "Discrete",
             size: 1,
-            range: [0, 2]
+            range: [0, 1, 2, 3, 4]
         }
     }
 

@@ -1,5 +1,6 @@
 import {fullCity} from "./embedded/level/full_city";
 import {level1} from "./embedded/level/level_1";
+import {level0} from "./embedded/level/level_0";
 
 /**
  * Object used to enumerate each
@@ -10,18 +11,21 @@ import {level1} from "./embedded/level/level_1";
  * 
 */
 export interface embeddedUrlI {
-    fullCity: string
-    level1: string
+    fullCity: string;
+    level1: string;
+    level0: string;
 };
 
 export const embeddedUrl: embeddedUrlI = {
     fullCity: "embedded://level/fullCity",
-    level1: "embedded://level/level1"
+    level1: "embedded://level/level1",
+    level0: "embedded://level/level0"
 }
 
 export const embeddedContent: any = {
     level: {
         fullCity: fullCity,
-        level1: level1
+        level1: level1,
+        level0: level0
     }
 }

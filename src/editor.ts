@@ -103,7 +103,6 @@ export class Editor extends World {
             this.agent = undefined;
         this.app.stage.removeChild(item);
         item.isremove = true;
-        console.log(item.isremove, item.agent, this.agent);
     }
 
     exportMap(width: number, height: number, file_name: string, download: boolean): any{

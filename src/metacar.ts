@@ -3,9 +3,12 @@
 */
 
 import {Level, LevelInfo} from "./level";
-import {actionSpaceDescription} from "./motion_engine";
+import {actionSpaceDescription, MotionEngine} from "./motion_engine";
 import {UIEvent} from "./ui_event";
 import * as U from "./utils";
+import { BasicMotionEngine, BasicMotionOptions } from "./basic_motion_engine";
+import { ControlMotionEngine } from "./control_motion_engine";
+import { LidarInfoI } from "./car";
 
 /**
  * @local Chooce whether to load a file from the computer.
@@ -24,6 +27,9 @@ export class MetaCar {
     private eventList: string[] = ["train", "play", "stop", "reset_env", "load"]
     private eventCallback: any[];
     private event: UIEvent;
+    private agentMotionEngine: typeof BasicMotionEngine|typeof ControlMotionEngine = BasicMotionEngine;
+    private agentMotionOptions: BasicMotionOptions = {}
+    private agentLidarInfo: LidarInfoI;
 
     /**
      * Class used to create a new environement.
@@ -48,7 +54,9 @@ export class MetaCar {
             console.log(typeof this.levelToLoad, this.levelToLoad);
             if (typeof this.levelToLoad == "string"){
                 U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
-                    this.level = new Level(content, this.canvasId);    
+                    this.level = new Level(content, this.canvasId);
+                    this.level.setAgentMotion(this.agentMotionEngine, this.agentMotionOptions);
+                    this.level.setAgentLidar(this.agentLidarInfo);
                     this._setEvents();
                     this.level.load((delta: number) => this._loop(delta));
                     resolve();
@@ -56,13 +64,36 @@ export class MetaCar {
             }
             else{
                 this.level = new Level(<LevelInfo>this.levelToLoad, this.canvasId);    
+                this.level.setAgentMotion(this.agentMotionEngine, this.agentMotionOptions);
+                this.level.setAgentLidar(this.agentLidarInfo);
                 this._setEvents();
                 this.level.load((delta: number) => this._loop(delta));
                 resolve(); 
             }
         });
     }
-    
+
+    /**
+     * 
+     * options Options to change the lidar options of the agent.
+     * Changing the lidar change the state representation of the car in the
+     * environement.
+     */
+    public setAgentLidar(options: LidarInfoI){
+        this.agentLidarInfo = options;
+    }
+
+    /**
+     * Change the motion engine of the agent. BasicMotionEngine by default.
+     * This method should be called before to called 'load'.
+     * @motion The motion engine to used for the agent when the environement is loaded.
+     * @options Options to change the behavior of the motion engine.
+     */
+    public setAgentMotion(motion: typeof BasicMotionEngine|typeof ControlMotionEngine, options: BasicMotionOptions){
+        this.agentMotionEngine = motion;
+        this.agentMotionOptions = options;
+    }
+
     /**
      * This method is used to add a button under the canvas. When a
      * click is detected on the window, the associated @fc is called.

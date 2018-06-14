@@ -10,11 +10,6 @@ import {
 } from "./global";
 import { Editor } from "./editor";
 
-export interface MotionOption{
-    readonly rotationStep?: number;
-    readonly actions: string[];
-}
-
 /**
  * Structure used to describe the action space.
  * @type: Discrete or continous values
@@ -38,15 +33,23 @@ export class MotionEngine {
         this.level = level;
     }
 
-    protected boxesIntersect(a: any, b: any) {
+    protected boxesIntersect(a: any, b: any, reduce: boolean) {
         /*
             Chack if a the two elements intersect each others
             @a (Pixi sprite)
             @b (Pixi sprite)
         */
-        var ab = a.getBounds();
-        var bb = b.getBounds();
-        return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
+       var ab = a.getBounds();
+       var bb = b.getBounds();
+
+       if (reduce){
+            ab.width = 15;
+            ab.height = 15;
+            bb.width = 15;
+            bb.height = 15;   
+       }
+
+       return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
     }
 
     protected detectInteractions(){
@@ -63,13 +66,13 @@ export class MotionEngine {
         let on_road = false;
 
         for (let i = 0; i < envs.length; i++) {
-            if (envs[i] != this.car && envs[i].obstacle && this.boxesIntersect(envs[i], this.car)){
+            if (envs[i] != this.car && envs[i].obstacle && this.boxesIntersect(envs[i], this.car, true)){
                 agent_col.push(envs[i]);
             }
-            else if (envs[i].mapId == MAP.ROAD && this.boxesIntersect(envs[i], this.car)){
+            else if (envs[i].mapId == MAP.ROAD && this.boxesIntersect(envs[i], this.car, false)){
                 on_road = true;
             }
-            if (this.boxesIntersect(envs[i], this.lidar)){
+            if (this.boxesIntersect(envs[i], this.lidar, false)){
                 lidar_collisions.push(envs[i]);
             }
         }
@@ -86,7 +89,7 @@ export class MotionEngine {
         let pt_id = 0;
 
         for (var i = 0; i < this.lidar.children.length; i++) {
-            this.lidar.children[i].alpha = 0.1;
+            this.lidar.children[i].alpha = 0.3;
             if (this.lidar.children[i].pt){ // If this is a lidar point
 
                 let pt_y = Math.floor(pt_id/this.lidar.pts);

@@ -11,3 +11,14 @@ function mean(array){
     var avg = sum / array.length;
     return avg;
 }
+
+function argMax(array) {
+    /*
+        Return the argmax of an array.
+        TODO: Should be replace soon by the usage of Tensorflow.js
+    */
+    if (array.every((v) => v == -Infinity)){
+        return Math.floor(Math.random()*array.length);
+    }
+    return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
+}

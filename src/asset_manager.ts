@@ -10,11 +10,12 @@ import {
     ROADSIZE, Graphics, Sprite, ASSETS, MAP, CAR_IMG
 } from "./global";
 
-import {CarOptions, Car} from "./car";
+import {CarOptions, Car, LidarInfoI} from "./car";
 import {BasicMotionEngine} from "./basic_motion_engine";
 import {ControlMotionEngine} from "./control_motion_engine";
 import {BotMotionEngine} from "./bot_motion_engine";
 import { Editor } from "./editor";
+import { MotionEngine } from "./motion_engine";
 
 export interface AssetInfo {
     readonly mx?: number;
@@ -58,6 +59,9 @@ export class AssetManger {
     private motion: any;
     // List of all items on the map
     public assets: SimpleSprite[] = [];
+    private agentMotionEngine: any = BasicMotionEngine;
+    private agentMotionOptions: Object = {};
+    private agentLidarInfo: LidarInfoI = {};
 
     constructor(level: Level|Editor) {
         this.level = level;
@@ -65,6 +69,27 @@ export class AssetManger {
             "BasicMotionEngine": BasicMotionEngine,
             "ControlMotionEngine": ControlMotionEngine
         }
+    }
+
+    /**
+     * 
+     * options Options to change the lidar options of the agent.
+     * Changing the lidar change the state representation of the car in the
+     * environement.
+     */
+    public setAgentLidar(options: LidarInfoI){
+        this.agentLidarInfo = options;
+    }
+
+    /**
+     * Change the motion engine of the agent. BasicMotionEngine by default.
+     * This method should be called before to called 'load'.
+     * @motion The motion engine to used for the agent when the environement is loaded.
+     * @options Options to change the behavior of the motion engine.
+     */
+    public setAgentMotion(motion: any, options: Object){
+        this.agentMotionEngine = motion;
+        this.agentMotionOptions = options;
     }
 
     createRoadSide(info: AssetInfo, textures: any){
@@ -221,7 +246,7 @@ export class AssetManger {
         for (let c in info.cars){
             let options: CarOptions = {lidar: true, lidarInfo: {pts: 2, width: 0.5, height: 1, pos: 1}};
             options.lidar = true;
-            options.motionEngine = new BotMotionEngine(this.level);
+            //options.motionEngine = new BotMotionEngine(this.level);
             let n_car = new Car(this.level, info.cars[c], textures, options);
             // Append the car to the canvas
             this.level.addCar(n_car);
@@ -236,14 +261,11 @@ export class AssetManger {
             @info (Object) Level's json.
             @textures: (Pixi textures)
         */
-        const motionOptions = {
-            "rotationStep": 0.5,
-            "actions": ["UP", "LEFT", "RIGHT", "DOWN", "WAIT"]
-        }
         let agent = new Car(this.level, info.agent, textures, {
             image: CAR_IMG.AGENT,
             lidar: true,
-            motionEngine: new BasicMotionEngine(<Level>this.level, motionOptions)
+            lidarInfo: this.agentLidarInfo,
+            motionEngine: new this.agentMotionEngine(<Level>this.level, this.agentMotionOptions)
         });
 
         this.level.addChild(agent.lidar)

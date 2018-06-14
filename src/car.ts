@@ -213,11 +213,15 @@ export class Car {
                 @width: Width of the lidar (in proportion to the car)
                 @height: Height of the lidar (in proportion to the car)
         */
+       lidarOptions.pts = lidarOptions.pts || 5;
+       lidarOptions.width = lidarOptions.width || 4;
+       lidarOptions.height = lidarOptions.height || 5;
+       lidarOptions.pos = lidarOptions.pos || 0;
+
         this.lidar = new Container();
         // Area of the lidar
         let area: LidarChild = new Graphics();
         area.pt = false;
-        area.alpha = 0.5;
         area.beginFill(0x515151);
         area.drawRect(0, 0, this.core.width*lidarOptions.width, this.core.height*lidarOptions.height);
         area.endFill();

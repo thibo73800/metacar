@@ -9,8 +9,10 @@ import {
 } from "./global";
 import {AssetManger, RoadSprite} from "./asset_manager";
 
-import {Car, CarSprite} from "./car";
+import {Car, CarSprite, LidarChild, LidarInfoI} from "./car";
 import {World} from "./world";
+import { BasicMotionEngine, BasicMotionOptions } from "./basic_motion_engine";
+import { ControlMotionEngine } from "./control_motion_engine";
 
 export interface LevelInfo {
     map: (string|number)[][];
@@ -32,6 +34,26 @@ export class Level extends World {
         super(levelContent, canvasId);
         this.map = this.info.map;
         this.am = new AssetManger(this);
+    }
+
+    /**
+     * Change the motion engine of the agent. BasicMotionEngine by default.
+     * This method should be called before to called 'load'.
+     * @motion The motion engine to used for the agent when the environement is loaded.
+     * @options Options to change the behavior of the motion engine.
+     */
+    public setAgentMotion(motion: typeof BasicMotionEngine|typeof ControlMotionEngine, options: BasicMotionOptions){
+        this.am.setAgentMotion(motion, options);
+    }
+
+    /**
+     * 
+     * options Options to change the lidar options of the agent.
+     * Changing the lidar change the state representation of the car in the
+     * environement.
+     */
+    public setAgentLidar(options: LidarInfoI){
+        this.am.setAgentLidar(options);
     }
 
     protected _setup(info: LevelInfo){
@@ -82,10 +104,10 @@ export class Level extends World {
             @action: (Integer) The action to take (can be null if no action)
         */
         // Go through all cars to move each one
-        for (var c = 0; c < this.cars.length; c++) {
-            if (this.cars[c].lidar && !this.cars[c].core.agent) // If this car can move
-                this.cars[c].step(delta);
-        }
+        //for (var c = 0; c < this.cars.length; c++) {
+        //    if (this.cars[c].lidar && !this.cars[c].core.agent) // If this car can move
+        //        this.cars[c].step(delta);
+        //}
         // Move the agent
         if (this.agent){
             let {agent_col, on_road} = this.agent.step(delta, action);
