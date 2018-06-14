@@ -97,14 +97,6 @@ export class UIEvent {
             if (fc) fc();
         });
     }
-
-    public onResetAgent(fc: any){
-        // Create the button
-        const button = this._createButton(this.buttonsContainer, "reset_agent");
-        button.addEventListener("click", () => {
-            if (fc) fc();
-        });
-    }
  
     public onCustomEvent(name: string, fc: any){
         // Create the button

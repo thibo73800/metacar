@@ -22,7 +22,7 @@ class PolicyAgent {
             Build the Value function
             @weights (Object) Weights for the layer
         */
-        const LEARNING_RATE = 0.01;
+        const LEARNING_RATE = 0.05;
         const value_optimizer = tf.train.adam(LEARNING_RATE);
         /*
             -----------------------
@@ -59,7 +59,7 @@ class PolicyAgent {
             Build the policy network
             @weights (Object) Weights for the layer
         */
-        const LEARNING_RATE = 0.01;
+        const LEARNING_RATE = 0.05;
         this.policy_optimizer = tf.train.adam(LEARNING_RATE);
         /*
             -----------------------
@@ -123,17 +123,21 @@ class PolicyAgent {
     trainPolicy(states, actions, advantages, batch_size, mini_batch_size){
         /*
             Train the policy model
-            @states (Js array)
-            @actions (Js array)
-            @advantages (Js array)
+            @states Tensor2D
+            @actions Tensor2D
+            @advantages Tensor2D
             @batch_size (Integer) Size of the batch size
             @mini_batch_size (Integer) Size of each mini batch size
          */
-        for (var b = 0; b < batch_size; b+=mini_batch_size) {
+        const size = states.shape[0];
 
-            const tf_states = tf.tensor3d(states.slice(b, b+mini_batch_size)).reshape([-1, this.ttLidarPts]);
-            const tf_actions = tf.tensor1d(actions.slice(b, b+mini_batch_size), "int32");
-            const tf_advantages = tf.tensor1d(advantages.slice(b, b+mini_batch_size));
+        for (var b = 0; b < batch_size; b+=mini_batch_size) {
+        
+            let to = (b + mini_batch_size < size) ?  mini_batch_size  : (size - b);
+
+            const tf_states = states.slice(b, to);
+            const tf_actions = actions.slice(b, to);
+            const tf_advantages = advantages.slice(b, to);
 
             this.policy_optimizer.minimize(() => {
                 let softmaxs = this.policyPredict(tf_states);
@@ -152,7 +156,7 @@ class PolicyAgent {
         // Maximum number of step per episode
         this.nb_step = 800;
         this.mini_batch_size = 200;
-        this.episodeNb = 250;
+        this.episodeNb = 100;
     }
 
     save(env){
@@ -211,28 +215,32 @@ class PolicyAgent {
             let reward = 0;
             const rewards = [];
             const states = [];
+            const stateValues = [];
             const actions = [];
 
             console.log("---");
             console.time("Exploring");
             for (var step = 0; step < this.nb_step; step++) {
                 // Get the current state
-                const array_st = this.env.getState();
+                const array_st = this.env.getState(true);
                 // Convert the state into a tensor
-                const st = tf.tensor(array_st, [this.lidarPts, this.lidarPts]).reshape([1, this.ttLidarPts]);
+                //const st = tf.tensor(array_st, [this.lidarPts, this.lidarPts]).reshape([1, this.ttLidarPts]);
+                const st = tf.tensor2d([array_st]);
                 // Predict the policy
-                const softmax = this.policyPredict(st);
+                const softmax = this.policyModel.predict(st);
+                // Predict the value
+                const value = this.valueModel.predict(st);
                 // Get the action. Pseudo Random choice. We prefer action with
                 // Higher probability
                 const action = randomChoice(softmax.buffer().values);
                 // Create the next batch
                 rewards.push(reward);
                 states.push(array_st);
+                stateValues.push(value);
                 actions.push(action);
                 // Stop the episode if the car go out of the road or crash an
                 // other car
                 if (reward == -10){
-                    console.log("Early stop Episode");
                     softmax.dispose();
                     st.dispose();
                     break;
@@ -258,24 +266,28 @@ class PolicyAgent {
                 G = rewards[t] + (this.gamma*G);
                 returns.push(G);
                 // Predict the value function for this state
-                const st = tf.tensor2d(states[t], [this.lidarPts, this.lidarPts]).reshape([1, this.ttLidarPts]);
-                const Vs = this.valueModel.predict(st);
+                const V = stateValues[t];
                 // Advantage
-                advantages.push(G - Vs.buffer().values[0]);
-                st.dispose();
-                Vs.dispose();
+                advantages.push(G - V.buffer().values[0]);
+                V.dispose();
             }
             returns = returns.reverse();
             advantages = advantages.reverse();
 
             // Train the value model
-            const tf_batch_states = tf.tensor3d(states).reshape([batch_size, this.ttLidarPts]);
+            const tf_batch_states = tf.tensor2d(states);
             const tf_value_target = tf.tensor1d(returns);
+            const tf_actions = tf.tensor1d(actions, "int32");
+            const tf_advantages = tf.tensor1d(advantages);
             await this.trainValueFc(tf_batch_states, tf_value_target, mini_batch_size);
+            // Train the policy model
+            this.trainPolicy(tf_batch_states, tf_actions, tf_advantages, batch_size, mini_batch_size);
+
             tf_batch_states.dispose();
             tf_value_target.dispose();
-            // Train the policy model
-            this.trainPolicy(states, actions, advantages, batch_size, mini_batch_size);
+            tf_actions.dispose();
+            tf_advantages.dispose();
+
             // Set the agent on a new free road
             this.env.randomRoadPosition();
             //env.reset();

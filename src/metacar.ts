@@ -7,6 +7,10 @@ import {actionSpaceDescription} from "./motion_engine";
 import {UIEvent} from "./ui_event";
 import * as U from "./utils";
 
+/**
+ * @local Chooce whether to load a file from the computer.
+ * A popup is open if True.
+ */
 export interface eventLoadOptions {
     local: boolean;
 }
@@ -17,44 +21,28 @@ export class MetaCar {
     private level: Level;
     private canvasId: string;
     private levelToLoad: string|Object;
-    private eventList: string[] = ["train", "play", "stop", "reset_env", "reset_agent", "load"]
+    private eventList: string[] = ["train", "play", "stop", "reset_env", "load"]
     private eventCallback: any[];
     private event: UIEvent;
 
+    /**
+     * Class used to create a new environement.
+     * @canvasId: HTML canvas ID
+     * @levelToLoad: URL of the level or directly the level's object.
+     *  URL format: embedded://... or http(s)://...
+    */
     constructor(canvasId: string, levelToLoad: string|Object) {
-        /**
-         * @canvasId: HTML canvas ID to used
-         * @level: URL or Local storage URL.
-         *  localstorage://level-name
-         *  embedded://
-         *  http(s)://
-        */
-        if (!canvasId || this.levelToLoad){
+        if (!canvasId || !levelToLoad){
             console.error("You must specify the canvasId and the levelToLoad");
         }
         this.canvasId = canvasId;
         this.levelToLoad = levelToLoad;
     }
 
-    private _setEvents(){
-        // SetEvents callback
-        this.event = new UIEvent(this.level, this.canvasId);
-        this.eventCallback = [
-            (fc: any) => this.event.onTrain(fc),
-            (fc: any) => this.event.onPlay(fc),
-            (fc:any) => this.event.onStop(fc),
-            (fc: any) => this.event.onResetEnv(fc),
-            (fc: any) => this.event.onResetAgent(fc),
-            (fc: any, opt: eventLoadOptions) => this.event.onLoad(fc, opt)
-        ];
-    }
-
-    load(level: string, agent: any): Promise<void>{
-        /*
-            Load the environement
-            @level (String) Name of the json level to load
-            @agent (Agent class)
-        */
+    /*
+        Load the environement with the parameters passed in the constructor.
+    */
+    public load(): Promise<void>{
 
         return new Promise((resolve, reject) => {
             console.log(typeof this.levelToLoad, this.levelToLoad);
@@ -62,56 +50,34 @@ export class MetaCar {
                 U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
                     this.level = new Level(content, this.canvasId);    
                     this._setEvents();
-                    this.level.load((delta: number) => this.loop(delta));
+                    this.level.load((delta: number) => this._loop(delta));
                     resolve();
                 });
             }
             else{
                 this.level = new Level(<LevelInfo>this.levelToLoad, this.canvasId);    
                 this._setEvents();
-                this.level.load((delta: number) => this.loop(delta));
+                this.level.load((delta: number) => this._loop(delta));
                 resolve(); 
             }
         });
-
-        /*
-        
-        this.agent = agent;
-        this.level = new Level(level, "canvas");
-        this.level.load((delta: number) => this.loop(delta));
-
-        document.getElementById("train").addEventListener("click", () => {
-            this.level.app.ticker.stop(); // .add(delta => this.loop(delta));
-            this.agent.train(this);
-        });
-        document.getElementById("stop").addEventListener("click", () => {
-            this.isPlaying = false;
-            this.level.render();
-            this.agent.stop();
-        });
-        document.getElementById("reset").addEventListener("click", () => {
-            this.level.reset();
-        });
-        document.getElementById("play").addEventListener("click", () => {
-            this.isPlaying = true
-        });
-        document.getElementById("saveAgent").addEventListener("click", () => {
-            this.agent.save(this);
-        });
-        document.getElementById("dumpFile").addEventListener("change", (e) => {
-            //readDump(e, (content) => this.agent.restore(this, content));
-        });
-        */
     }
     
     /**
-     * This method is used to add button under the canvas. When a
+     * This method is used to add a button under the canvas. When a
      * click is detected on the window, the associated @fc is called.
      * Some events are recognized by the environement, others can be custom.
+     * The following are recognized:
+     * - train: The render is stopped before to called @fc. You must called render(true) once your training is done.
+     * - play: Your function (@fc) will be called at each frame update.
+     * - stop: The last function passed to the play event will not be called anymore. Then @fc is called.
+     * - reset_env: Reset the environement. Then, @fc is called.
+     * - load: Load: @fc is called. You can set @options to {local:true} to load the content of a file from your computer.
+     * If @options is set, a content variable will be passed to the @fc function (the content of the selected file).
      * @eventName Name of the event to listen.
      * @fc Function to call each time this event is raised.
      */
-    addEvent(eventName: string, fc: any, options?: eventLoadOptions):void {
+    public addEvent(eventName: string, fc: any, options?: eventLoadOptions):void {
         const index = this.eventList.indexOf(eventName);
         if (index == -1){
             this.event.onCustomEvent(eventName, fc);
@@ -126,14 +92,20 @@ export class MetaCar {
         }
     }
 
-    render(val: boolean){
-        /*
-            Choose whether to render the environement.
-        */
+    /**
+     * Choose whether to render the environement.
+     * @val: True or False.
+     */
+    public render(val: boolean){
        this.level.render(val);
     }
 
-    save(content: any, file_name: string){
+    /**
+     * Usefull method to save/download a string as file.
+     * @content The content of the file
+     * @file_name The name of the file
+     */
+    public save(content: string, file_name: string){
         /*
             Save the agent
         */
@@ -142,35 +114,44 @@ export class MetaCar {
 
     /**
      * Get the action space of the environement
+     * @return The Description of the action space.
      */
-    actionSpace(): actionSpaceDescription{
+    public actionSpace(): actionSpaceDescription{
         return this.level.agent.motion.actionSpace();
     }
 
     /**
      * Return the current state of the environement.
      * The size of the state depends of the size of the Lidar.
+     * @return The state as a 2D Array or 1D Array (linear:true)
     */
-    getState(): number[][]{
-        return this.level.agent.getState();
+    public getState(linear:boolean = false): number[][]|number[]{
+        return this.level.agent.getState(linear);
     }
 
-    step(action: number){
-        /*
-            Step into the environement
-            @action (Integer)
-        */
+    /** 
+        Step into the environement
+        @action Action to process to step 
+        @return Reward value
+    */
+    public step(action: number|number[]): number{
         return this.level.step(1, action);
     }
 
-    reset(){
+    /**
+     * Reset the environement
+     */
+    public reset(): void{
         /*
             Reset the agent position
         */
         this.level.reset();
     }
 
-    randomRoadPosition(){
+    /**
+     * Set the agent on a new random road on the map.
+     */
+    randomRoadPosition(): void{
         /*
             This position
         */
@@ -186,13 +167,32 @@ export class MetaCar {
         }
     }
 
-    loop(delta: number){
+    /**
+     * @delta Time since the last update
+     */
+    private _loop(delta: number): void{
         if (this.event.isPlaying()){
             this.event.playCallback();
         }
         else {
             this.level.step(delta);
         }
+    }
+
+    /**
+     * Create the UIEvent instance and set the events 
+     * callbacks relative to the UI.
+     */
+    private _setEvents(): void{
+        // SetEvents callback
+        this.event = new UIEvent(this.level, this.canvasId);
+        this.eventCallback = [
+            (fc: any) => this.event.onTrain(fc),
+            (fc: any) => this.event.onPlay(fc),
+            (fc:any) => this.event.onStop(fc),
+            (fc: any) => this.event.onResetEnv(fc),
+            (fc: any, opt: eventLoadOptions) => this.event.onLoad(fc, opt)
+        ];
     }
 
 }

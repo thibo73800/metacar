@@ -11,6 +11,7 @@ import {
     CAR_IMG, Sprite, MAP, ROADSIZE, Container, Graphics
 } from "./global";
 import { RoadSprite } from "./asset_manager";
+import { stat } from "fs";
 
 
 var Global_carId = 0;
@@ -174,16 +175,22 @@ export class Car {
         }
     }
 
-    getState(): number[][]{
+    getState(linear:boolean = false): number[][]|number[]{
         /*
             Get the current state of the car
             The state is the current value of each point
             of the lidar.
         */
-        return this.motion.state.map(function(arr: any) { return arr.slice(); });
+        if (!linear)
+            return this.motion.state.map(function(arr: any) { return arr.slice(); });
+        else{
+            let state: number[] = [];
+            this.motion.state.map((row: number[]) => { state = state.concat(row);});
+            return state;
+        }
     }
 
-    step(delta: number, action:number=null){
+    step(delta: number, action:number|number[]=null){
         /*
             Take one step into the environement
             @delta (Float) time since the last update

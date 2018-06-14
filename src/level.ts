@@ -75,7 +75,7 @@ export class Level extends World {
         return reward;
     }
 
-    step(delta: number, action:number=null){
+    step(delta: number, action:number|number[]=null){
         /*
             Process one step into the environement
             @delta (Float) time since the last update

@@ -6,7 +6,6 @@ var env = new metacar.env("canvas", levelUrl);
 // Create the Policy agent
 var agent = new PolicyAgent(env);
 
-
 env.load().then(() => {
     // The level is loaded. Add listernes
     env.addEvent("train", () => agent.train());
