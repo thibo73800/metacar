@@ -3,8 +3,10 @@
 ### Table of contents:
 1. [Getting Started](#getting-started)
 2. [Your first environement](#first-env)
-2. [Interact with the environement](#interact-env)
-2. [Other events](#interact-env)
+3. [Interact with the environement](#interact-env)
+4. [Other events](#other-interact-env)
+5. [Custom your environement](#configure-env)
+5. [Create your own level](#create-leven)
 
 <a id='getting-started'></a>
 Getting Started
@@ -25,7 +27,7 @@ Interact with the environement
 #### Create your first event
 #### Train your agent
 
-<a id='interact-env'></a>
+<a id='other-interact-env'></a>
 Other events
 ------------
 
@@ -37,5 +39,14 @@ Description
 
 #### Custom event
 Custom event description
+
+<a id='configure-env'></a>
+Custom your environement
+------------
+
+<a id='create-level'></a>
+Custom your environement
+------------
+
 
 
