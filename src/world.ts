@@ -1,7 +1,7 @@
 import { LevelInfo, Roads } from "./level";
 import { AssetManger, RoadSprite } from "./asset_manager";
-import { Car } from "./car";
-import { ROADSIZE, Loader } from "./global";
+import { Car, CarSprite } from "./car";
+import { ROADSIZE, Loader, JSON_TEXTURES, JSON_IMAGE } from "./global";
 
 export class World {
 
@@ -58,7 +58,7 @@ export class World {
         document.getElementById(this.canvasId).appendChild(this.app.view);
 
         return new Promise((resolve, reject) => {
-            Loader.add(["public/textures/textures.json", "public/textures/textures.png"]).load(() => {
+            Loader.add([JSON_TEXTURES, JSON_IMAGE]).load(() => {
                     this._setup(info); // Set up the level (Add assets)
                     resolve();
             });
@@ -77,7 +77,7 @@ export class World {
         /*
             Find car by @id
         */
-        return this.cars.find((e: any) => {return e.car_id == id});
+       return this.cars.find((e: Car) => {return e.core.carId == id});
     }
 
     public getRoad(my: number, mx: number): RoadSprite {
@@ -131,6 +131,17 @@ export class World {
     }
 
     public reset(){
+    }
+
+    public resize(width: number, height: number): void{
+        /*
+            Resize the map
+        */
+        this.app.renderer.resize(width * ROADSIZE, height * ROADSIZE);
+    }
+
+    public getMousePosition(){
+        return this.app.renderer.plugins.interaction.mouse.global;        
     }
 
 }

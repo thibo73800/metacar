@@ -12,10 +12,15 @@ export const Sprite        = PIXI.Sprite;
 export const Graphics      = PIXI.Graphics;
 export const Container     = PIXI.Container;
 
+// Main server
+export const URL = "http://localhost:3000/";
+
 // Textures files
-export const JSON_TEXTURES = "public/textures/textures.json";
-// Level foler
-export const LEVEL_FOLDER = "/level/";
+export const JSON_TEXTURES = URL + "public/textures/textures.json";
+// Textures files
+export const JSON_IMAGE = URL + "public/textures/textures.png";
+
+export const IMAGE_FOLDER = URL + "public/images/"
 
 // Width and height of each road asset
 export const ROADSIZE = 60;

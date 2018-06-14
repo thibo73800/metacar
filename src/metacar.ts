@@ -16,12 +16,12 @@ export class MetaCar {
     private agent: any;
     private level: Level;
     private canvasId: string;
-    private levelUrl: string;
+    private levelToLoad: string|Object;
     private eventList: string[] = ["train", "play", "stop", "reset_env", "reset_agent", "load"]
     private eventCallback: any[];
     private event: UIEvent;
 
-    constructor(canvasId: string, levelUrl: string) {
+    constructor(canvasId: string, levelToLoad: string|Object) {
         /**
          * @canvasId: HTML canvas ID to used
          * @level: URL or Local storage URL.
@@ -29,11 +29,11 @@ export class MetaCar {
          *  embedded://
          *  http(s)://
         */
-        if (!canvasId || this.levelUrl){
-            console.error("You must specify the canvasId and the levelUrl");
+        if (!canvasId || this.levelToLoad){
+            console.error("You must specify the canvasId and the levelToLoad");
         }
         this.canvasId = canvasId;
-        this.levelUrl = levelUrl;
+        this.levelToLoad = levelToLoad;
     }
 
     private _setEvents(){
@@ -57,12 +57,21 @@ export class MetaCar {
         */
 
         return new Promise((resolve, reject) => {
-            U.loadCustomURL(this.levelUrl, (content: LevelInfo) => {
-                this.level = new Level(content, this.canvasId);    
+            console.log(typeof this.levelToLoad, this.levelToLoad);
+            if (typeof this.levelToLoad == "string"){
+                U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
+                    this.level = new Level(content, this.canvasId);    
+                    this._setEvents();
+                    this.level.load((delta: number) => this.loop(delta));
+                    resolve();
+                });
+            }
+            else{
+                this.level = new Level(<LevelInfo>this.levelToLoad, this.canvasId);    
                 this._setEvents();
                 this.level.load((delta: number) => this.loop(delta));
-                resolve();
-            });
+                resolve(); 
+            }
         });
 
         /*

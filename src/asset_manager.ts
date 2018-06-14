@@ -40,6 +40,7 @@ export interface RoadSprite extends PIXI.Sprite {
     mx?: number;
     my?: number;
     isremove?: boolean;
+    arrow?: string;
 }
 
 export interface SimpleSprite extends PIXI.Sprite {
@@ -83,7 +84,7 @@ export class AssetManger {
         this.level.addChild(area);
     }
 
-    createRoad(info: AssetInfo, textures: any){
+    createRoad(info: AssetInfo, textures: any, arrow: string){
         /*
             Method use to add a new road on the map
             ↕, ↱ or ↔, ↰, ↲, ↳
@@ -91,6 +92,7 @@ export class AssetManger {
         */
         let road: RoadSprite = new Sprite(textures[ASSETS.ROADS[info.type].image]);
 
+        road.arrow = arrow;
         // Set the position of this road
         road.x = (info.mx) * ROADSIZE;
         road.y = (info.my) * ROADSIZE;
@@ -194,7 +196,7 @@ export class AssetManger {
         for (let my = 0; my < map.length; my++) {
             for (let mx = 0; mx < map[my].length; mx++) {
                 if (ASSETS.ROADS[map[my][mx]]){
-                    this.createRoad({mx, my, type: map[my][mx]}, textures);
+                    this.createRoad({mx, my, type: map[my][mx]}, textures, <string>map[my][mx]);
                 }
             }
         }
@@ -218,10 +220,8 @@ export class AssetManger {
         // Go through all the bot cars on the map
         for (let c in info.cars){
             let options: CarOptions = {lidar: true, lidarInfo: {pts: 2, width: 0.5, height: 1, pos: 1}};
-            if (info.cars[c].auto){
-                options.lidar = true;
-                options.motionEngine = new BotMotionEngine(this.level);
-            }
+            options.lidar = true;
+            options.motionEngine = new BotMotionEngine(this.level);
             let n_car = new Car(this.level, info.cars[c], textures, options);
             // Append the car to the canvas
             this.level.addCar(n_car);
@@ -236,10 +236,14 @@ export class AssetManger {
             @info (Object) Level's json.
             @textures: (Pixi textures)
         */
+        const motionOptions = {
+            "rotationStep": 0.5,
+            "actions": ["UP", "LEFT", "RIGHT", "DOWN", "WAIT"]
+        }
         let agent = new Car(this.level, info.agent, textures, {
             image: CAR_IMG.AGENT,
             lidar: true,
-            motionEngine: new this.motion[info.agent.motion.type](this.level, info.agent.motion.options)
+            motionEngine: new BasicMotionEngine(<Level>this.level, motionOptions)
         });
 
         this.level.addChild(agent.lidar)
@@ -252,8 +256,8 @@ export class AssetManger {
     addAsset(asset: any){
         this.assets.push(asset);
     }
-    
-    exportMap(width: number, height: number, file_name: string){
+
+    exportMap(width: number, height: number, file_name: string, download: boolean): any {
         /*
             Export the map
             @width (Integer) Width of the new map
@@ -274,14 +278,14 @@ export class AssetManger {
             let elem = envs[e];
             if (!elem.isremove){
                 // Add the cars
-                if (elem.mapId == MAP.CAR && !elem.agent && elem.is_valid){
+                if (elem.mapId == MAP.CAR && !elem.agent && elem.my < height && elem.mx < width){
                     file.cars.push({
                         "mx": elem.mx,
                         "my": elem.my,
                         "line": elem.line
                     });
                 }
-                else if (elem.mapId == MAP.ROAD){
+                else if (elem.mapId == MAP.ROAD && elem.my < height && elem.mx < width){
                     map[elem.my][elem.mx] = elem.arrow;
                 }
             }
@@ -289,7 +293,7 @@ export class AssetManger {
         for (var e = 0; e < this.assets.length; e++) {
             let elem = this.assets[e];
             if (!elem.isremove){
-                if (elem.type != "car"){
+                if (elem.type != "car" && elem.type !="agent"){
                     if (!file[elem.type])
                         file[elem.type] = [];
                     file[elem.type].push({
@@ -303,6 +307,7 @@ export class AssetManger {
         file.map = map;
         // If the agent exist
         if (this.level.agent){
+            console.log("enter here to create egent....");
             file.agent = {
                 "mx": this.level.agent.core.mx,
                 "my": this.level.agent.core.my,
@@ -316,8 +321,9 @@ export class AssetManger {
                 }
             };
         }
-        console.log(file);
-        file = JSON.stringify(file, null, 4);
-        U.saveAs(file, file_name);
+        let fileCOntent = JSON.stringify(file, null, 4);
+        if (download)
+            U.saveAs(fileCOntent, file_name);
+        return file;
     }
 }

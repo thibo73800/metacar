@@ -1,7 +1,7 @@
 import { LevelInfo, Roads } from "./level";
 import { AssetManger, RoadSprite } from "./asset_manager";
 import { Car} from "./car";
-import {Loader, Sprite, JSON_TEXTURES, ROADSIZE, MAP, LEVEL_FOLDER} from "./global";
+import {Loader, Sprite, JSON_TEXTURES, ROADSIZE, MAP} from "./global";
 import * as U from "./utils";
 import {UIEvent} from "./ui_event";
 import { World } from "./world";
@@ -65,6 +65,10 @@ export class Editor extends World {
         this.app.renderer.resize(width * ROADSIZE, height * ROADSIZE);
     }
 
+    getSelectedItems(){
+        return this.selectedItems;
+    }
+
     selectedItem(item: any){
         /*
             Method to select an items.
@@ -92,13 +96,18 @@ export class Editor extends World {
         if (item.lidar){
             this.app.stage.removeChild(item.lidar);
         }
-        if (item.map_id == MAP.CAR){
+        if (item.mapId == MAP.CAR){
             item.road.cars.splice(item.road.cars.indexOf(item.car_id), 1);
         }
         if (item.agent)
             this.agent = undefined;
         this.app.stage.removeChild(item);
         item.isremove = true;
+        console.log(item.isremove, item.agent, this.agent);
+    }
+
+    exportMap(width: number, height: number, file_name: string, download: boolean): any{
+        return this.am.exportMap(width, height, file_name, download);
     }
 
     setCurrentItem(){
@@ -110,7 +119,7 @@ export class Editor extends World {
                     mx: Math.floor(this.selectedItems.x / ROADSIZE),
                     my: Math.floor(this.selectedItems.y / ROADSIZE),
                     type: this.selectedItems.data
-            }, textures);
+            }, textures, this.selectedItems.data);
             this.envs[this.envs.length - 1].interactive = true;
             this.envs[this.envs.length - 1].on("rightclick", function(this: any) {that.removeItem(this)});
         }
@@ -154,79 +163,8 @@ export class Editor extends World {
 /*
 function createEditor(id: string){
 
-    // Get the DOM element to change the width/height of the map
-    const height_input = document.getElementById("height_input");
-    const width_input = document.getElementById("width_input");
-    var width = parseInt((<HTMLInputElement>width_input).value);
-    var height = parseInt((<HTMLInputElement>height_input).value);
-
-    // Create the editor class
-    let file = window.location.hash || "template.json";
-    file = file.slice(1, file.length)
-    console.log(file);
-    var editor = new Editor(file, "string");
-
-    // For the first init retrieve the widht and height of the map
-    var fist_init = false;
-    function init(){
-        width = editor.map[0].length;
-        height = editor.map.length;
-        (<HTMLInputElement>width_input).value = width.toString();
-        (<HTMLInputElement>height_input).value = height.toString();
-    }
-
-    function load(){
-        if (!fist_init){
-            fist_init = true;
-            init();
-        }
-        let mouse_position = editor.app.renderer.plugins.interaction.mouse.global;
-        if (editor.selectedItems && editor.selectedItems.type == "asset"){
-            editor.selectedItems.x = mouse_position.x;
-            editor.selectedItems.y = mouse_position.y;
-        }
-        else if (editor.selectedItems) {
-            editor.selectedItems.x = Math.floor(mouse_position.x/ROADSIZE) * ROADSIZE;
-            editor.selectedItems.y = Math.floor(mouse_position.y/ROADSIZE) * ROADSIZE;
-        }
-    }
-
-    // Game loop
-    editor.load((delta: any) => {
-        load();
-    });
-
-    var classname = document.getElementsByClassName("img_item");
-    for (var i = 0; i < classname.length; i++) {
-        classname[i].addEventListener('click', function(this: any){
-            editor.selectedItem({image : this.getAttribute('data-img'), type: this.getAttribute('data-type'), data: this.getAttribute("data-data")});
-        }, false);
-    }
-
-    width_input.onchange = () => {
-        width = parseInt((<HTMLInputElement>width_input).value);
-        editor.resize(width, height);
-    }
-
-    height_input.onchange = () => {
-        height = parseInt((<HTMLInputElement>height_input).value);
-        editor.resize(width, height);
-    }
 
     document.getElementById("saveMap").onclick = () => {
         editor.am.exportMap(width, height, file);
     };
-
-    document.getElementById("canvas").addEventListener("click", () => {
-        if (editor.selectedItems){
-            editor.setCurrentItem();
-        }
-    });
-
-    document.getElementById("loadMap").addEventListener("click", () => {
-        window.location.href = "/editor.html#"+prompt("What is the name of the level ? (The file should be located in your level folder)");
-        location.reload();
-    });
-
-    document.getElementById("canvas").addEventListener('contextmenu', event => event.preventDefault());
 }*/

@@ -5,7 +5,7 @@
 
 import * as U from "./utils";
 import {
-    LEVEL_FOLDER, ROADSIZE, Loader, JSON_TEXTURES
+    ROADSIZE, Loader, JSON_TEXTURES
 } from "./global";
 import {AssetManger, RoadSprite} from "./asset_manager";
 
