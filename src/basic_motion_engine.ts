@@ -124,9 +124,9 @@ export class BasicMotionEngine extends MotionEngine {
         if (this.actions[action] == "UP") { this.moveForward();}
         if (this.actions[action] == "DOWN") { this.moveBackward();}
 
-        let {agent_col, on_road} = this.step(delta);
+        let {agentCollisions, onRoad} = this.step(delta);
         this.car.v = 0;
-        return {agent_col, on_road};
+        return {agentCollisions, onRoad};
     }
 
     actionSpace(): actionSpaceDescription{
@@ -160,13 +160,33 @@ export class BasicMotionEngine extends MotionEngine {
         this.lidar.y = this.car.y;
         this.lidar.rotation = this.car.rotation;
 
-        // Detection the new collision with the environement
-        let {agent_col, on_road} = this.detectInteractions();
+        // Point A
+        //let x_margin = this.car.width / 2;
+        //let y_margin = this.car.height / 2;
+        // Point B
+        //let x_margin = -this.car.width / 2;
+        //let y_margin = this.car.height / 2;
+        // Point C
+        //let x_margin = -this.car.width / 2;
+        //let y_margin = -this.car.height / 2;
+        // Point D
+        //let x_margin = this.car.width / 2;
+        //let y_margin = -this.car.height / 2;
+        //let th = this.car.rotation;
+        //let x_m = (Math.cos(th) * x_margin) - (y_margin * Math.sin(th));
+        //let y_m = (Math.cos(th) * y_margin) + (x_margin * Math.sin(th));
+        //this.car.mybound.width = 3;
+        //this.car.mybound.height = 3;
+        //this.car.mybound.x = this.car.x + x_m;
+        //this.car.mybound.y = this.car.y + y_m;
 
-        if (agent_col.length > 0){ // Stop the vehicle if a collision is detected
+        // Detection the new collision with the environement
+        let {agentCollisions, onRoad} = this.detectInteractions();
+
+        if (agentCollisions.length > 0){ // Stop the vehicle if a collision is detected
             this.car.v = 0;
             this.car.vy = 0;
         }
-        return {agent_col, on_road};
+        return {agentCollisions, onRoad};
     }
 }

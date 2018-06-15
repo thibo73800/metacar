@@ -13,8 +13,13 @@ import {
 import { RoadSprite } from "./asset_manager";
 import { stat } from "fs";
 
-
 var Global_carId = 0;
+
+export interface LidarContainerI extends PIXI.Container{
+    lidarPts?: LidarChild[];
+    collisionPts?: LidarChild[];
+    pts?: number;
+}
 
 export interface LidarInfoI {
     pts?: number;
@@ -48,6 +53,7 @@ export interface CarSprite extends PIXI.Sprite {
     checkAndsetNewRoad?: any;
     line?: number;
     haveTurned?: boolean;
+    optionalTurn?: boolean;
     agent?: boolean;
     v?: number;
 }
@@ -61,7 +67,7 @@ export class Car {
 
     public level: Level|Editor;
     public core: CarSprite;
-    public lidar: any;
+    public lidar: LidarContainerI;
     public motion: any;
 
     private info: CarInfo;
@@ -156,6 +162,7 @@ export class Car {
             this.core.road = n_road;
             // TOdo: CHECK something is strange here
             this.core.haveTurned = false;
+            this.core.optionalTurn = false;
             this.turnedRandom = undefined;
             if (n_road)
                 n_road.cars.push(this.core.carId);
@@ -197,12 +204,12 @@ export class Car {
             @action: (Integer) The action to take (can be null if no action)
         */
         if (action == null){
-            var {agent_col, on_road} = this.motion.step(delta);
+            var {agentCollisions, onRoad} = this.motion.step(delta);
         }
         else{
-            var {agent_col, on_road} = this.motion.actionStep(delta, action);
+            var {agentCollisions, onRoad} = this.motion.actionStep(delta, action);
         }
-        return {agent_col, on_road};
+        return {agentCollisions, onRoad};
     }
 
     createLidar(lidarOptions: LidarInfoI){
@@ -219,12 +226,49 @@ export class Car {
        lidarOptions.pos = lidarOptions.pos || 0;
 
         this.lidar = new Container();
+        this.lidar.lidarPts = [];
+        this.lidar.collisionPts = [];
         // Area of the lidar
         let area: LidarChild = new Graphics();
         area.pt = false;
+        area.alpha = 0.3;
         area.beginFill(0x515151);
         area.drawRect(0, 0, this.core.width*lidarOptions.width, this.core.height*lidarOptions.height);
         area.endFill();
+
+        // Front collision point
+        let front:LidarChild = new Graphics();
+        front.pt = false;
+        front.alpha = 0;
+        front.beginFill(0x510000);
+        front.drawRect(this.core.width-5, area.height/2, 3, 3);
+        front.endFill();
+        // Back collision point
+        let back:LidarChild = new Graphics();
+        back.pt = false;
+        back.alpha = 0;
+        back.beginFill(0x510000);
+        back.drawRect(-1, area.height/2-2, 3, 3);
+        back.endFill();
+        // Left collision point
+        let left:LidarChild = new Graphics();
+        left.pt = false;
+        left.alpha = 0;
+        left.beginFill(0x510000);
+        left.drawRect(this.core.width/2, area.height/2-this.core.height/2+5, 3, 3);
+        left.endFill();
+        // Right collision point
+        let right:LidarChild = new Graphics();
+        right.pt = false;
+        right.alpha = 0;
+        right.beginFill(0x510000);
+        right.drawRect(this.core.width/2, area.height/2+this.core.height/2-8, 3, 3);
+        right.endFill();
+
+        back.x -= (lidarOptions.pos*this.core.width);
+        front.x -= (lidarOptions.pos*this.core.width);
+        right.x -= (lidarOptions.pos*this.core.width);
+        left.x -= (lidarOptions.pos*this.core.width);
 
         // Create all the points of the lidar
         let x_step = area.width/lidarOptions.pts;
@@ -240,17 +284,27 @@ export class Car {
                 pt.drawRect(x, y, 5, 5);
                 pt.endFill();
                 this.lidar.addChild(pt);
+                this.lidar.lidarPts.push(pt);
             }
         }
 
         this.lidar.pts = lidarOptions.pts;
         this.lidar.addChild(area);
+        this.lidar.addChild(front);
+        this.lidar.addChild(back);
+        this.lidar.addChild(left);
+        this.lidar.addChild(right);
+        this.lidar.collisionPts.push(front);
+        this.lidar.collisionPts.push(back);
+        this.lidar.collisionPts.push(left);
+        this.lidar.collisionPts.push(right);
 
         this.lidar.x = this.core.x;
         this.lidar.y = this.core.y;
 
         this.lidar.pivot.y = this.lidar.height/2;
         this.lidar.pivot.x = this.core.width/2 - (lidarOptions.pos*this.core.width);
+
         this.lidar.rotation = this.core.rotation;
     }
 }

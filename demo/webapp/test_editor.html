@@ -2,11 +2,26 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Metacar - Editor</title>
+  <title>Metacar: Test Editor</title>
+  <link rel="stylesheet" href="/public/css/general.css">
+  <link href="https://fonts.googleapis.com/css?family=Tajawal" rel="stylesheet">
 </head>
 <body>
 
-    <div class="canvas" id="env"></div>
+    <header>
+        <div class="header_container">
+          <h1><a href="/">Metacar</a></h1>
+          <a href="https://github.com/thibo73800/metacar"><img src="/public/img/github-logo.png" /></a>
+      </div>
+      </header>
+
+
+      <div class="canvas_container">
+          <!--
+            You just have to add a div with an ID as bellow and include the js to start
+            using metacar. -->
+          <div class="canvas" id="env"></div>
+      </div>
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js"></script>

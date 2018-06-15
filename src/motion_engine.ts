@@ -9,6 +9,7 @@ import {
     MAP
 } from "./global";
 import { Editor } from "./editor";
+import { CarSprite } from "./car";
 
 /**
  * Structure used to describe the action space.
@@ -41,19 +42,45 @@ export class MotionEngine {
         */
        var ab = a.getBounds();
        var bb = b.getBounds();
-
-       if (reduce){
-            ab.width = 15;
-            ab.height = 15;
-            bb.width = 15;
-            bb.height = 15;   
-       }
-
        return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
     }
 
-    protected detectInteractions(){
+    /**
+     * Check if car1 intersect with an other @object
+     * @car1 The first car
+     * @object The object
+     */
+    protected carIntersect(car1: CarSprite, object: CarSprite){
+        const nb = this.car.lidar.collisionPts.length;
+        for (let c=0; c < nb; c++){
+            if (this.boxesIntersect(this.car.lidar.collisionPts[c], object, false)){
+                return true;
+            }            
+        }
+        return false;
+    }
+
+    /**
+     * Check how many colision detector of car1 are in @object
+     * @car1 The first car
+     * @object The object
+     */
+    protected carCaptorInObject(car1: CarSprite, object: CarSprite): number{
+        const size = this.car.lidar.collisionPts.length;
+        let nb = 0;
+        for (let c=0; c < size; c++){
+            if (this.boxesIntersect(this.car.lidar.collisionPts[c], object, false)){
+                nb += 1;
+            }
+        }
+        return nb;
+    }
+
+
+    protected detectInteractions(all:boolean = true){
         /*
+            If all is false then we assume the car is alwais on a road
+            and never collision with other car (this behavior is used for bot cars only)
             Detect the interaction with the environement
             - Car collisions
             - Lidar collisions
@@ -61,24 +88,31 @@ export class MotionEngine {
         */
         let envs = this.level.getEnvs();
 
-        let agent_col = [];
+        let agentCollisions = [];
         let lidar_collisions = [];
-        let on_road = false;
+        let onRoadCnt = 0;
+        let checkNb = 0;
+        let onRoad = false;
 
         for (let i = 0; i < envs.length; i++) {
-            if (envs[i] != this.car && envs[i].obstacle && this.boxesIntersect(envs[i], this.car, true)){
-                agent_col.push(envs[i]);
-            }
-            else if (envs[i].mapId == MAP.ROAD && this.boxesIntersect(envs[i], this.car, false)){
-                on_road = true;
-            }
-            if (this.boxesIntersect(envs[i], this.lidar, false)){
-                lidar_collisions.push(envs[i]);
+            if (envs[i] != this.car && Math.abs(envs[i].mx - this.car.mx) < 2 && Math.abs(envs[i].my - this.car.my) < 2){
+                checkNb += 1;
+                if (all && envs[i].obstacle && this.carIntersect(this.car, envs[i])){
+                    agentCollisions.push(envs[i]);
+                }
+                else if (all && envs[i].mapId == MAP.ROAD){
+                    onRoadCnt += this.carCaptorInObject(this.car, envs[i]);
+                }
+                if (this.boxesIntersect(envs[i], this.lidar, false)){
+                    lidar_collisions.push(envs[i]);
+                }
             }
         }
-
         this.setState(lidar_collisions);
-        return {agent_col, on_road};
+        if (onRoadCnt >= 4 || !all){
+            onRoad = true;
+        }
+        return {agentCollisions, onRoad};
     }
 
     protected setState(lidar_collisions: any){
@@ -88,31 +122,29 @@ export class MotionEngine {
         */
         let pt_id = 0;
 
-        for (var i = 0; i < this.lidar.children.length; i++) {
-            this.lidar.children[i].alpha = 0.3;
-            if (this.lidar.children[i].pt){ // If this is a lidar point
+        for (var i = 0; i < this.lidar.lidarPts.length; i++) {
+            this.lidar.lidarPts[i].alpha = 0.3;
+            
+            let pt_y = Math.floor(pt_id/this.lidar.pts);
+            let pt_x = Math.floor(pt_id%this.lidar.pts);
+            this.state[pt_y][pt_x] = MAP.DEFAULT;
 
-                let pt_y = Math.floor(pt_id/this.lidar.pts);
-                let pt_x = Math.floor(pt_id%this.lidar.pts);
-                this.state[pt_y][pt_x] = MAP.DEFAULT;
-
-                for (var a = 0; a < lidar_collisions.length; a++) {
-                    if (lidar_collisions[a] != this.car){
-                        let touch = this.boxesIntersect(lidar_collisions[a], this.lidar.children[i]);
-                        if (touch && lidar_collisions[a].obstacle){
-                            // If this is an obstacle
-                            this.lidar.children[i].alpha = 1.;
-                        }
-                        if (touch && (lidar_collisions[a].mapId > this.state[pt_y][pt_x] || (lidar_collisions[a].mapId == MAP.ROAD && this.state[pt_y][pt_x]==MAP.DEFAULT))){
-                            // Add this interaction to the state
-                            // If this interaction is more important than the one befor
-                            // we kept the more important one
-                            this.state[pt_y][pt_x] = lidar_collisions[a].mapId;
-                        }
+            for (var a = 0; a < lidar_collisions.length; a++) {
+                if (lidar_collisions[a] != this.car){
+                    let touch = this.boxesIntersect(lidar_collisions[a], this.lidar.lidarPts[i], false);
+                    if (touch && lidar_collisions[a].obstacle){
+                        // If this is an obstacle
+                        this.lidar.lidarPts[i].alpha = 1.;
+                    }
+                    if (touch && (lidar_collisions[a].mapId > this.state[pt_y][pt_x] || (lidar_collisions[a].mapId == MAP.ROAD && this.state[pt_y][pt_x]==MAP.DEFAULT))){
+                        // Add this interaction to the state
+                        // If this interaction is more important than the one befor
+                        // we kept the more important one
+                        this.state[pt_y][pt_x] = lidar_collisions[a].mapId;
                     }
                 }
-                pt_id += 1;
             }
+            pt_id += 1;
         }
     }
 };

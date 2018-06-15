@@ -8,5 +8,6 @@ editor.load().then(() => {
         console.log(content);
         // Put the object into storage
         localStorage.setItem('mylevel.json', JSON.stringify(content));
-    }, {download: true, name: "level0.json"});
+        window.open("/test_editor.html");
+    }, {download: false, name: "level0.json"});
 });

@@ -89,13 +89,18 @@ export class BotMotionEngine extends MotionEngine {
         this.car.v = -1;
     }
 
-    isRoad(nx: number, ny: number){
+    isRoad(nx: number, ny: number, avaibility:boolean = false){
         /*
             Method used to check is there a road is present at this potion
             on the map
         */
         if (ny < 0 || ny >= this.mapSizeY || nx < 0 || nx >= this.mapSizeX || this.map[ny][nx] == 0){
             return false;
+        }
+        if (avaibility){
+            let road = this.level.getRoad(ny, nx);
+            if (road.cars.length > 0)
+                return false;
         }
         return true;
     }
@@ -116,6 +121,7 @@ export class BotMotionEngine extends MotionEngine {
             if (this.car.next_road.rotation_type == 0){ // Turn right
                 if (y_dist < right_dist && x_dist < right_dist){
                     this.car.haveTurned = true;
+                    this.car.previousRotation = this.car.rotation;
                     this.car.rotation = this.car.rotation += Math.PI/2;
                     this.car.rotation = this.car.rotation % (2*Math.PI);
                     this.car.next_road = undefined;
@@ -125,6 +131,7 @@ export class BotMotionEngine extends MotionEngine {
 
             if (this.car.next_road.rotation_type == 1){ // Turn left
                 if (y_dist < left_dist && x_dist < left_dist){
+                    this.car.previousRotation = this.car.rotation;
                     this.car.haveTurned = true;
                     this.car.rotation = this.car.rotation -= Math.PI/2;
                     this.car.rotation = this.car.rotation % (2*Math.PI);
@@ -136,6 +143,7 @@ export class BotMotionEngine extends MotionEngine {
             if (this.car.next_road.rotation_type == 2){ // Rotation
                 if (y_dist < same_dist && x_dist < same_dist){
                     this.car.haveTurned = true;
+                    this.car.previousRotation = this.car.rotation;
                     this.car.rotation = this.car.rotation -= Math.PI;
                     this.car.rotation = this.car.rotation % (2*Math.PI);
 
@@ -174,17 +182,25 @@ export class BotMotionEngine extends MotionEngine {
             let turn = false;
             let nx = this.car.mx + is_next_pos.mx;
             let ny = this.car.my + is_next_pos.my;
-            if (!this.isRoad(nx, ny)){
+            let current_road = this.level.getRoad(this.car.my, this.car.mx);
+            if (!this.isRoad(nx, ny)) {
                 turn = true;
+                this.car.optionalTurn = false;
             }
             else if (!this.car.haveTurned && !this.car.turnedRandom){
                 this.car.turnedRandom = Math.random();
             }
-            else if(!this.car.haveTurned && this.car.turnedRandom < 0.33 && this.isRoad(this.car.mx + is_next_pos_r.mx, this.car.my + is_next_pos_r.my)){
+            else if(!this.car.haveTurned && this.car.turnedRandom < 0.5 && 
+                this.isRoad(this.car.mx + is_next_pos_r.mx, this.car.my + is_next_pos_r.my)
+            ){
                 turn = true;
+                this.car.optionalTurn = true;
             }
-            else if(!this.car.haveTurned && this.car.turnedRandom > 0.66 && this.isRoad(this.car.mx + is_next_pos_l.mx, this.car.my + is_next_pos_l.my)){
+            else if(!this.car.haveTurned && this.car.turnedRandom >= 0.5 && 
+                this.isRoad(this.car.mx + is_next_pos_l.mx, this.car.my + is_next_pos_l.my)
+            ){
                 turn = true;
+                this.car.optionalTurn = true;
             }
             if (turn){
                 let possibles_rotations = [(key+0.5) % 2., (key-0.5) % 2., null];
@@ -218,15 +234,20 @@ export class BotMotionEngine extends MotionEngine {
         // Possible collision detected
         if (this.state.toString().indexOf(","+MAP.CAR.toString()) != -1){
             this.car.v = 0;
+            if (this.car.v == 0 && this.car.haveTurned && this.car.optionalTurn == true){
+                this.car.rotation = this.car.previousRotation;
+            }
         }
         else{ // No collision, move forward
             this.car.v = 0.8;
             this.autoRotation();
         }
 
-        // Update the x and y position according to the velocity
-        this.car.x += this.car.v * Math.cos(this.car.rotation)*delta;
-        this.car.y += this.car.v * Math.sin(this.car.rotation)*delta;
+        if ((<Level>this.level).isCarsMoving){
+            // Update the x and y position according to the velocity
+            this.car.x += this.car.v * Math.cos(this.car.rotation)*delta;
+            this.car.y += this.car.v * Math.sin(this.car.rotation)*delta;
+        }
         // Update the x and x position according to the map
         this.car.mx = Math.floor(this.car.x / ROADSIZE);
         this.car.my = Math.floor(this.car.y / ROADSIZE);
@@ -234,17 +255,23 @@ export class BotMotionEngine extends MotionEngine {
         // Set the new road of the car (if changed)
         this.car.checkAndsetNewRoad();
 
+
+        // Be sure to keep the lidar position at the same position than the car
+        this.lidar.x = this.car.x;
+        this.lidar.y = this.car.y;
+        this.lidar.rotation = this.car.rotation;
+
+        //this.car.mybound.x = this.car.x;
+        //this.car.mybound.y = this.car.y;
+
         // Be sure to keep the lidar position at the same position than the car
         this.lidar.x = this.car.x;
         this.lidar.y = this.car.y;
         this.lidar.rotation = this.car.rotation;
 
         // Detection the new collision with the environement
-        let {agent_col, on_road} = this.detectInteractions();
+        let {agentCollisions, onRoad} = this.detectInteractions(false);
 
-        if (agent_col.length > 0){
-            this.car.v = 0;
-        }
-        return {agent_col, on_road};
+        return {agentCollisions, onRoad};
     }
 }

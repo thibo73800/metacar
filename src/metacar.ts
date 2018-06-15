@@ -30,6 +30,7 @@ export class MetaCar {
     private agentMotionEngine: typeof BasicMotionEngine|typeof ControlMotionEngine = BasicMotionEngine;
     private agentMotionOptions: BasicMotionOptions = {}
     private agentLidarInfo: LidarInfoI;
+    private isCarsMoving: boolean = true;
 
     /**
      * Class used to create a new environement.
@@ -57,6 +58,7 @@ export class MetaCar {
                     this.level = new Level(content, this.canvasId);
                     this.level.setAgentMotion(this.agentMotionEngine, this.agentMotionOptions);
                     this.level.setAgentLidar(this.agentLidarInfo);
+                    this.level.carsMoving(this.isCarsMoving);
                     this._setEvents();
                     this.level.load((delta: number) => this._loop(delta));
                     resolve();
@@ -66,6 +68,7 @@ export class MetaCar {
                 this.level = new Level(<LevelInfo>this.levelToLoad, this.canvasId);    
                 this.level.setAgentMotion(this.agentMotionEngine, this.agentMotionOptions);
                 this.level.setAgentLidar(this.agentLidarInfo);
+                this.level.carsMoving(this.isCarsMoving);
                 this._setEvents();
                 this.level.load((delta: number) => this._loop(delta));
                 resolve(); 
@@ -74,8 +77,17 @@ export class MetaCar {
     }
 
     /**
-     * 
+     * Choose whether other cars move or stay fixed.
+     * This method should be called before to called 'load'.
+     * @moving True or False
+     */
+    public carsMoving(moving: boolean){
+        this.isCarsMoving = moving;
+    }
+
+    /**
      * options Options to change the lidar options of the agent.
+     * This method should be called before to called 'load'.
      * Changing the lidar change the state representation of the car in the
      * environement.
      */

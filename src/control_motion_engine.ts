@@ -112,10 +112,10 @@ export class ControlMotionEngine extends MotionEngine {
         // TODO: CHeck why parseInt ???
         this.car.a = Math.min(Math.max(parseInt(actions[0].toString()), -1), 1);
         this.car.yaw_rate = Math.min(Math.max(parseInt(actions[1].toString()), -1), 1);
-        let {agent_col, on_road} = this.step(delta);
+        let {agentCollisions, onRoad} = this.step(delta);
         this.car.a = 0;
         this.car.yaw_rate = 0;
-        return {agent_col, on_road};
+        return {agentCollisions, onRoad};
     }
 
     actionSpace(){
@@ -167,12 +167,12 @@ export class ControlMotionEngine extends MotionEngine {
         this.lidar.rotation = this.car.rotation;
 
         // Detection the new collision with the environement
-        let {agent_col, on_road} = this.detectInteractions();
+        let {agentCollisions, onRoad} = this.detectInteractions();
 
-        if (agent_col.length > 0){ // Stop the vehicle if a collision is detected
+        if (agentCollisions.length > 0){ // Stop the vehicle if a collision is detected
             this.car.v = 0;
             this.car.vy = 0;
         }
-        return {agent_col, on_road};
+        return {agentCollisions, onRoad};
     }
 }

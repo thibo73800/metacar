@@ -246,7 +246,7 @@ export class AssetManger {
         for (let c in info.cars){
             let options: CarOptions = {lidar: true, lidarInfo: {pts: 2, width: 0.5, height: 1, pos: 1}};
             options.lidar = true;
-            //options.motionEngine = new BotMotionEngine(this.level);
+            options.motionEngine = new BotMotionEngine(this.level);
             let n_car = new Car(this.level, info.cars[c], textures, options);
             // Append the car to the canvas
             this.level.addCar(n_car);
@@ -268,7 +268,7 @@ export class AssetManger {
             motionEngine: new this.agentMotionEngine(<Level>this.level, this.agentMotionOptions)
         });
 
-        this.level.addChild(agent.lidar)
+        this.level.addChild(agent.lidar);
         this.level.addCar(agent);
         agent.core.agent = true;
 

@@ -26,6 +26,8 @@ export interface Roads {
 
 export class Level extends World {
 
+    public isCarsMoving: boolean = true;
+
     constructor(levelContent: LevelInfo, canvasId: string) {
         /*
             @levelContent: Content of the level
@@ -35,6 +37,16 @@ export class Level extends World {
         this.map = this.info.map;
         this.am = new AssetManger(this);
     }
+
+    /**
+     * Choose whether other cars move or stay fixed.
+     * This method should be called before to called 'load'.
+     * @moving True or False
+     */
+    public carsMoving(moving: boolean){
+        this.isCarsMoving = moving;
+    }
+
 
     /**
      * Change the motion engine of the agent. BasicMotionEngine by default.
@@ -89,9 +101,11 @@ export class Level extends World {
         if (action == 0 || this.agent.core.v == 1)
             reward += 0.5;
         if (agent_col.length > 0){
+            console.log("collision!");
             reward = -10;
         }
         else if (!on_road){
+            console.log("out");
             reward = -10;
         }
         return reward;
@@ -104,15 +118,15 @@ export class Level extends World {
             @action: (Integer) The action to take (can be null if no action)
         */
         // Go through all cars to move each one
-        //for (var c = 0; c < this.cars.length; c++) {
-        //    if (this.cars[c].lidar && !this.cars[c].core.agent) // If this car can move
-        //        this.cars[c].step(delta);
-        //}
+        for (var c = 0; c < this.cars.length; c++) {
+            if (this.cars[c].lidar && !this.cars[c].core.agent) // If this car can move
+                this.cars[c].step(delta);
+        }   
         // Move the agent
         if (this.agent){
-            let {agent_col, on_road} = this.agent.step(delta, action);
+            let {agentCollisions, onRoad} = this.agent.step(delta, action);
             // Get the reward
-            let reward = this.setReward(agent_col, on_road, action);
+            let reward = this.setReward(agentCollisions, onRoad, action);
             return reward;
         }
         return 0;
