@@ -178,7 +178,7 @@ export class Car {
         this.core.my = this.info.my;
         let road = this.level.getRoad(this.core.my, this.core.mx);
         if (road){ // If the car is on a road
-            road.setCarPosition(this.core, this.info.line);
+            road.setCarPosition(this.core, this.info.line, true);
         }
     }
 

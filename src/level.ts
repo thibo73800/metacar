@@ -91,6 +91,9 @@ export class Level extends World {
             useless collisions.
         */
         this.agent.reset();
+        for (var c = 0; c < this.cars.length; c++) {
+           this.cars[c].reset();
+        }  
     }
 
     setReward(agent_col: any, on_road: any, action: any){

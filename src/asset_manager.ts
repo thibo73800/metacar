@@ -125,7 +125,7 @@ export class AssetManger {
         road.obstacle = false;
         road.mapId = MAP.ROAD;       
         road.orientation = ASSETS.ROADS[info.type].orientation;
-        road.setCarPosition = (car: any, line: number) => this.setCarOnRoad(road, car, line);
+        road.setCarPosition = (car: any, line: number, force: boolean=false) => this.setCarOnRoad(road, car, line, force);
         road.cars = [];
         road.mx = info.mx; // Map x
         road.my = info.my; // Map y
@@ -133,7 +133,7 @@ export class AssetManger {
         this.level.addRoad(road);
     }
 
-    setCarOnRoad(road: RoadSprite, car: any, line: number){
+    setCarOnRoad(road: RoadSprite, car: any, line: number, force: boolean=false){
         /*
             @road: (Obejct) road to position the car on
             @car: (Object) car object to position
@@ -142,12 +142,8 @@ export class AssetManger {
         if (line == undefined)
             line = 0;
         let carById = this.level.findCarById(road.cars[0]);
-        if (road.cars.length >= 1 && carById && carById.core.line == line){
+        if (!force && road.cars.length >= 1 && carById && carById.core.line == line){
             line = line == 0 ? 1:0;
-        }
-        if (road.cars.length >= 2){
-            car.is_valid = false;
-            return;
         }
         car.line = line;
 
