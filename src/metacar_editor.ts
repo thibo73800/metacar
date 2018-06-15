@@ -10,24 +10,22 @@ export class MetaCarEditor {
     private agent: any;
     private level: Editor;
     private canvasId: string;
-    private levelUrl: string;
+    private levelToLoad: string|Object;
     private event: UIEvent;
     private eventList: string[] = ["save"]
     private eventCallback: any[];
 
-    constructor(canvasId: string, levelUrl: string) {
-        /**
-         * @canvasId: HTML canvas ID to used
-         * @level: URL or Local storage URL.
-         *  localstorage://level-name
-         *  embedded://
-         *  http(s)://
-        */
-        if (!canvasId || this.levelUrl){
-            console.error("You must specify the canvasId and the levelUrl");
+    /**
+     * @canvasId: HTML canvas ID
+     * @levelToLoad: URL of the level or directly the level's object.
+     *  URL format: embedded://... or http(s)://...
+    */
+    constructor(canvasId: string, levelToLoad: string) {
+        if (!canvasId || this.levelToLoad){
+            console.error("You must specify the canvasId and the levelToLoad");
         }
         this.canvasId = canvasId;
-        this.levelUrl = levelUrl;
+        this.levelToLoad = levelToLoad;
     }
 
     public load(level: string, agent: any): Promise<void>{
@@ -37,8 +35,21 @@ export class MetaCarEditor {
             @agent (Agent class)
         */
         return new Promise((resolve, reject) => {
-            U.loadCustomURL(this.levelUrl, (content: LevelInfo) => {
-                this.level = new Editor(content, this.canvasId);
+            if (typeof this.levelToLoad == "string"){
+                U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
+                    this.level = new Editor(content, this.canvasId);
+                    this.level.load((delta: number) => this.loop(delta));
+                    this.event = new UIEvent(this.level, this.canvasId);
+                    this.event.createEditorElementsEvents();
+
+                    this.eventCallback = [
+                        (fc: any, options: eventEditorLoadOptions) => this.event.onSaveEditor(fc, options)
+                    ];
+                    resolve();
+                });
+            }
+            else{
+                this.level = new Editor(<LevelInfo>this.levelToLoad, this.canvasId);
                 this.level.load((delta: number) => this.loop(delta));
                 this.event = new UIEvent(this.level, this.canvasId);
                 this.event.createEditorElementsEvents();
@@ -46,9 +57,8 @@ export class MetaCarEditor {
                 this.eventCallback = [
                     (fc: any, options: eventEditorLoadOptions) => this.event.onSaveEditor(fc, options)
                 ];
-
                 resolve();
-            });
+            }
         });
     }
 

@@ -52,7 +52,6 @@ export class MetaCar {
     public load(): Promise<void>{
 
         return new Promise((resolve, reject) => {
-            console.log(typeof this.levelToLoad, this.levelToLoad);
             if (typeof this.levelToLoad == "string"){
                 U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
                     this.level = new Level(content, this.canvasId);

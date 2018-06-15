@@ -97,7 +97,8 @@ export class Editor extends World {
             this.app.stage.removeChild(item.lidar);
         }
         if (item.mapId == MAP.CAR){
-            item.road.cars.splice(item.road.cars.indexOf(item.car_id), 1);
+            if (item.road)
+                item.road.cars.splice(item.road.cars.indexOf(item.carId), 1);
         }
         if (item.agent)
             this.agent = undefined;
