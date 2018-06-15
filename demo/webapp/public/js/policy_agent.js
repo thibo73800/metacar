@@ -9,8 +9,8 @@ class PolicyAgent {
         this.lidarPts = 5;
         this.ttLidarPts = 5*5;
         this.actionsNb = 3;
-
-        this.env = env
+        this.lastPrediction = [0., 0., 0.];
+        this.env = env;
 
         // Build the policy model and the value model
         this.buildValueFc();
@@ -120,6 +120,10 @@ class PolicyAgent {
         });
     }
 
+    getStateValues(){
+        return this.lastPrediction;
+    }
+
     trainPolicy(states, actions, advantages, batch_size, mini_batch_size){
         /*
             Train the policy model
@@ -171,8 +175,14 @@ class PolicyAgent {
         /*
             Restore the weights of the network
         */
-       this.valueModel = await tf.loadModel('http://localhost:3000/public/models/policy/value-model-policy-agent.json');
-       this.policyModel = await tf.loadModel("http://localhost:3000/public/models/policy/policy-model-policy-agent.json");
+       if (window.location.href.indexOf("localhost") == -1){
+            this.valueModel = await tf.loadModel('https://metacar-project.com/public/models/policy/value-model-policy-agent.json');
+            this.policyModel = await tf.loadModel("https://metacar-project.com/public/models/policy/policy-model-policy-agent.json");
+       }
+       else{
+        this.valueModel = await tf.loadModel('http://localhost:3000/public/models/policy/value-model-policy-agent.json');
+        this.policyModel = await tf.loadModel("http://localhost:3000/public/models/policy/policy-model-policy-agent.json");
+       }
     }
 
     play(){
@@ -181,11 +191,10 @@ class PolicyAgent {
             const st = tf.tensor2d(this.env.getState(), [this.lidarPts, this.lidarPts]).reshape([1, this.ttLidarPts]);
             // Predict the policy
             const softmax = this.policyModel.predict(st);
-            softmax.print();
             // Get the action
+            this.lastPrediction = softmax.buffer().values;
             const argmax = softmax.argMax(1);
-            const a = argmax.buffer().values[0];
-
+            const a = argmax.buffer().values;
             argmax.dispose();
             st.dispose();
             softmax.dispose();

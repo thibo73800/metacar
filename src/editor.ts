@@ -42,7 +42,7 @@ export class Editor extends World {
         this.am.createMap(this.map, info, textures, false);
         this.am.createCars(this.map, info, textures);
         if (info.agent)
-            this.agent = this.am.createAgent(this.map, info, textures);
+            this.agent = this.am.createAgent(this.map, info, textures, false);
 
         var that = this;
         for (var i = 0; i < this.envs.length; i++) {

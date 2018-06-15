@@ -31,6 +31,7 @@ export class MetaCar {
     private agentMotionOptions: BasicMotionOptions = {}
     private agentLidarInfo: LidarInfoI;
     private isCarsMoving: boolean = true;
+    private loopCallback: any = undefined;
 
     /**
      * Class used to create a new environement.
@@ -82,6 +83,13 @@ export class MetaCar {
      */
     public carsMoving(moving: boolean){
         this.isCarsMoving = moving;
+    }
+
+    /**
+     * Return the last reward given by the environement
+     */
+    public getLastReward(): number{
+        return this.level.getLastReward();
     }
 
     /**
@@ -210,6 +218,15 @@ export class MetaCar {
     }
 
     /**
+     * Using thid method you can call your own method
+     * at each loop update.
+     * @fc method to call at each loop update
+     */
+    public loop(fc: any){
+        this.loopCallback = fc;
+    }
+
+    /**
      * @delta Time since the last update
      */
     private _loop(delta: number): void{
@@ -218,6 +235,9 @@ export class MetaCar {
         }
         else {
             this.level.step(delta);
+        }
+        if (this.loopCallback){
+            this.loopCallback();
         }
     }
 

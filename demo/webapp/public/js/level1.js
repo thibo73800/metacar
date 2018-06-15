@@ -6,6 +6,14 @@ var env = new metacar.env("canvas", levelUrl);
 // Create the Policy agent
 var agent = new PolicyAgent(env);
 
+env.loop(() => {
+    let state = env.getState();
+    displayState("realtime_viewer", state, 200, 200);
+    let scores = agent.getStateValues(state);
+    let reward = env.getLastReward();
+    displayScores("realtime_viewer", scores, reward, ["Top", "Left", "Right"]);
+});
+
 env.load().then(() => {
     // The level is loaded. Add listernes
     env.addEvent("train", () => agent.train());

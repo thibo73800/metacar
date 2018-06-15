@@ -250,7 +250,7 @@ export class AssetManger {
         }
     }
 
-    createAgent(map: (string|number)[][], info: any, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary)){
+    createAgent(map: (string|number)[][], info: any, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary), displayLidar:boolean=true){
         /*
             Method used to create the agent's car.
             @map (2dim Array)
@@ -263,8 +263,9 @@ export class AssetManger {
             lidarInfo: this.agentLidarInfo,
             motionEngine: new this.agentMotionEngine(<Level>this.level, this.agentMotionOptions)
         });
-
-        this.level.addChild(agent.lidar);
+        if (displayLidar){
+            this.level.addChild(agent.lidar);
+        }
         this.level.addCar(agent);
         agent.core.agent = true;
 

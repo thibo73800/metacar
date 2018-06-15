@@ -27,6 +27,7 @@ export interface Roads {
 export class Level extends World {
 
     public isCarsMoving: boolean = true;
+    private lastReward: number = 0;
 
     constructor(levelContent: LevelInfo, canvasId: string) {
         /*
@@ -104,15 +105,22 @@ export class Level extends World {
         if (action == 0 || this.agent.core.v == 1)
             reward += 0.5;
         if (agent_col.length > 0){
-            console.log("collision!");
             reward = -10;
         }
         else if (!on_road){
-            console.log("out");
             reward = -10;
         }
+        this.lastReward = reward;
         return reward;
     }
+
+    /**
+     * Return the last reward given by the environement
+     */
+    public getLastReward(): number{
+        return this.lastReward;
+    }
+
 
     step(delta: number, action:number|number[]=null){
         /*

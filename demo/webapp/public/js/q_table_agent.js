@@ -4,7 +4,9 @@ class QTableAgent {
         Monte Carlo Agent
     */
 
-    constructor(env) {
+    constructor(env, pts) {
+        this.stateList = [];
+        this.pts = pts;
         this.env = env;
         this.Q = {};
         this.m = 0;
@@ -17,26 +19,49 @@ class QTableAgent {
         console.log("Q table saved");
     }
 
+    stringStateToState(state){
+        state = state.split(",");
+        var nState = [];
+        var lineCt = 0;
+        var line = [];
+        for (let l = 0; l < state.length; l++){
+            line.push(parseInt(state[l]));
+            if ((l+1) % this.pts == 0){
+                nState.push(line);
+                line = [];
+            }
+        }
+        return nState;
+    }
+
     restore(content){
         this.Q = {};
+        this.stateList = [];
         content = JSON.parse(content);
         for (const key in content){
-            this.Q[key] = [];
-            for (var i = 0; i < content[key].length; i++) {
-                if (content[key][i] != null){
-                    this.Q[key].push(content[key][i]);
+            var nStateToPush = this.stringStateToState(key);
+            var st = key.toString();
+            if (nStateToPush.length == this.pts)
+                this.stateList.push(nStateToPush);
+            this.Q[st] = [];
+            for (var i = 0; i < content[st].length; i++) {
+                if (content[st][i] != null){
+                    this.Q[st].push(content[st][i]);
                 }
                 else{
-                    this.Q[key].push(-Infinity);
+                    this.Q[st].push(-Infinity);
                 }
             }
         }
+        console.log(this.Q);
+        console.log(this.stateList);
         console.log("Q table loaded");
     }
 
     play(){
         // Get the current state
-        let state = this.env.getState().toString();
+        let state = this.env.getState();
+        state = state.toString();
         // In this state in not in the Q(s, a) function
         if (!(state in this.Q)){
             let action_space = this.env.actionSpace();
@@ -54,8 +79,15 @@ class QTableAgent {
         if (!(st in this.Q)){
             let action_space = this.env.actionSpace();
             action_space.range = [0, 1, 3];
+            this.stateList.push(st);
             this.Q[st] = Array.apply(null, Array(action_space.range.length)).map(Number.prototype.valueOf, 0);
         }
+    }
+
+    getStateValues(state){
+        state = state.toString();
+        this.createStateIfNotExist(state);
+        return this.Q[state];
     }
 
     pickAction(st, eps){
@@ -88,7 +120,7 @@ class QTableAgent {
             let st2;
             let act2;
             for (var t = 0; t < 800; t++) {
-                act = this.pickAction(this.env, st, eps);
+                act = this.pickAction(st, eps);
                 let reward = this.env.step(act);
                 mean_reward.push(reward);
                 st2 = this.env.getState().toString();
@@ -102,6 +134,5 @@ class QTableAgent {
             this.env.randomRoadPosition();
         }
         this.env.render(true);
-        console.log(this.Q);
     }
 }

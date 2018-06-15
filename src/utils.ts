@@ -172,7 +172,7 @@ export function keyboard(keyCode: any ) {
         key.isDown = true;
         key.isUp = false;
       }
-      //event.preventDefault();
+      event.preventDefault();
     };
   
     key.upHandler = (event: any) => {
@@ -181,7 +181,7 @@ export function keyboard(keyCode: any ) {
         key.isDown = false;
         key.isUp = true;
       }
-      //event.preventDefault();
+      event.preventDefault();
     };
 
     //Attach event listeners

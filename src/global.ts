@@ -13,7 +13,7 @@ export const Graphics      = PIXI.Graphics;
 export const Container     = PIXI.Container;
 
 // Main server
-export const URL = "http://localhost:3000/";
+export const URL = window.location.href.indexOf("localhost") == -1 ? "https://metacar-project.com/" : "http://localhost:3000/";
 
 // Textures files
 export const JSON_TEXTURES = URL + "public/textures/textures.json";
@@ -27,7 +27,7 @@ export const ROADSIZE = 60;
 
 export interface CARIMGI{
     DEFAULT: string;
-    AGENT: string;    
+    AGENT: string;
 }
 
 export const CAR_IMG: CARIMGI = {
