@@ -10,7 +10,7 @@
 2. [Your first environement](#first-env)
 3. [Interact with the environement](#interact-env)
 4. [Custom the environement](#configure-env)
-5. [Create your own level](#create-level)
+5. [Edit your own level](#create-level)
 
 <a id='getting-started'></a>
 Getting started
