@@ -175,10 +175,10 @@ class PolicyAgent {
         /*
             Restore the weights of the network
         */
-       //this.valueModel = await tf.loadModel('https://metacar-project.com/public/models/policy/value-model-policy-agent.json');
-       //this.policyModel = await tf.loadModel("https://metacar-project.com/public/models/policy/policy-model-policy-agent.json");
-       this.valueModel = await tf.loadModel('http://localhost:3000/public/models/policy/value-model-policy-agent.json');
-       this.policyModel = await tf.loadModel("http://localhost:3000/public/models/policy/policy-model-policy-agent.json");
+       this.valueModel = await tf.loadModel('https://metacar-project.com/public/models/policy/value-model-policy-agent.json');
+       this.policyModel = await tf.loadModel("https://metacar-project.com/public/models/policy/policy-model-policy-agent.json");
+       //this.valueModel = await tf.loadModel('http://localhost:3000/public/models/policy/value-model-policy-agent.json');
+       //this.policyModel = await tf.loadModel("http://localhost:3000/public/models/policy/policy-model-policy-agent.json");
     }
 
     play(){

@@ -9,7 +9,7 @@ if (levelObject){
 }
 
 // Create the editor (canvasID, levelUrl)
-var editor = new metacar.editor("editor", "http://localhost:3000/public/levels/levelGet.json");
+var editor = new metacar.editor("editor", levelToLoad);
 editor.load().then(() => {
     editor.addEvent("save", (content) => {
         // Put the object into storage
