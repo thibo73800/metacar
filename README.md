@@ -4,8 +4,7 @@
 1. [Getting Started](#getting-started)
 2. [Your first environement](#first-env)
 3. [Interact with the environement](#interact-env)
-4. [Other events](#other-interact-env)
-5. [Custom your environement](#configure-env)
+4. [Custom the environement](#configure-env)
 5. [Create your own level](#create-level)
 
 <a id='getting-started'></a>
@@ -16,6 +15,7 @@ Getting started
 
 You can used Metacar with a direct link in your HTML file or installing it from NPM. However, metacar is based on [Pixi.js](www.pixijs.com): 4.7.1, then you need to include pixi.js as a global dependencies in your HTML.
 
+<a id='script-tag'></a>
 #### Script Tag
 
 ```html
@@ -32,7 +32,7 @@ You can used Metacar with a direct link in your HTML file or installing it from 
 </html>
 ```
 
-#### Script Tag and npm
+#### Script Tag and NPM
 
 ```shell
 npm i metacar
@@ -156,7 +156,7 @@ The state of the environement is the the value of each lidar point. Of course, b
 
 Here is an example of basic training function. 
 
-```
+```javascript
 env.load().then(() => {
 
     env.addEvent("train", () => {
@@ -173,27 +173,117 @@ env.load().then(() => {
 });
 ```
 
-<a id='other-interact-env'></a>
-Other events
-------------
+### Reset env
 
-#### event1
-Description
+To reset the environement you can either called
 
-#### event2
-Description
+```javascript
+    env.reset();
+```
 
-#### Custom event
-Custom event description
+Or add a button to do it from the web page.
+
+```javascript
+env.load().then(() => {
+
+    env.addEvent("custom", () => {
+        env.reset();
+    });
+    
+});
+```
 
 <a id='configure-env'></a>
-Custom your environement
+Custom the environement
 ------------
+
+<b>!WARNING:</b> The method present in this section must be called <b>BEFORE</b> loading the environement. 
+
+### Change the lidar propeties
+
+There are 4 properties you can change. The number of points (pts) per line, the width and height of the area cover by the lidar and the position (pos) which respect to the car.
+
+```javascript
+env.setAgentLidar({pts: 3, width: 1.5, height: 1.5, pos: 1});
+// Load the environement after changing the propeties.
+env.load();
+```
+
+### Stop the others vehicles
+
+You can choose to move or stop the other vehicles with env.carsMoving()
+
+```javascript
+env.carsMoving(false);
+// Load the environement after changing the propeties.
+env.load();
+```
+
+<a id='other-methods'></a>
+Other methods
+------------
+
+### Load a file from your computer
+
+This features can be usefull to load the content of one file from your computer (the result of a trained model for 
+instance).
+
+```javascript
+env.load().then(() => {
+
+    env.load("load", (content) => {
+        // Here the content of the loaded file.
+        console.log(content);
+    },{local: true});
+
+});
+```
+
+### Save a file on your computer
+
+As well, you might want to save the result of a trained model on your computer.
+
+```javascript
+env.save("content of my model", "model.metacar")
+```
+
+### Add a custom event
+
+env.addEvent() comes with a set of predefined event ("train", "play", "stop", "reset_env", "load") but you can also create custom event with an associated button on the page. Bellow, an example of custom event saving a file onClick.
+
+```javascript
+env.load().then(() => {
+
+    env.load("My custom event", () => {
+        env.save("content of my model", "model.metacar");
+    });
+
+});
+```
 
 <a id='create-level'></a>
-Custom your environement
+Edit a new level
 ------------
 
+Only three lines are required to create the editor:
+
+```
+const level = metacar.level.level1;
+var editor = new metacar.editor("editor", levelToLoad);
+editor.load();
+```
+### Save the level
+
+```
+editor.load().then(() => {
+
+    editor.addEvent("save", (content) => {
+       // Save the content into the localstorage here or just
+       // retrieve the downloaded json.
+    }, {download: true, name: "mylevel.json"});
+
+});
+```
 
 <a id='link'></a>
 Link
