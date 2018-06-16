@@ -27,6 +27,7 @@ app.use(cors());
 
 app.use("/dist", express.static(path.join(__dirname, "dist/")));
 app.use("/public",   express.static(path.join(__dirname, "webapp/public/")));
+app.use("/docs",   express.static(path.join(__dirname, "docs/")));
 
 app.get('/', (req, res) => {
   res.sendFile(get_path("index.html"));

@@ -22,7 +22,7 @@ class PolicyAgent {
             Build the Value function
             @weights (Object) Weights for the layer
         */
-        const LEARNING_RATE = 0.01;
+        const LEARNING_RATE = 0.005;
         const value_optimizer = tf.train.adam(LEARNING_RATE);
         /*
             -----------------------
@@ -59,7 +59,7 @@ class PolicyAgent {
             Build the policy network
             @weights (Object) Weights for the layer
         */
-        const LEARNING_RATE = 0.01;
+        const LEARNING_RATE = 0.005;
         this.policy_optimizer = tf.train.adam(LEARNING_RATE);
         /*
             -----------------------
@@ -175,8 +175,10 @@ class PolicyAgent {
         /*
             Restore the weights of the network
         */
-       this.valueModel = await tf.loadModel('https://metacar-project.com/public/models/policy/value-model-policy-agent.json');
-       this.policyModel = await tf.loadModel("https://metacar-project.com/public/models/policy/policy-model-policy-agent.json");
+       //this.valueModel = await tf.loadModel('https://metacar-project.com/public/models/policy/value-model-policy-agent.json');
+       //this.policyModel = await tf.loadModel("https://metacar-project.com/public/models/policy/policy-model-policy-agent.json");
+       this.valueModel = await tf.loadModel('http://localhost:3000/public/models/policy/value-model-policy-agent.json');
+       this.policyModel = await tf.loadModel("http://localhost:3000/public/models/policy/policy-model-policy-agent.json");
     }
 
     play(){

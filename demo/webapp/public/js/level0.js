@@ -35,11 +35,9 @@ env.load().then(() => {
     });
     env.addEvent("save", () => agent.save());
     env.addEvent("load", (content) => {
-        loadJSON("http://localhost:3000/public/models/qtable/qtable.json", (content) => {
-            agent.restore(content);        
+        loadJSON("https://meta-project/public/models/qtable/qtable.json", (content) => {
+            agent.restore(content);    
             displayQTable("q_table", agent.stateList, agent, ["Top", "Left", "Right"]);
         });
-    });
-    env.addEvent("custom", () => {
     });
 });

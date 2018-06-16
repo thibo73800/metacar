@@ -1,6 +1,6 @@
 import { LevelInfo, Roads } from "./level";
 import { AssetManger, RoadSprite } from "./asset_manager";
-import { Car, CarSprite } from "./car";
+import { Car } from "./car";
 import { ROADSIZE, Loader, JSON_TEXTURES, JSON_IMAGE } from "./global";
 
 export class World {
@@ -36,7 +36,7 @@ export class World {
             @loop (Method) This method will be call for each render
         */
         this.loop = loop;
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.createLevel(this.info).then(() => resolve());
         });
     }
@@ -57,7 +57,7 @@ export class World {
         // Append the app to the body
         document.getElementById(this.canvasId).appendChild(this.app.view);
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             Loader.add([JSON_TEXTURES, JSON_IMAGE], {crossOrigin: true}).load(() => {
                     this._setup(info); // Set up the level (Add assets)
                     resolve();
@@ -66,7 +66,7 @@ export class World {
     }
 
     protected _setup(info: LevelInfo){
-        console.warn("This method should be implemented.");
+        console.warn("This method should be implemented.", info);
     }
 
     public getRoads(): Roads {

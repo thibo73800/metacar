@@ -11,7 +11,6 @@ import {
     CAR_IMG, Sprite, MAP, ROADSIZE, Container, Graphics
 } from "./global";
 import { RoadSprite } from "./asset_manager";
-import { stat } from "fs";
 
 var Global_carId = 0;
 

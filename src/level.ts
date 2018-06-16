@@ -3,13 +3,12 @@
     services in the game (assets, map, agents...).
 */
 
-import * as U from "./utils";
 import {
-    ROADSIZE, Loader, JSON_TEXTURES
+    Loader, JSON_TEXTURES
 } from "./global";
 import {AssetManger, RoadSprite} from "./asset_manager";
 
-import {Car, CarSprite, LidarChild, LidarInfoI} from "./car";
+import {LidarInfoI} from "./car";
 import {World} from "./world";
 import { BasicMotionEngine, BasicMotionOptions } from "./basic_motion_engine";
 import { ControlMotionEngine } from "./control_motion_engine";
@@ -90,9 +89,9 @@ export class Level extends World {
         let textures = Loader.resources[JSON_TEXTURES].textures;
         // Load all elements of the car
         this.am.createMap(this.map, info, textures);
-        this.am.createCars(this.map, info, textures);
+        this.am.createCars(info, textures);
         if (info.agent)
-            this.agent = this.am.createAgent(this.map, info, textures);
+            this.agent = this.am.createAgent(info, textures);
         // Set up the main loop
         this.app.ticker.add((delta: number) => this.loop(delta));
     }

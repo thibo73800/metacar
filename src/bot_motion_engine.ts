@@ -182,7 +182,6 @@ export class BotMotionEngine extends MotionEngine {
             let turn = false;
             let nx = this.car.mx + is_next_pos.mx;
             let ny = this.car.my + is_next_pos.my;
-            let current_road = this.level.getRoad(this.car.my, this.car.mx);
             if (!this.isRoad(nx, ny)) {
                 turn = true;
                 this.car.optionalTurn = false;

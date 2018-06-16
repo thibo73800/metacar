@@ -18,7 +18,6 @@ export class UIEvent {
     private playing: boolean;
     private canvasId: string;
     private buttonsContainer: HTMLDivElement;
-    private selectedItems: boolean = false;
     private level: Level|Editor;
     private editorWidth: number;
     private editorHeight: number;

@@ -1,13 +1,11 @@
-import { Level, LevelInfo } from "./level";
+import { LevelInfo } from "./level";
 import { UIEvent, eventEditorLoadOptions } from "./ui_event";
 import * as U from "./utils";
 import { Editor } from "./editor";
 import { ROADSIZE } from "./global";
-import { eventLoadOptions } from "./metacar";
 
 export class MetaCarEditor {
 
-    private agent: any;
     private level: Editor;
     private canvasId: string;
     private levelToLoad: string|Object;
@@ -28,17 +26,17 @@ export class MetaCarEditor {
         this.levelToLoad = levelToLoad;
     }
 
-    public load(level: string, agent: any): Promise<void>{
+    public load(): Promise<void>{
         /*
             Load the environement
             @level (String) Name of the json level to load
             @agent (Agent class)
         */
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if (typeof this.levelToLoad == "string"){
                 U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
                     this.level = new Editor(content, this.canvasId);
-                    this.level.load((delta: number) => this.loop(delta));
+                    this.level.load(() => this.loop());
                     this.event = new UIEvent(this.level, this.canvasId);
                     this.event.createEditorElementsEvents();
 
@@ -50,7 +48,7 @@ export class MetaCarEditor {
             }
             else{
                 this.level = new Editor(<LevelInfo>this.levelToLoad, this.canvasId);
-                this.level.load((delta: number) => this.loop(delta));
+                this.level.load(() => this.loop());
                 this.event = new UIEvent(this.level, this.canvasId);
                 this.event.createEditorElementsEvents();
 
@@ -88,11 +86,10 @@ export class MetaCarEditor {
             this.event.onCustomEvent(eventName, fc);
             return;
         }
-        const event =  this.eventList[index];
         this.eventCallback[index](fc, options);
     }
 
-    private loop(delta: number): void{
+    private loop(): void{
         let mousePos = this.level.getMousePosition();
         let selectedItem = (<Editor>this.level).getSelectedItems();
         if (selectedItem && selectedItem.type == "asset"){

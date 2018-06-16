@@ -1,9 +1,6 @@
-import { LevelInfo, Roads } from "./level";
-import { AssetManger, RoadSprite } from "./asset_manager";
-import { Car} from "./car";
+import { LevelInfo } from "./level";
+import { AssetManger } from "./asset_manager";
 import {Loader, Sprite, JSON_TEXTURES, ROADSIZE, MAP} from "./global";
-import * as U from "./utils";
-import {UIEvent} from "./ui_event";
 import { World } from "./world";
 
 /*
@@ -16,7 +13,6 @@ export class Editor extends World {
 
     // Current selector items by the editor
     private selectedItems: any = null;
-    private event: UIEvent;
     
     constructor(levelContent: LevelInfo, canvasId: string) {
         /*
@@ -40,9 +36,9 @@ export class Editor extends World {
         let textures = Loader.resources[JSON_TEXTURES].textures;
         // Load all elements of the car
         this.am.createMap(this.map, info, textures, false);
-        this.am.createCars(this.map, info, textures);
+        this.am.createCars(info, textures);
         if (info.agent)
-            this.agent = this.am.createAgent(this.map, info, textures, false);
+            this.agent = this.am.createAgent(info, textures, false);
 
         var that = this;
         for (var i = 0; i < this.envs.length; i++) {
@@ -124,7 +120,7 @@ export class Editor extends World {
             this.envs[this.envs.length - 1].on("rightclick", function(this: any) {that.removeItem(this)});
         }
         else if (this.selectedItems.type == "car"){
-            this.am.createCars(this.map, {cars:[{
+            this.am.createCars({cars:[{
                 "mx": Math.floor(this.selectedItems.x / ROADSIZE),
                 "my": Math.floor(this.selectedItems.y / ROADSIZE),
                 "rotation": 0,
@@ -134,7 +130,7 @@ export class Editor extends World {
             this.envs[this.envs.length - 1].on("rightclick", function(this: any) {that.removeItem(this)});
         }
         else if (this.selectedItems.type == "agent" && this.agent == undefined){
-            this.agent = this.am.createAgent(this.map, {agent:{
+            this.agent = this.am.createAgent({agent:{
                 "mx": Math.floor(this.selectedItems.x / ROADSIZE),
                 "my": Math.floor(this.selectedItems.y / ROADSIZE),
                 "rotation": 0,
@@ -159,12 +155,3 @@ export class Editor extends World {
         this.selectedItems = null;
     }
 }
-
-/*
-function createEditor(id: string){
-
-
-    document.getElementById("saveMap").onclick = () => {
-        editor.am.exportMap(width, height, file);
-    };
-}*/

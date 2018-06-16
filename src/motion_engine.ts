@@ -34,7 +34,7 @@ export class MotionEngine {
         this.level = level;
     }
 
-    protected boxesIntersect(a: any, b: any, reduce: boolean) {
+    protected boxesIntersect(a: any, b: any) {
         /*
             Chack if a the two elements intersect each others
             @a (Pixi sprite)
@@ -51,9 +51,9 @@ export class MotionEngine {
      * @object The object
      */
     protected carIntersect(car1: CarSprite, object: CarSprite){
-        const nb = this.car.lidar.collisionPts.length;
+        const nb = car1.lidar.collisionPts.length;
         for (let c=0; c < nb; c++){
-            if (this.boxesIntersect(this.car.lidar.collisionPts[c], object, false)){
+            if (this.boxesIntersect(car1.lidar.collisionPts[c], object)){
                 return true;
             }            
         }
@@ -66,10 +66,10 @@ export class MotionEngine {
      * @object The object
      */
     protected carCaptorInObject(car1: CarSprite, object: CarSprite): number{
-        const size = this.car.lidar.collisionPts.length;
+        const size = car1.lidar.collisionPts.length;
         let nb = 0;
         for (let c=0; c < size; c++){
-            if (this.boxesIntersect(this.car.lidar.collisionPts[c], object, false)){
+            if (this.boxesIntersect(car1.lidar.collisionPts[c], object)){
                 nb += 1;
             }
         }
@@ -91,19 +91,17 @@ export class MotionEngine {
         let agentCollisions = [];
         let lidar_collisions = [];
         let onRoadCnt = 0;
-        let checkNb = 0;
         let onRoad = false;
 
         for (let i = 0; i < envs.length; i++) {
             if (envs[i] != this.car && Math.abs(envs[i].mx - this.car.mx) < 2 && Math.abs(envs[i].my - this.car.my) < 2){
-                checkNb += 1;
                 if (all && envs[i].obstacle && this.carIntersect(this.car, envs[i])){
                     agentCollisions.push(envs[i]);
                 }
                 else if (all && envs[i].mapId == MAP.ROAD){
                     onRoadCnt += this.carCaptorInObject(this.car, envs[i]);
                 }
-                if (this.boxesIntersect(envs[i], this.lidar, false)){
+                if (this.boxesIntersect(envs[i], this.lidar)){
                     lidar_collisions.push(envs[i]);
                 }
             }
@@ -131,7 +129,7 @@ export class MotionEngine {
 
             for (var a = 0; a < lidar_collisions.length; a++) {
                 if (lidar_collisions[a] != this.car){
-                    let touch = this.boxesIntersect(lidar_collisions[a], this.lidar.lidarPts[i], false);
+                    let touch = this.boxesIntersect(lidar_collisions[a], this.lidar.lidarPts[i]);
                     if (touch && lidar_collisions[a].obstacle){
                         // If this is an obstacle
                         this.lidar.lidarPts[i].alpha = 1.;

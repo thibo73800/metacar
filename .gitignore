@@ -6,3 +6,4 @@ demo/node_modules/
 *package-lock.json*
 docs
 dist-es6
+demo/docs

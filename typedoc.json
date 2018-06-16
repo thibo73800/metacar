@@ -1,6 +1,6 @@
 {
   "mode": "modules",
-  "out": "docs",
+  "out": "demo/docs",
   "src": "src/index.ts",
   "theme": "default",
   "ignoreCompilerErrors": "true",

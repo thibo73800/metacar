@@ -27,9 +27,6 @@ export function loadEmbeddedURL(url: string, callback: any):void {
     callback(embeddedContent[split[0]][split[1]]);
 }
 
-export function loadLocalStorageURL(url: string, callback: any):void{
-}
-
 export function loadCustomURL(url: string, callback: any):void {
     /**
      * @url: CustomURL to load

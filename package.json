@@ -1,6 +1,7 @@
 {
   "name": "metacar",
-  "version": "0.0.1",
+  "description": "A reinforcement learning environment for self-driving cars in the browser.",
+  "version": "0.0.3",
   "main": "dist/metacar.min.js",
   "author": "Thibault Neveu",
   "license": "MIT",

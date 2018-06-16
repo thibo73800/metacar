@@ -3,8 +3,6 @@ let levelUrl = metacar.level.level1;
 // Create the environement (canvasID, levelUrl)
 var env = new metacar.env("canvas", levelUrl);
 
-env.setAgentMotion(metacar.motion.BasicMotion, {rotationStep: 0.1});
-
 // Create the Policy agent
 var agent = new PolicyAgent(env);
 
@@ -31,5 +29,8 @@ env.load().then(() => {
         console.log("On reset env!");
     });
     env.addEvent("save", () => agent.save());
-    env.addEvent("load", () => agent.restore());
+    env.addEvent("load", () => {
+        document.getElementById("metacar_canvas_button_train").style.display = "none";
+        agent.restore()
+    });
 });

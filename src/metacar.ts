@@ -3,7 +3,7 @@
 */
 
 import {Level, LevelInfo} from "./level";
-import {actionSpaceDescription, MotionEngine} from "./motion_engine";
+import {actionSpaceDescription} from "./motion_engine";
 import {UIEvent} from "./ui_event";
 import * as U from "./utils";
 import { BasicMotionEngine, BasicMotionOptions } from "./basic_motion_engine";
@@ -20,7 +20,6 @@ export interface eventLoadOptions {
 
 export class MetaCar {
 
-    private agent: any;
     private level: Level;
     private canvasId: string;
     private levelToLoad: string|Object;
@@ -245,7 +244,7 @@ export class MetaCar {
     */
    public load(): Promise<void>{
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         if (typeof this.levelToLoad == "string"){
             U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
                 this.level = new Level(content, this.canvasId);

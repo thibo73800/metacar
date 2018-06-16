@@ -12,10 +12,8 @@ import {
 
 import {CarOptions, Car, LidarInfoI} from "./car";
 import {BasicMotionEngine} from "./basic_motion_engine";
-import {ControlMotionEngine} from "./control_motion_engine";
 import {BotMotionEngine} from "./bot_motion_engine";
 import { Editor } from "./editor";
-import { MotionEngine } from "./motion_engine";
 
 export interface AssetInfo {
     readonly mx?: number;
@@ -56,7 +54,6 @@ export class AssetManger {
 
     private level: Level|Editor;
     // Used to list the differents MotionEngine possible to add on the car
-    private motion: any;
     // List of all items on the map
     public assets: SimpleSprite[] = [];
     private agentMotionEngine: any = BasicMotionEngine;
@@ -65,10 +62,6 @@ export class AssetManger {
 
     constructor(level: Level|Editor) {
         this.level = level;
-        this.motion = {
-            "BasicMotionEngine": BasicMotionEngine,
-            "ControlMotionEngine": ControlMotionEngine
-        }
     }
 
     /**
@@ -92,7 +85,7 @@ export class AssetManger {
         this.agentMotionOptions = options;
     }
 
-    createRoadSide(info: AssetInfo, textures: any){
+    createRoadSide(info: AssetInfo){
         /*
             @textures: (Pixi textures)
         */
@@ -208,7 +201,7 @@ export class AssetManger {
             for (let my = 0; my < map.length; my++) {
                 for (let mx = 0; mx < map[my].length; mx++) {
                     if (ASSETS.ROADS[map[my][mx]]){
-                        this.createRoadSide({mx, my, type: map[my][mx]}, textures);
+                        this.createRoadSide({mx, my, type: map[my][mx]});
                     }
                 }
             }
@@ -231,7 +224,7 @@ export class AssetManger {
         }
     }
 
-    createCars(map: (string|number)[][], info: any, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary)){
+    createCars(info: any, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary)){
         /*
             Method used to create all the cars
             @map (2dim Array)
@@ -250,7 +243,7 @@ export class AssetManger {
         }
     }
 
-    createAgent(map: (string|number)[][], info: any, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary), displayLidar:boolean=true){
+    createAgent(info: any, textures: (PIXI.Texture|PIXI.loaders.TextureDictionary), displayLidar:boolean=true){
         /*
             Method used to create the agent's car.
             @map (2dim Array)
