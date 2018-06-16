@@ -1,4 +1,4 @@
-# Metacar: A reinforcement learning environement for self driving cars in the browser.
+# Metacar: A reinforcement learning environment for self-driving cars in the browser.
 
 <img style="display: block; width: 100%; margin: auto;" src="img/header_github.png" />
 
