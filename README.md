@@ -1,6 +1,6 @@
 # Metacar: A reinforcement learning environment for self-driving cars in the browser.
 
-<img style="display: block; width: 100%; margin: auto;" src="img/header_github.png" />
+<img style="display: block; width: 100%; margin: auto;" src="https://github.com/thibo73800/metacar/blob/master/img/header_github.png" />
 
 
 # Documentation
@@ -18,7 +18,7 @@ Getting started
 
 ### Installing Metacar 
 
-You can used Metacar with a direct link in your HTML file or installing it from NPM. However, metacar is based on [Pixi.js](www.pixijs.com): 4.7.1, then you need to include pixi.js as a global dependencies in your HTML.
+You can use Metacar with a direct link in your HTML file or install it from NPM. However, metacar is based on [Pixi.js](www.pixijs.com): 4.7.1, then you need to include pixi.js as a global dependency in your HTML.
 
 <a id='script-tag'></a>
 #### Script Tag
@@ -66,7 +66,7 @@ import Metacar from "metacar";
 Your first environement
 ------------
 
-Even if you can [create your own level](#create-level), Metacar comes up with a set of predefined level accessible under [metacar.level](#). Once your level is selected, you can use it to create a first environement. <br>
+Even if you can [create your own level](#create-level), Metacar comes up with a set of predefined level accessible under [metacar.level](#). Once your level is selected, you can use it to create a first environment. <br>
 
 ```javascript
 // Select a level
@@ -81,23 +81,23 @@ You also have to create the container in your HTML file.
 ```html
 <div id="env"></div>
 ```
-(NOTE: metacar.env can be instanciate with an object or a string for the level parameters: [doc API](#link))
+(NOTE: metacar.env can be instantiated with an object or a string for the level parameters: [doc API](#link))
 
-<b>Wonderful! You just create your first metacar environement. </b> You can take sometime to play around with the key arrow to move the car. The current collision system support the detection of the following events:
+<b>Wonderful! You just created your first metacar environment. </b> You can take some time to play around with the keys arrow to move the car. The current collision system supports the detection of the following events:
 
-* Collisions with other vehicles
-* Detection of the vehicles, ground and road with the lidar
-* Detection of the car going out track
+* Collisions with other vehicles.
+* Detection of the vehicles, ground, and road with the lidar.
+* Detection of the car going out track.
 
-If you want to add new features to the detection system you can considere [contributing to the project](#link) :)
+If you want to add new features to the detection system, you can consider [contributing to the project](https://github.com/thibo73800/metacar/blob/master/CONTRIBUTE.md) :)
 
 <a id='interact-env'></a>
-Interact with the environement
+Interact with the environment
 ------------
 
 ### Action space
 
-By default the environement comes with a simple motion engine ([How to change the motion engine ?](#link))  who let you control the car with the arrow. Then, the actions are either UP, LEFT, RIGHT, DOWN, WAIT. Once the environement is loaded you can take a look at the action space.
+By default, the environment comes with a simple motion engine ([How to change the motion engine ?](#link))  who let you control the car with the arrow. Then, the actions are either UP, LEFT, RIGHT, DOWN, WAIT. Once the environment is loaded, you can take a look at the action space.
 
 ```javascript
 env.load(() => {
@@ -115,9 +115,9 @@ env.load(() => {
 
 ### Play & Stop
 
-Let's suppose your agent is already trained to move forward whatever happens (Fortunately we are in a simulation). Then you want might want to test it in real time to see the result.
+Let's suppose your agent is already trained to move forward whatever happens (Fortunately we are in a simulation). Then you might want to test it in real time to see the result.
 
-The quickest way to do so is to simply ask the environement to call a given function at each lopp run.
+The quickest way to do so is to just ask the environment to call a given function at each loop turn.
 
 ```javascript
 env.load().then(() => {
@@ -132,9 +132,9 @@ env.load().then(() => {
 });
 ```
 
-You should see a <b>play</b> button on the screen. On click, the car will move forward and the reward should be positive as long as the car is on track, then negative when the car quit the road.<br>
+You should see a <b>play</b> button on the screen. On click, the car will move forward, and the reward should be positive as long as the car is on track, then negative when the car quit the road.<br>
 
-To stop calling your fonction you cann add a stop button on the screen.
+To stop calling your function, you can add a stop button on the screen.
 
 ```javascript
 env.load().then(() => {
@@ -155,11 +155,11 @@ env.load().then(() => {
 
 ### Train your agent
 
-During the training, the environement is not render on the screen anymore. Once you're training is finish you have to notify the environement by calling env.render(true) to render the environement again. <br>
+During the training, the environment is not rendering on the screen anymore. Once you're training is finish you have to notify the environment by calling env.render(true) to render the environment again. <br>
 
-The state of the environement is the the value of each lidar point. Of course, because the car still want to go forward it doesn't care about the value of the state :) <br>
+The state of the environment is the value of each lidar point. 
 
-Here is an example of basic training function. 
+Here is an example of simple training loop. 
 
 ```javascript
 env.load().then(() => {
@@ -180,7 +180,7 @@ env.load().then(() => {
 
 ### Reset env
 
-To reset the environement you can either called
+To reset the environment, you can either called
 
 ```javascript
     env.reset();
@@ -202,11 +202,11 @@ env.load().then(() => {
 Custom the environement
 ------------
 
-<b>!WARNING:</b> The method present in this section must be called <b>BEFORE</b> loading the environement. 
+<b>!WARNING:</b> The method present in this section must be called <b>BEFORE</b> loading the environment. 
 
 ### Change the lidar propeties
 
-There are 4 properties you can change. The number of points (pts) per line, the width and height of the area cover by the lidar and the position (pos) which respect to the car.
+There are four properties you can change. The number of points (pts) per line, the width and height of the area cover by the lidar and the position (pos) which respect to the car.
 
 ```javascript
 env.setAgentLidar({pts: 3, width: 1.5, height: 1.5, pos: 1});
@@ -230,7 +230,7 @@ Other methods
 
 ### Load a file from your computer
 
-This features can be usefull to load the content of one file from your computer (the result of a trained model for 
+This features can be useful to load the content of one file from your computer (the result of a trained model for 
 instance).
 
 ```javascript
