@@ -3,6 +3,7 @@
 var fs        = require('fs');
 const express = require('express');
 var path      = require("path");
+var cors      = require('cors');
 
 function fromDir(startPath,filter){
   var files_list = [];
@@ -22,6 +23,7 @@ function get_path(file){
 }
 
 const app = express();
+app.use(cors());
 
 app.use("/dist", express.static(path.join(__dirname, "dist/")));
 app.use("/public",   express.static(path.join(__dirname, "webapp/public/")));

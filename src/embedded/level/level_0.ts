@@ -1,31 +1,5 @@
 export const level0: any = {
-    "cars": [
-        {
-            "mx": 3,
-            "my": 2,
-            "line": 0
-        },
-        {
-            "mx": 1,
-            "my": 2,
-            "line": 0
-        },
-        {
-            "mx": 2,
-            "my": 3,
-            "line": 0
-        },
-        {
-            "mx": 3,
-            "my": 1,
-            "line": 0
-        },
-        {
-            "mx": 1,
-            "my": 1,
-            "line": 0
-        }
-    ],
+    "cars": [],
     "house": [
         {
             "x": 263,

@@ -58,7 +58,7 @@ export class World {
         document.getElementById(this.canvasId).appendChild(this.app.view);
 
         return new Promise((resolve, reject) => {
-            Loader.add([JSON_TEXTURES, JSON_IMAGE]).load(() => {
+            Loader.add([JSON_TEXTURES, JSON_IMAGE], {crossOrigin: true}).load(() => {
                     this._setup(info); // Set up the level (Add assets)
                     resolve();
             });

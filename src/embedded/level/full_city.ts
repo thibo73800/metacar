@@ -184,7 +184,7 @@ export const fullCity: any = {
             0,
             0,
             0,
-            "↠",
+            "↟",
             0,
             0,
             0,
@@ -200,7 +200,7 @@ export const fullCity: any = {
             "↦",
             "↔",
             "↔",
-            "↟",
+            "↠",
             "↔"
         ],
         [
@@ -245,11 +245,11 @@ export const fullCity: any = {
         [
             0,
             0,
-            "↠",
+            "↟",
             0,
             0,
             0,
-            "↠",
+            "↟",
             0,
             0,
             0,

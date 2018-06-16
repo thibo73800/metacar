@@ -1,7 +1,7 @@
 {
   "name": "metacar",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "dist/metacar.min.js",
   "author": "Thibault Neveu",
   "license": "MIT",
   "devDependencies": {
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@types/pixi.js": "^4.7.5",
-    "express": "^4.16.3",
     "pixi.js": "^4.8.0"
   },
   "scripts": {

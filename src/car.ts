@@ -121,7 +121,7 @@ export class Car {
             this.motion.setUp(this.core, this.lidar);
             this.core.rotationStep = 0.5;
         }
-        else{
+        else {
             this.core.rotationStep = 0.5;
         }
 

@@ -22,7 +22,7 @@ class PolicyAgent {
             Build the Value function
             @weights (Object) Weights for the layer
         */
-        const LEARNING_RATE = 0.05;
+        const LEARNING_RATE = 0.01;
         const value_optimizer = tf.train.adam(LEARNING_RATE);
         /*
             -----------------------
@@ -59,7 +59,7 @@ class PolicyAgent {
             Build the policy network
             @weights (Object) Weights for the layer
         */
-        const LEARNING_RATE = 0.05;
+        const LEARNING_RATE = 0.01;
         this.policy_optimizer = tf.train.adam(LEARNING_RATE);
         /*
             -----------------------
@@ -160,7 +160,7 @@ class PolicyAgent {
         // Maximum number of step per episode
         this.nb_step = 800;
         this.mini_batch_size = 200;
-        this.episodeNb = 100;
+        this.episodeNb = 200;
     }
 
     save(env){
@@ -175,14 +175,8 @@ class PolicyAgent {
         /*
             Restore the weights of the network
         */
-       if (window.location.href.indexOf("localhost") == -1){
-            this.valueModel = await tf.loadModel('https://metacar-project.com/public/models/policy/value-model-policy-agent.json');
-            this.policyModel = await tf.loadModel("https://metacar-project.com/public/models/policy/policy-model-policy-agent.json");
-       }
-       else{
-        this.valueModel = await tf.loadModel('http://localhost:3000/public/models/policy/value-model-policy-agent.json');
-        this.policyModel = await tf.loadModel("http://localhost:3000/public/models/policy/policy-model-policy-agent.json");
-       }
+       this.valueModel = await tf.loadModel('https://metacar-project.com/public/models/policy/value-model-policy-agent.json');
+       this.policyModel = await tf.loadModel("https://metacar-project.com/public/models/policy/policy-model-policy-agent.json");
     }
 
     play(){
@@ -258,6 +252,9 @@ class PolicyAgent {
                 st.dispose();
                 // Step in the environement with this action
                 reward = this.env.step(action);
+                if (reward == -1){
+                    reward = -10;
+                }
             }
             // Size of the next batches && minibatches
             const batch_size = rewards.length;

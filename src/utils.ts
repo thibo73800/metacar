@@ -15,7 +15,7 @@ export function loadJSON(url: string, callback: any) {
     xobj.onreadystatechange = function () {
          if (xobj.readyState == 4 && xobj.status == 200) {
            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-           callback(xobj.responseText);
+           callback(JSON.parse(xobj.responseText));
          }
     };
     xobj.send(null);
@@ -40,9 +40,8 @@ export function loadCustomURL(url: string, callback: any):void {
     */
    const customCall: any = {
         "embedded:": loadEmbeddedURL,
-        "http://": loadJSON,
-        "https://": loadJSON,
-        "localstorage://": loadLocalStorageURL
+        "http:": loadJSON,
+        "https:": loadJSON
    }
    const split = url.split("//");
    customCall[split[0]](url, callback);

@@ -326,7 +326,6 @@ export class AssetManger {
         file.map = map;
         // If the agent exist
         if (this.level.agent){
-            console.log("enter here to create egent....");
             file.agent = {
                 "mx": this.level.agent.core.mx,
                 "my": this.level.agent.core.my,

@@ -46,34 +46,17 @@ export class MetaCar {
         this.canvasId = canvasId;
         this.levelToLoad = levelToLoad;
     }
-
-    /*
-        Load the environement with the parameters passed in the constructor.
-    */
-    public load(): Promise<void>{
-
-        return new Promise((resolve, reject) => {
-            if (typeof this.levelToLoad == "string"){
-                U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
-                    this.level = new Level(content, this.canvasId);
-                    this.level.setAgentMotion(this.agentMotionEngine, this.agentMotionOptions);
-                    this.level.setAgentLidar(this.agentLidarInfo);
-                    this.level.carsMoving(this.isCarsMoving);
-                    this._setEvents();
-                    this.level.load((delta: number) => this._loop(delta));
-                    resolve();
-                });
-            }
-            else{
-                this.level = new Level(<LevelInfo>this.levelToLoad, this.canvasId);    
-                this.level.setAgentMotion(this.agentMotionEngine, this.agentMotionOptions);
-                this.level.setAgentLidar(this.agentLidarInfo);
-                this.level.carsMoving(this.isCarsMoving);
-                this._setEvents();
-                this.level.load((delta: number) => this._loop(delta));
-                resolve(); 
-            }
-        });
+    
+    /**
+     * Set a custom reward function
+     * The @fc will be called with three parameters and should return one number.
+     *  *agentCollisions: A list with all current collisions
+     *  *onRoad: Is the car on the road
+     *  *action: The last action took by the car
+     * @fc The reward function to call
+     */
+    public setRewardFunction(fc: any): void {
+        this.level.setRewardFunction(fc);
     }
 
     /**
@@ -256,5 +239,36 @@ export class MetaCar {
             (fc: any, opt: eventLoadOptions) => this.event.onLoad(fc, opt)
         ];
     }
+
+    /*
+        Load the environement with the parameters passed in the constructor.
+    */
+   public load(): Promise<void>{
+
+    return new Promise((resolve, reject) => {
+        if (typeof this.levelToLoad == "string"){
+            U.loadCustomURL(<string>this.levelToLoad, (content: LevelInfo) => {
+                this.level = new Level(content, this.canvasId);
+                this.level.setAgentMotion(this.agentMotionEngine, this.agentMotionOptions);
+                this.level.setAgentLidar(this.agentLidarInfo);
+                this.level.carsMoving(this.isCarsMoving);
+                this._setEvents();
+                this.level.load((delta: number) => this._loop(delta)).then(() => {
+                    resolve();
+                });
+            });
+        }
+        else{
+            this.level = new Level(<LevelInfo>this.levelToLoad, this.canvasId);    
+            this.level.setAgentMotion(this.agentMotionEngine, this.agentMotionOptions);
+            this.level.setAgentLidar(this.agentLidarInfo);
+            this.level.carsMoving(this.isCarsMoving);
+            this._setEvents();
+            this.level.load((delta: number) => this._loop(delta)).then(() => {
+                resolve();
+            });
+        }
+    });
+}
 
 }

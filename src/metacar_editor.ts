@@ -12,7 +12,7 @@ export class MetaCarEditor {
     private canvasId: string;
     private levelToLoad: string|Object;
     private event: UIEvent;
-    private eventList: string[] = ["save"]
+    private eventList: string[] = ["save"];
     private eventCallback: any[];
 
     /**
@@ -60,6 +60,18 @@ export class MetaCarEditor {
                 resolve();
             }
         });
+    }
+
+    /**
+     * Usefull method to save/download a string as file.
+     * @content The content of the file
+     * @file_name The name of the file
+     */
+    public save(content: string, file_name: string): void{
+        /*
+            Save the agent
+        */
+        U.saveAs(content, file_name);
     }
 
     /**

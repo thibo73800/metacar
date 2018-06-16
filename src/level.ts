@@ -28,6 +28,7 @@ export class Level extends World {
 
     public isCarsMoving: boolean = true;
     private lastReward: number = 0;
+    private rewardFunction: any = null;
 
     constructor(levelContent: LevelInfo, canvasId: string) {
         /*
@@ -37,6 +38,18 @@ export class Level extends World {
         super(levelContent, canvasId);
         this.map = this.info.map;
         this.am = new AssetManger(this);
+    }
+
+    /**
+     * Set a custom reward function
+     * The @fc will be called with three parameters and should return one number.
+     *  *agentCollisions: A list with all current collisions
+     *  *onRoad: Is the car on the road
+     *  *action: The last action took by the car
+     * @fc The reward function to call
+     */
+    public setRewardFunction(fc: any) {
+        this.rewardFunction = fc;
     }
 
     /**
@@ -93,7 +106,7 @@ export class Level extends World {
         */
         this.agent.reset();
         for (var c = 0; c < this.cars.length; c++) {
-           this.cars[c].reset();
+           //this.cars[c].reset();
         }  
     }
 
@@ -105,12 +118,11 @@ export class Level extends World {
         if (action == 0 || this.agent.core.v == 1)
             reward += 0.5;
         if (agent_col.length > 0){
-            reward = -10;
+            reward = -1;
         }
         else if (!on_road){
-            reward = -10;
+            reward = -1;
         }
-        this.lastReward = reward;
         return reward;
     }
 
@@ -132,12 +144,19 @@ export class Level extends World {
         for (var c = 0; c < this.cars.length; c++) {
             if (this.cars[c].lidar && !this.cars[c].core.agent) // If this car can move
                 this.cars[c].step(delta);
-        }   
+        }
         // Move the agent
         if (this.agent){
             let {agentCollisions, onRoad} = this.agent.step(delta, action);
             // Get the reward
-            let reward = this.setReward(agentCollisions, onRoad, action);
+            let reward;
+            if (this.rewardFunction){
+                reward = this.rewardFunction(agentCollisions, onRoad, action);
+            }
+            else {
+                reward = this.setReward(agentCollisions, onRoad, action);
+            }
+            this.lastReward = reward;
             return reward;
         }
         return 0;

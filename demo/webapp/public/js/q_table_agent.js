@@ -14,9 +14,7 @@ class QTableAgent {
 
     save(){
         let save_content = JSON.stringify(this.Q);
-        console.log(save_content);
-        this.env.save(save_content, "mc_agent.json");
-        console.log("Q table saved");
+        this.env.save(save_content, "qtable.json");
     }
 
     stringStateToState(state){
@@ -37,7 +35,6 @@ class QTableAgent {
     restore(content){
         this.Q = {};
         this.stateList = [];
-        content = JSON.parse(content);
         for (const key in content){
             var nStateToPush = this.stringStateToState(key);
             var st = key.toString();
@@ -53,9 +50,6 @@ class QTableAgent {
                 }
             }
         }
-        console.log(this.Q);
-        console.log(this.stateList);
-        console.log("Q table loaded");
     }
 
     play(){
@@ -103,14 +97,14 @@ class QTableAgent {
     }
 
     train(){
-        let episode = 10000;
+        let episode = 2000;
         let eps = 1.0;
         let eps_decrease = 0.99;
 
         let mean_reward = [];
         for (let ep = 0; ep < episode; ep++) {
-            if (ep % 50 == 0){
-                eps = Math.max(0.1, eps*eps_decrease);
+            if (ep % 10 == 0){
+                eps = Math.max(0.05, eps*eps_decrease);
                 console.log("episode=", ep, "eps=", eps, "mean_reward", mean(mean_reward));
             }
             mean_reward = [];
@@ -128,11 +122,15 @@ class QTableAgent {
                 act2 = this.pickAction(st2, 0.);
                 this.createStateIfNotExist(st2);
                 this.createStateIfNotExist(st);
-                this.Q[st][act] = this.Q[st][act] + 0.05*(reward + (gamma*this.Q[st2][act2]) - this.Q[st][act]);
+                this.Q[st][act] = this.Q[st][act] + 0.01*(reward + (gamma*this.Q[st2][act2]) - this.Q[st][act]);
                 st = st2;
             }
             this.env.randomRoadPosition();
         }
         this.env.render(true);
+        for (let s=0; s < this.stateList.length; s++){
+            this.stateList[s] = this.stringStateToState(this.stateList[s]);
+        }
+        displayQTable("q_table", this.stateList, this, ["Top", "Left", "Right"]);
     }
 }

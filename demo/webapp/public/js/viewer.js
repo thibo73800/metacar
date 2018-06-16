@@ -43,17 +43,16 @@ function displayScores(id, score, reward, labels){
         container.appendChild(textContainer);
     }
 
-    console.log(score);
     var text = "";
     for (let c = 0; c < score.length; c++){
-        text += labels[c] + ": <b>" + Number((parseFloat(score[c])).toFixed(2)) + "</b><br>";
+        text += labels[c] + ": <b>" + ((score[c])).toFixed(2) + "</b><br>";
     }
 
-    if (reward){
-        if (reward < 0)
-            text += "<br><p style='color: #ee4c32'>Reward: <b>" +Number((parseFloat(reward)).toFixed(2)) + "</b></p>"
+    if (reward != null){
+        if (reward <= 0)
+            text += "<br><p style='color: #ee4c32'>Reward: <b>" + ((reward)).toFixed(2) + "</b></p>"
         else
-            text += "<br><p style='color: #80bf3e'>Reward: <b>" +Number((parseFloat(reward)).toFixed(2)) + "</b></p>"
+            text += "<br><p style='color: #80bf3e'>Reward: <b>" + ((reward)).toFixed(2) + "</b></p>"
     }
 
     textContainer.innerHTML = text;

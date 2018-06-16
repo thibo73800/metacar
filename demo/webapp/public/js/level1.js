@@ -3,6 +3,8 @@ let levelUrl = metacar.level.level1;
 // Create the environement (canvasID, levelUrl)
 var env = new metacar.env("canvas", levelUrl);
 
+env.setAgentMotion(metacar.motion.BasicMotion, {rotationStep: 0.1});
+
 // Create the Policy agent
 var agent = new PolicyAgent(env);
 
@@ -16,7 +18,13 @@ env.loop(() => {
 
 env.load().then(() => {
     // The level is loaded. Add listernes
-    env.addEvent("train", () => agent.train());
+
+    env.addEvent("train", () => {
+        let train = confirm("The training process takes some time and might slow this tab. Do you want to continue? \
+        You can also load a pre-trained model");
+        if (train)
+            agent.train();
+    });
     env.addEvent("play", () => agent.play());
     env.addEvent("stop", () => agent.stop());
     env.addEvent("reset_env", () => {
