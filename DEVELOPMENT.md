@@ -17,3 +17,9 @@ npm run watch
 ```
 npm run build
 ```
+
+### Build the docs
+
+```
+npm run docs
+```
