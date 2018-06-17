@@ -1,6 +1,6 @@
 # Metacar: A reinforcement learning environment for self-driving cars in the browser.
 
-<img style="display: block; width: 100%; margin: auto;" src="https://github.com/thibo73800/metacar/blob/master/img/header_github.png" />
+[<img style="display: block; width: 100%; margin: auto;"</> src="https://github.com/thibo73800/metacar/blob/master/img/header_github.png" />](https://www.metacar-project.com)
 
 <b>Metacar</b> is a 2D reinforcement learning environment for autonomous vehicles running in the browser. The project aims to let reinforcement learning be more accessible to everyone through solving fun problems. Metacar comes with a set of a predefined level, some harder to address than others. More levels and possibilities of scenario will be added soon (pedestrian, bikes...). Furthermore, the library let you create your own levels and personalize the environment to create your desired scenario.
 
@@ -8,6 +8,8 @@ If you want to be part of the project, whether to implement features in the envi
 the [slack channel](https://join.slack.com/t/metacar/shared_invite/enQtMzgyODI4NDMzMDc0LTY1MjIwNzk1MTAzOTBiZjJlOGUwM2YyYjA3MzBmNjQyNjUyMDZkOGNkYmU0MmUyYzUzNGRhNGJhZDE1M2EzNzM) ask questions and talk about all your fantastic ideas! 
 
 To start developing with metacar check out the Documentation and the [API Reference](http://metacar-project.com/docs/modules/_index_.html)
+
+You can also take a look at the [online demo](https://www.metacar-project.com).
 
 # Documentation
 
