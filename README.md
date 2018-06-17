@@ -1,21 +1,23 @@
 # Metacar: A reinforcement learning environment for self-driving cars in the browser.
 
-<img style="display: block; width: 100%; margin: auto;" src="https://github.com/thibo73800/metacar/blob/master/img/header_github.png" />
+[<img style="display: block; width: 100%; margin: auto;" src="https://github.com/thibo73800/metacar/blob/master/img/header_github.png" />](https://www.metacar-project.com)
 
-<b>Metacar</b> is a 2D reinforcement learning environment for autonomous vehicles running in the browser. The project aims to let reinforcement learning be more accessible to everyone through solving fun problems. Metacar comes with a set of a predefined level, some harder to address than others. More levels and possibilities of scenario will be added soon (pedestrian, bikes...). Furthermore, the library let you create your own levels and personalize the environment to create your desired scenario.
+<b>Metacar</b> is a 2D reinforcement learning environment for autonomous vehicles running in the browser. The project aims to let reinforcement learning be more accessible to everyone through solving fun problems. Metacar comes with a set of a predefined levels, some harder to address than others. More levels and possibile scenarios will be added soon (pedestrian, bikes...). Furthermore, the library let you create your own levels and personalize the environment to create your desired scenario.
 
-If you want to be part of the project, whether to implement features in the environment or demonstrate algorithm, feel free to join
-the [slack channel](https://join.slack.com/t/metacar/shared_invite/enQtMzgyODI4NDMzMDc0LTY1MjIwNzk1MTAzOTBiZjJlOGUwM2YyYjA3MzBmNjQyNjUyMDZkOGNkYmU0MmUyYzUzNGRhNGJhZDE1M2EzNzM) ask questions and talk about all your fantastic ideas! 
+If you want to be part of the project, whether to implement features in the environment or demonstrate algorithms, feel free to join
+the [slack channel](https://join.slack.com/t/metacar/shared_invite/enQtMzgyODI4NDMzMDc0LTY1MjIwNzk1MTAzOTBiZjJlOGUwM2YyYjA3MzBmNjQyNjUyMDZkOGNkYmU0MmUyYzUzNGRhNGJhZDE1M2EzNzM) to ask questions and talk about all your fantastic ideas! 
 
 To start developing with metacar check out the Documentation and the [API Reference](http://metacar-project.com/docs/modules/_index_.html)
+
+You can also take a look at the <b>[online demo](https://www.metacar-project.com).</b>
 
 # Documentation
 
 ### Table of contents:
 1. [Getting Started](#getting-started)
-2. [Your first environement](#first-env)
-3. [Interact with the environement](#interact-env)
-4. [Custom the environement](#configure-env)
+2. [Your first environment](#first-env)
+3. [Interact with the environment](#interact-env)
+4. [Custom the environment](#configure-env)
 5. [Edit your own level](#create-level)
 
 <a id='getting-started'></a>
@@ -69,10 +71,10 @@ import Metacar from "metacar";
 ------------
 
 <a id='first-env'></a>
-Your first environement
+Your first environment
 ------------
 
-Even if you can [create your own level](#create-level), Metacar comes up with a set of predefined level accessible under [metacar.level](#). Once your level is selected, you can use it to create a first environment. <br>
+Even if you can [create your own level](#create-level), Metacar comes up with a set of predefined levels accessible under [metacar.level](#). Once your level is selected, you can use it to create a first environment. <br>
 
 ```javascript
 // Select a level
@@ -103,7 +105,7 @@ Interact with the environment
 
 ### Action space
 
-By default, the environment comes with a simple motion engine ([How to change the motion engine ?](#change-motion))  who let you control the car with the arrow. Then, the actions are either UP, LEFT, RIGHT, DOWN, WAIT. Once the environment is loaded, you can take a look at the action space.
+By default, the environment comes with a simple motion engine ([How to change the motion engine ?](#change-motion))  which lets you control the car with the arrow. Then, the actions are either UP, LEFT, RIGHT, DOWN, WAIT. Once the environment is loaded, you can take a look at the action space.
 
 ```javascript
 env.load(() => {
@@ -138,7 +140,7 @@ env.load().then(() => {
 });
 ```
 
-You should see a <b>play</b> button on the screen. On click, the car will move forward, and the reward should be positive as long as the car is on track, then negative when the car quit the road.<br>
+You should see a <b>play</b> button on the screen. On click, the car will move forward, and the reward should be positive as long as the car is on track, then negative when the car leaves the road.<br>
 
 To stop calling your function, you can add a stop button on the screen.
 
@@ -161,7 +163,7 @@ env.load().then(() => {
 
 ### Train your agent
 
-During the training, the environment is not rendering on the screen anymore. Once you're training is finish you have to notify the environment by calling env.render(true) to render the environment again. <br>
+During the training, the environment is not rendering on the screen anymore. Once your training is finish you have to notify the environment by calling env.render(true) to render the environment again. <br>
 
 The state of the environment is the value of each lidar point. 
 
@@ -186,7 +188,7 @@ env.load().then(() => {
 
 ### Reset env
 
-To reset the environment, you can either called
+To reset the environment, you can either call
 
 ```javascript
     env.reset();
@@ -211,11 +213,11 @@ Custom the environement
 <a id='change-motion'></a>
 ### Change the motion engine
 
-There are two motion engine avaiable: BasicMotion and ControlMotion. 
+There are two motion engine available: BasicMotion and ControlMotion. 
 
 #### BasicMotion
 
-This is the default motion engine. Movement of the car are either up, down, left, right or wait. The car turn from a given angle for the left and right action.
+This is the default motion engine. Movement of the car is either up, down, left, right or wait. The car turns from a given angle for the left and right action.
 
 You can change the parameters of the motion engine using the setMotion method.
 
@@ -227,7 +229,7 @@ env.load();
 
 #### ControlMotion
 
-The motion control is based on two continuous value for the throttle and steering angle of the car. Then the action is an array of two floating value. (see [actionSpace](http://metacar-project.com/docs/classes/_metacar_.metacar.html#actionspace))
+The motion control is based on two continuous values for the throttle and steering angle of the car. Then the action is an array of two floating values. (see [actionSpace](http://metacar-project.com/docs/classes/_metacar_.metacar.html#actionspace))
 
 ```javascript
 env.setAgentMotion(metacar.motion.ControlMotion);
@@ -235,11 +237,11 @@ env.setAgentMotion(metacar.motion.ControlMotion);
 env.load();
 ```
 
-<b>!WARNING:</b> The method present in this section must be called <b>BEFORE</b> loading the environment. 
+<b>!WARNING:</b> The method presented in this section must be called <b>BEFORE</b> loading the environment. 
 
-### Change the lidar propeties
+### Change the lidar properties
 
-There are four properties you can change. The number of points (pts) per line, the width and height of the area cover by the lidar and the position (pos) which respect to the car.
+There are four properties you can change. The number of points (pts) per line, the width and height of the area covered by the lidar and the position (pos) with respect to the car.
 
 ```javascript
 env.setAgentLidar({pts: 3, width: 1.5, height: 1.5, pos: 1});
@@ -279,7 +281,7 @@ env.load().then(() => {
 
 ### Save a file on your computer
 
-As well, you might want to save the result of a trained model on your computer.
+Also, you might want to save the result of a trained model on your computer.
 
 ```javascript
 env.save("content of my model", "model.metacar")
