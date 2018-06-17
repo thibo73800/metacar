@@ -2,6 +2,12 @@
 
 <img style="display: block; width: 100%; margin: auto;" src="https://github.com/thibo73800/metacar/blob/master/img/header_github.png" />
 
+<b>Metacar</b> is a 2D reinforcement learning environment for autonomous vehicles running in the browser. The project aims to let reinforcement learning be more accessible to everyone through solving fun problems. Metacar comes with a set of a predefined level, some harder to address than others. More levels and possibilities of scenario will be added soon (pedestrian, bikes...). Furthermore, the library let you create your own levels and personalize the environment to create your desired scenario.
+
+If you want to be part of the project, whether to implement features in the environment or demonstrate algorithm, feel free to join
+the [slack channel](https://join.slack.com/t/metacar/shared_invite/enQtMzgyODI4NDMzMDc0LTY1MjIwNzk1MTAzOTBiZjJlOGUwM2YyYjA3MzBmNjQyNjUyMDZkOGNkYmU0MmUyYzUzNGRhNGJhZDE1M2EzNzM) ask questions and talk about all your fantastic ideas! 
+
+To start developing with metacar check out the Documentation and the [API Reference](http://metacar-project.com/docs/modules/_index_.html)
 
 # Documentation
 
@@ -81,9 +87,9 @@ You also have to create the container in your HTML file.
 ```html
 <div id="env"></div>
 ```
-(NOTE: metacar.env can be instantiated with an object or a string for the level parameters: [doc API](#link))
+(NOTE: metacar.env can be instantiated with an object or a string for the level parameters: [doc API](http://metacar-project.com/docs/classes/_metacar_.metacar.html#constructor))
 
-<b>Wonderful! You just created your first metacar environment. </b> You can take some time to play around with the keys arrow to move the car. The current collision system supports the detection of the following events:
+<b>Wonderful! You just created your first metacar environment. </b> You can take some time to play around with the arrow keys to move the car. The current collision system supports the detection of the following events:
 
 * Collisions with other vehicles.
 * Detection of the vehicles, ground, and road with the lidar.
@@ -97,7 +103,7 @@ Interact with the environment
 
 ### Action space
 
-By default, the environment comes with a simple motion engine ([How to change the motion engine ?](#link))  who let you control the car with the arrow. Then, the actions are either UP, LEFT, RIGHT, DOWN, WAIT. Once the environment is loaded, you can take a look at the action space.
+By default, the environment comes with a simple motion engine ([How to change the motion engine ?](#change-motion))  who let you control the car with the arrow. Then, the actions are either UP, LEFT, RIGHT, DOWN, WAIT. Once the environment is loaded, you can take a look at the action space.
 
 ```javascript
 env.load(() => {
@@ -202,6 +208,33 @@ env.load().then(() => {
 Custom the environement
 ------------
 
+<a id='change-motion'></a>
+### Change the motion engine
+
+There are two motion engine avaiable: BasicMotion and ControlMotion. 
+
+#### BasicMotion
+
+This is the default motion engine. Movement of the car are either up, down, left, right or wait. The car turn from a given angle for the left and right action.
+
+You can change the parameters of the motion engine using the setMotion method.
+
+```javascript
+env.setAgentMotion(metacar.motion.BasicMotion, {rotationStep: 0.25});
+// Load the environment after having changed the properties.
+env.load();
+```
+
+#### ControlMotion
+
+The motion control is based on two continuous value for the throttle and steering angle of the car. Then the action is an array of two floating value. (see [actionSpace](http://metacar-project.com/docs/classes/_metacar_.metacar.html#actionspace))
+
+```javascript
+env.setAgentMotion(metacar.motion.ControlMotion);
+// Load the environment after having changed the properties.
+env.load();
+```
+
 <b>!WARNING:</b> The method present in this section must be called <b>BEFORE</b> loading the environment. 
 
 ### Change the lidar propeties
@@ -210,7 +243,7 @@ There are four properties you can change. The number of points (pts) per line, t
 
 ```javascript
 env.setAgentLidar({pts: 3, width: 1.5, height: 1.5, pos: 1});
-// Load the environement after changing the propeties.
+// Load the environment after having changed the properties.
 env.load();
 ```
 
@@ -290,8 +323,5 @@ editor.load().then(() => {
 });
 ```
 
-<a id='link'></a>
-Link
-------------
 
 
