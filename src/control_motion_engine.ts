@@ -1,4 +1,4 @@
-import { MotionEngine } from "./motion_engine";
+import { MotionEngine, actionSpaceDescription } from "./motion_engine";
 import {Level} from "./level";
 
 import {
@@ -61,14 +61,14 @@ export class ControlMotionEngine extends MotionEngine {
         let down = U.keyboard(40);
 
         left.press = () => {
-            this.turn(-0.5);
+            this.turn(-0.7);
         };
         left.release = () => {
             this.turn(0);
         };
 
         right.press = () => {
-            this.turn(0.5);
+            this.turn(0.7);
         };
         right.release = () => {
             this.turn(0);
@@ -109,21 +109,23 @@ export class ControlMotionEngine extends MotionEngine {
             @delta (Float) time since the last update
             @action: (Array of Float) The throttle and the steering angle
         */
-        // TODO: CHeck why parseInt ???
-        this.car.a = Math.min(Math.max(parseInt(actions[0].toString()), -1), 1);
-        this.car.yaw_rate = Math.min(Math.max(parseInt(actions[1].toString()), -1), 1);
+        this.car.a = Math.min(Math.max(actions[0], -1), 1);
+        this.car.yaw_rate = Math.min(Math.max(actions[1], -1), 1);
         let {agentCollisions, onRoad} = this.step(delta);
         this.car.a = 0;
         this.car.yaw_rate = 0;
         return {agentCollisions, onRoad};
     }
 
-    actionSpace(){
-        /*
-            Return an array with all possibles actions
-            Ex: [0, 1, 2]
-        */
-        return Array.apply(null, {length: this.actions.length}).map(Number.call, Number);
+    /**
+     * Return a description of the action space.
+     */
+    public actionSpace(): actionSpaceDescription {
+        return {
+            type: "Continous",
+            size: 2,
+            range: [[0., 1.], [-1., 1.]]
+        }
     }
 
     step(delta: number){
@@ -131,16 +133,22 @@ export class ControlMotionEngine extends MotionEngine {
             Step into the environement
             @delta (Float) time since the last update
         */
-        // Update the x and y position according to the velocity
-        if (this.car.v > 0)
+        // The car lose speed over time
+        if (this.car.v > 0 && this.car.a == 0)
             this.car.v = Math.max(0, this.car.v - 0.01);
-        else if (this.car.v < 0)
+        else if (this.car.v < 0 && this.car.a == 0)
             this.car.v = Math.min(0, this.car.v + 0.01);
 
-        if (this.car.a > 0)
-            this.car.v = Math.min(2., this.car.v + this.car.a*0.02);
-        else
-            this.car.v = Math.max(-2., this.car.v + this.car.a*0.02);
+        if (this.car.a > 0 && this.car.v >= 0)
+            this.car.v = Math.min(1.5, this.car.v + this.car.a*0.01);
+        else if (this.car.a > 0 && this.car.v < 0){
+            this.car.v = Math.min(1.5, this.car.v + this.car.a*0.03);
+        }
+        if (this.car.a < 0 && this.car.v <= 0)
+            this.car.v = Math.max(-1.5, this.car.v + this.car.a*0.01);
+        else if (this.car.a < 0 && this.car.v > 0){
+            this.car.v = Math.max(-1.5, this.car.v + this.car.a*0.03);
+        }
         if (this.car.yaw_rate == 0){
             this.car.x += this.car.v * Math.cos(this.car.rotation)*delta;
             this.car.y += this.car.v * Math.sin(this.car.rotation)*delta;
@@ -167,7 +175,7 @@ export class ControlMotionEngine extends MotionEngine {
         this.lidar.rotation = this.car.rotation;
 
         // Detection the new collision with the environement
-        let {agentCollisions, onRoad} = this.detectInteractions();
+        let {agentCollisions, onRoad} = this.detectInteractions(true, true);
 
         if (agentCollisions.length > 0){ // Stop the vehicle if a collision is detected
             this.car.v = 0;

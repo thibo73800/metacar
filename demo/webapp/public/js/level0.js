@@ -24,7 +24,7 @@ env.load().then(() => {
 
     // The level is loaded. Add listernes
     env.addEvent("train", () => {
-        let train = confirm("The training process will freeze the tab during 1 minutes. Do you want to continue? You can also load the pre trained agent.");
+        let train = confirm("The training process will freeze the tab during 1 minute. Do you want to continue? You can also load the pre trained agent.");
         if (train)
             agent.train();
     });

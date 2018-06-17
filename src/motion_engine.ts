@@ -20,7 +20,7 @@ import { CarSprite } from "./car";
 export interface actionSpaceDescription {
     type: "Discrete"|"Continous"
     size: number,
-    range: number[]
+    range: number[]|number[][]
 }
 
 export class MotionEngine {
@@ -77,7 +77,7 @@ export class MotionEngine {
     }
 
 
-    protected detectInteractions(all:boolean = true){
+    protected detectInteractions(all:boolean = true, farDetection:boolean=false){
         /*
             If all is false then we assume the car is alwais on a road
             and never collision with other car (this behavior is used for bot cars only)
@@ -94,7 +94,7 @@ export class MotionEngine {
         let onRoad = false;
 
         for (let i = 0; i < envs.length; i++) {
-            if (envs[i] != this.car && Math.abs(envs[i].mx - this.car.mx) < 2 && Math.abs(envs[i].my - this.car.my) < 2){
+            if (envs[i] != this.car && ((Math.abs(envs[i].mx - this.car.mx) < 2 && Math.abs(envs[i].my - this.car.my) < 2) || farDetection)){
                 if (all && envs[i].obstacle && this.carIntersect(this.car, envs[i])){
                     agentCollisions.push(envs[i]);
                 }
@@ -119,7 +119,7 @@ export class MotionEngine {
             @lidar_collisions List with all possible lidar collisions
         */
         let pt_id = 0;
-
+        
         for (var i = 0; i < this.lidar.lidarPts.length; i++) {
             this.lidar.lidarPts[i].alpha = 0.3;
             
@@ -136,7 +136,7 @@ export class MotionEngine {
                     }
                     if (touch && (lidar_collisions[a].mapId > this.state[pt_y][pt_x] || (lidar_collisions[a].mapId == MAP.ROAD && this.state[pt_y][pt_x]==MAP.DEFAULT))){
                         // Add this interaction to the state
-                        // If this interaction is more important than the one befor
+                        // If this interaction is more important than the one before
                         // we kept the more important one
                         this.state[pt_y][pt_x] = lidar_collisions[a].mapId;
                     }

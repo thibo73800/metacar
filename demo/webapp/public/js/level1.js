@@ -18,8 +18,7 @@ env.load().then(() => {
     // The level is loaded. Add listernes
 
     env.addEvent("train", () => {
-        let train = confirm("The training process takes some time and might slow this tab. Do you want to continue? \
-        You can also load a pre-trained model");
+        let train = confirm("The training process takes some time and might slow this tab. Do you want to continue? \n You can also load a pre-trained model.");
         if (train)
             agent.train();
     });

@@ -181,7 +181,7 @@ export class BasicMotionEngine extends MotionEngine {
         //this.car.mybound.y = this.car.y + y_m;
 
         // Detection the new collision with the environement
-        let {agentCollisions, onRoad} = this.detectInteractions();
+        let {agentCollisions, onRoad} = this.detectInteractions(true, true);
 
         if (agentCollisions.length > 0){ // Stop the vehicle if a collision is detected
             this.car.v = 0;

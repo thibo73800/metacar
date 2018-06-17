@@ -12,6 +12,8 @@ class PolicyAgent {
         this.lastPrediction = [0., 0., 0.];
         this.env = env;
 
+        var trainingProgress =  document.getElementById("trainingProgress");
+
         // Build the policy model and the value model
         this.buildValueFc();
         this.buildPolicy();
@@ -211,9 +213,11 @@ class PolicyAgent {
             this.setDefaultTrainingValues();
         if (it >= this.episodeNb){
             this.env.render(true); // Render the canvas again
+            trainingProgress.innerHTML = "";
             return;
         }
         console.log("Training it=", it, "/", this.episodeNb);
+        trainingProgress.innerHTML = "Progression: " + it*100/this.episodeNb + "%";
 
         (async () => {
             // Get the current state
