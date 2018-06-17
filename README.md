@@ -2,6 +2,9 @@
 
 [<img style="display: block; width: 100%; margin: auto;" src="https://github.com/thibo73800/metacar/blob/master/img/header_github.png" />](https://www.metacar-project.com)
 
+[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=plastic)](CONTRIBUTING.md)
+
+
 <b>Metacar</b> is a 2D reinforcement learning environment for autonomous vehicles running in the browser. The project aims to let reinforcement learning be more accessible to everyone through solving fun problems. Metacar comes with a set of a predefined levels, some harder to address than others. More levels and possibile scenarios will be added soon (pedestrian, bikes...). Furthermore, the library let you create your own levels and personalize the environment to create your desired scenario.
 
 If you want to be part of the project, whether to implement features in the environment or demonstrate algorithms, feel free to join
