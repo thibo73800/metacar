@@ -43,7 +43,7 @@ You can use Metacar with a direct link in your HTML file or install it from NPM.
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js"></script>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/metacar@0.0.1/dist/metacar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/metacar@0.0.5/dist/metacar.min.js"></script>
 </body>
 </html>
 ```
