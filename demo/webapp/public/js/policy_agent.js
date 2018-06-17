@@ -304,7 +304,7 @@ class PolicyAgent {
             this.env.randomRoadPosition();
             //env.reset();
             // Go to the next episode
-            this.train(this.env, it+1);
+            setTimeout(() => this.train(this.env, it+1), 1);
         })();
     }
 }

@@ -18,8 +18,6 @@ env.loop(() => {
     displayScores("realtime_viewer", scores, reward, ["Top", "Left", "Right"]);
 });
 
-
-
 env.load().then(() => {
 
     // The level is loaded. Add listernes

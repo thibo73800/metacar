@@ -11,10 +11,4 @@ env.loop(() => {
     displayScores("realtime_viewer", [], reward, []);
 });
 
-env.load().then(() => {
-    console.log(env.actionSpace());
-
-    env.addEvent("custo", () => {
-        console.log(env.getState());
-    });
-});
+env.load();
