@@ -213,6 +213,8 @@ env.load().then(() => {
 Custom the environement
 ------------
 
+<b>!WARNING:</b> The method presented in this section must be called <b>BEFORE</b> loading the environment. 
+
 <a id='change-motion'></a>
 ### Change the motion engine
 
@@ -239,8 +241,6 @@ env.setAgentMotion(metacar.motion.ControlMotion);
 // Load the environment after having changed the properties.
 env.load();
 ```
-
-<b>!WARNING:</b> The method presented in this section must be called <b>BEFORE</b> loading the environment. 
 
 ### Change the lidar properties
 
@@ -310,14 +310,14 @@ Edit a new level
 
 Only three lines are required to create the editor:
 
-```
+```javascript
 const level = metacar.level.level1;
-var editor = new metacar.editor("editor", levelToLoad);
+var editor = new metacar.editor("env", level);
 editor.load();
 ```
 ### Save the level
 
-```
+```javascript
 editor.load().then(() => {
 
     editor.addEvent("save", (content) => {
