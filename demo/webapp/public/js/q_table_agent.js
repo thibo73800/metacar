@@ -1,7 +1,7 @@
 
 class QTableAgent {
     /*
-        Monte Carlo Agent
+        Q learning agent
     */
 
     constructor(env, pts) {
