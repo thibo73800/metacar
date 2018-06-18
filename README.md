@@ -29,7 +29,7 @@ Getting started
 
 ### Installing Metacar 
 
-You can use Metacar with a direct link in your HTML file or install it from NPM. However, metacar is based on [Pixi.js](www.pixijs.com): 4.7.1, then you need to include pixi.js as a global dependency in your HTML.
+You can use Metacar with a direct link in your HTML file or install it from NPM. However, metacar is based on [Pixi.js](http://www.pixijs.com/): 4.7.1, then you need to include pixi.js as a global dependency in your HTML.
 
 <a id='script-tag'></a>
 #### Script Tag
