@@ -111,7 +111,7 @@ Interact with the environment
 By default, the environment comes with a simple motion engine ([How to change the motion engine ?](#change-motion))  which lets you control the car with the arrow. Then, the actions are either UP, LEFT, RIGHT, DOWN, WAIT. Once the environment is loaded, you can take a look at the action space.
 
 ```javascript
-env.load(() => {
+env.load().then(() => {
     console.log(env.actionSpace());
 });
 ```
