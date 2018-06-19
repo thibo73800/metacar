@@ -48,7 +48,7 @@ You can use Metacar with a direct link in your HTML file or install it from NPM.
 </html>
 ```
 
-#### Script Tag and NPM
+#### OR Script Tag and NPM
 
 ```shell
 npm i metacar
