@@ -315,6 +315,10 @@ const level = metacar.level.level1;
 var editor = new metacar.editor("env", level);
 editor.load();
 ```
+
+<b>Left click</b> on one item to select it. Then Left click on the map to set the item.
+<b>Right click</b> is used to remove an item.
+
 ### Save the level
 
 ```javascript
