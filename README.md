@@ -274,7 +274,7 @@ instance).
 ```javascript
 env.load().then(() => {
 
-    env.load("load", (content) => {
+    env.addEvent("load", (content) => {
         // Here the content of the loaded file.
         console.log(content);
     },{local: true});
