@@ -297,7 +297,7 @@ env.addEvent() comes with a set of predefined event ("train", "play", "stop", "r
 ```javascript
 env.load().then(() => {
 
-    env.load("My custom event", () => {
+    env.addEvent("My custom event", () => {
         env.save("content of my model", "model.metacar");
     });
 
