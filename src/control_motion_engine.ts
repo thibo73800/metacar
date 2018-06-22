@@ -10,6 +10,7 @@ import * as U from "./utils";
 export class ControlMotionEngine extends MotionEngine {
 
     private actions: (string|number)[];
+    private maxSpeed: number = 1.5;
 
     constructor(level: Level) {
         /*
@@ -133,6 +134,9 @@ export class ControlMotionEngine extends MotionEngine {
             Step into the environement
             @delta (Float) time since the last update
         */
+       this.car.last_a = this.car.a;
+       this.car.last_yaw_rate = this.car.yaw_rate;
+
         // The car lose speed over time
         if (this.car.v > 0 && this.car.a == 0)
             this.car.v = Math.max(0, this.car.v - 0.01);
@@ -140,14 +144,14 @@ export class ControlMotionEngine extends MotionEngine {
             this.car.v = Math.min(0, this.car.v + 0.01);
 
         if (this.car.a > 0 && this.car.v >= 0)
-            this.car.v = Math.min(1.5, this.car.v + this.car.a*0.01);
+            this.car.v = Math.min(this.maxSpeed, this.car.v + this.car.a*0.01);
         else if (this.car.a > 0 && this.car.v < 0){
-            this.car.v = Math.min(1.5, this.car.v + this.car.a*0.03);
+            this.car.v = Math.min(this.maxSpeed, this.car.v + this.car.a*0.03);
         }
         if (this.car.a < 0 && this.car.v <= 0)
-            this.car.v = Math.max(-1.5, this.car.v + this.car.a*0.01);
+            this.car.v = Math.max(-this.maxSpeed, this.car.v + this.car.a*0.01);
         else if (this.car.a < 0 && this.car.v > 0){
-            this.car.v = Math.max(-1.5, this.car.v + this.car.a*0.03);
+            this.car.v = Math.max(-this.maxSpeed, this.car.v + this.car.a*0.03);
         }
         if (this.car.yaw_rate == 0){
             this.car.x += this.car.v * Math.cos(this.car.rotation)*delta;

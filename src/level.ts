@@ -110,12 +110,7 @@ export class Level extends World {
     }
 
     setReward(agent_col: any, on_road: any, action: any){
-        /*
-            TODO: Let's the reward define in the agent class
-        */
-        let reward = -0.1;
-        if (action == 0 || this.agent.core.v == 1)
-            reward += 0.5;
+        let reward = -0.8 + this.agent.core.v / this.agent.motion.maxSpeed;
         if (agent_col.length > 0){
             reward = -1;
         }
@@ -133,12 +128,16 @@ export class Level extends World {
     }
 
 
-    step(delta: number, action:number|number[]=null){
+    step(delta: number, action:number|number[]=null, auto: boolean = true){
         /*
             Process one step into the environement
             @delta (Float) time since the last update
             @action: (Integer) The action to take (can be null if no action)
         */
+        if (auto && !this.steping){
+            return;
+        }
+
         // Go through all cars to move each one
         for (var c = 0; c < this.cars.length; c++) {
             if (this.cars[c].lidar && !this.cars[c].core.agent) // If this car can move

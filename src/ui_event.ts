@@ -61,6 +61,7 @@ export class UIEvent {
         // Listen the event
         button.addEventListener("click", () => {
             this.level.render(false);
+            this.level.setSteping(false);
             if (fc) fc();
         });
     }

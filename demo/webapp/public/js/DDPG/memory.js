@@ -32,21 +32,24 @@ class Memory {
      * @return batch []
      */
     getBatch(batchSize){
-        const arrLength = this.obs0List.length;
+        const arrLength = this.length;
         const batch =  {
             'obs0': [],
             'obs1': [],
             'rewards': [],
             'actions': [],
-            'terminals1': [],
+            'terminals': [],
         };
+        if (batchSize > this.length){
+            return batch;
+        }
         for (let b=0; b < batchSize; b++){
             let id = Math.floor(Math.random() * arrLength);
             batch.obs0.push(this.obs0List[id]);
             batch.obs1.push(this.obs1List[id]);
             batch.rewards.push(this.rewardsList[id]);
             batch.actions.push(this.actionsList[id]);
-            batch.terminals1.push(this.terminals1List[id]);
+            batch.terminals.push(this.terminals1List[id]);
         }
         return batch
     }
@@ -63,15 +66,18 @@ class Memory {
             this.length += 1;
         }
         else if (this.length == this.maxlen) {
+            //this.obs0List[(this.start + this.length - 1) % this.maxlen].dispose();
+            //this.obs1List[(this.start + this.length - 1) % this.maxlen].dispose();
+            //this.actionsList[(this.start + this.length - 1) % this.maxlen].dispose();
             this.start = (this.start + 1) % this.maxlen;
         }
         else {
             console.error("Memory.append: This should never be printed");
         }
         this.obs0List[(this.start + this.length - 1) % this.maxlen] = obs0;
-        this.obs1List[(this.start + this.length - 1) % this.maxlen] = action;
+        this.obs1List[(this.start + this.length - 1) % this.maxlen] = obs1;
         this.rewardsList[(this.start + this.length - 1) % this.maxlen] = reward;
-        this.actionsList[(this.start + this.length - 1) % this.maxlen] = obs1;
+        this.actionsList[(this.start + this.length - 1) % this.maxlen] = action;
         this.terminals1List[(this.start + this.length - 1) % this.maxlen] = terminal1;
     }
 }

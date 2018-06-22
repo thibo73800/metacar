@@ -6,7 +6,7 @@
  * See "C Adapative Scaling" Page 14 in the paper.
  */
 
-class AdaptiveParamNoiseSpec{
+class AdaptiveParamNoiseSpec {
 
     /**
      * @param conf Object
@@ -19,7 +19,7 @@ class AdaptiveParamNoiseSpec{
         this.initialStddev = conf.initialStddev || 0.1;
         this.desiredActionStddev = conf.initialStddev || 0.1;
         this.adoptionCoefficient = conf.adoptionCoefficient || 1.01;
-        this.currentStddev = conf.initialStddev;
+        this.currentStddev = this.initialStddev;
     }
 
     /**

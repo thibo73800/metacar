@@ -11,6 +11,7 @@ import {
     CAR_IMG, Sprite, MAP, ROADSIZE, Container, Graphics
 } from "./global";
 import { RoadSprite } from "./asset_manager";
+import { runInThisContext } from "vm";
 
 var Global_carId = 0;
 
@@ -55,11 +56,23 @@ export interface CarSprite extends PIXI.Sprite {
     optionalTurn?: boolean;
     agent?: boolean;
     v?: number;
+    a?: number;
+    yaw_rate?: number;
+    last_a?: number;
+    last_yaw_rate?: number;
 }
 
 export interface LidarChild extends PIXI.Graphics {
     // Is a lidar point
     pt?: boolean;
+}
+
+export interface State {
+    lidar?: number[][];
+    linear?: number[];
+    v?: number;
+    a?: number;
+    steering?: number;
 }
 
 export class Car {
@@ -173,6 +186,8 @@ export class Car {
             Method used to restore the position of the car
             to the original position (as set into the json file)
         */
+        this.core.a = 0;
+        this.core.v = 0;
         this.core.mx = this.info.mx;
         this.core.my = this.info.my;
         let road = this.level.getRoad(this.core.my, this.core.mx);
@@ -181,19 +196,26 @@ export class Car {
         }
     }
 
-    getState(linear:boolean = false): number[][]|number[]{
+    getState(): State {
         /*
             Get the current state of the car
             The state is the current value of each point
             of the lidar.
         */
-        if (!linear)
-            return this.motion.state.map(function(arr: any) { return arr.slice(); });
-        else{
-            let state: number[] = [];
-            this.motion.state.map((row: number[]) => { state = state.concat(row);});
-            return state;
-        }
+        let nState: State = {};
+
+        let linear: number[] = [];
+        this.motion.state.map((row: number[]) => { linear = linear.concat(row);});
+        linear.push(this.core.v);
+
+        nState.linear = linear;
+        nState.lidar =  this.motion.state.map(function(arr: any) { return arr.slice(); });
+
+        nState.v = this.core.v;
+        nState.a = this.core.last_a;
+        nState.steering = this.core.last_yaw_rate;
+
+        return nState;
     }
 
     step(delta: number, action:number|number[]=null){
