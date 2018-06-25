@@ -51,10 +51,6 @@ env.load().then(() => {
         RECORD = false;
     });
 
-    env.addEvent("trainOnRecord", () => {
-        agent.ddpg.trainRecord();
-    });
-
     env.addEvent("TrainRealTime", () => {
         env.steping(false);
         agent.train(true);
@@ -66,17 +62,12 @@ env.load().then(() => {
 
     env.addEvent("reset_env"); 
 
-    env.addEvent("load", (content) => {
-        content = JSON.parse(content);
+    env.addEvent("save", () => {
+        agent.save();
+    });
 
-        for (let c=0; c < content.obs0.length; c++){
-            if (content.obs0[c] != 0){
-                agent.ddpg.memory.append(content.obs0[c], content.actions[c], content.rewards[c], content.obs0[c], content.terminals[c]);
-            }
-        }
-
-        console.log("dataReady");
-
-    }, {local: true});
+    env.addEvent("load", () => {
+        agent.restore()
+    });
 });
 

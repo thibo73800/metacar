@@ -211,26 +211,7 @@ class DDPG {
             return tf.mean(tfQPredictions0).mul(tf.scalar(-1.))
         }, true, this.actorWeights);
 
-        /*
-        const sanityTfLoss = tf.tidy(() => {
-                const tfQPredictions0 = this.criticTargetWithActor(tfObs0); 
-                const mn = tf.mean(tfQPredictions0);
-                const loss = mn.mul(tf.scalar(-1));
-                return loss; 
-        });
-
-        const sanityLoss = sanityTfLoss.buffer().values[0];
-        
-
-        if (sanityLoss == loss){
-            console.warn("Sanity check failed. The optimisation have no effet here.");
-        }
-        */
-       
-        //if (this.trainActorCt % 200 == 0 && this.trainActorCt != 0){
         targetUpdate(this.actorTarget, this.actor, this.config);
-        //}
-        //this.trainActorCt += 1;
 
         const loss = actorLoss.buffer().values[0];
         actorLoss.dispose(); 

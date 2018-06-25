@@ -30,6 +30,6 @@ env.load().then(() => {
     env.addEvent("save", () => agent.save());
     env.addEvent("load", () => {
         document.getElementById("metacar_canvas_button_train").style.display = "none";
-        agent.restore()
+        agent.restore();
     });
 });

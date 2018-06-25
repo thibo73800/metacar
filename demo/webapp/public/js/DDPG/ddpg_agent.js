@@ -51,6 +51,22 @@ class DDPGAgent {
         this.ddpg = new DDPG(this.actor, this.critic, this.memory, this.noise, this.config);
     }
 
+    save(env){
+        /*
+            Save the network
+        */
+       this.ddpg.critic.model.save('downloads://critic-model-ddpg-agent');
+       this.ddpg.actor.model.save('downloads://actor-model-ddpg-agent');
+    }
+
+    async restore(){
+        /*
+            Restore the weights of the network
+        */
+       this.ddpg.critic.model = await tf.loadModel('http://localhost:3000/public/models/ddpg/critic-model-ddpg-agent.json');
+       this.ddpg.actor.model = await tf.loadModel("http://localhost:3000/public/models/ddpg/actor-model-ddpg-agent.json");
+    }
+
     /**
      * Play one step
      */
