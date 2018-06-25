@@ -22,7 +22,7 @@ env.loop(() => {
 
     displayState("realtime_viewer", state.lidar, 200, 200);
     let reward = env.getLastReward();
-    const qValue = agent.getQvalue(state.linear, [state.steering]);
+    const qValue = agent.getQvalue(state.linear, [state.a, state.steering]);
     displayScores("realtime_viewer", [qValue], reward, ["Q(a, s)"]);
 });
 

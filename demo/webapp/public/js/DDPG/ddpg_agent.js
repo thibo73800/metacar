@@ -11,7 +11,7 @@ class DDPGAgent {
         // Default Config
         this.config = {
             "stateSize": 17,
-            "nbActions": 1,
+            "nbActions": 2,
             "layerNorm": false,
             "normalizeObservations": true,
             "seed": 0,
@@ -19,9 +19,9 @@ class DDPGAgent {
             "batchSize": 64,
             "actorLr": 0.0001,
             "criticLr": 0.001,
-            "memorySize": 15000,
+            "memorySize": 20000,
             "gamma": 0.99,
-            "noiseDecay": 0.95,
+            "noiseDecay": 0.99,
             "rewardScale": 1,
             "nbEpochs": 500,
             "nbEpochsCycle": 20,
@@ -60,7 +60,7 @@ class DDPGAgent {
         // Pick an action
         const tfActions = this.ddpg.predict(tf.tensor2d([state]));
         const actions = tfActions.buffer().values;
-        agent.env.step([1., actions[0]]);
+        agent.env.step([actions[0], actions[1]]);
         tfActions.dispose();
     }
 
@@ -94,7 +94,7 @@ class DDPGAgent {
 
         // Step in the environment with theses actions
         let mAcions = tfActions.buffer().values;
-        let mReward = this.env.step([1., mAcions[0]]);
+        let mReward = this.env.step([mAcions[0], mAcions[1]]);
         this.rewardsList.push(mReward);
         // Get the new observations
         let mState = this.env.getState().linear;
@@ -106,7 +106,7 @@ class DDPGAgent {
         }
 
         // Add the new tuple to the buffer
-        this.ddpg.memory.append(mPreviousStep, [mAcions[0]], mReward, mState, mDone);
+        this.ddpg.memory.append(mPreviousStep, [mAcions[0], mAcions[1]], mReward, mState, mDone);
 
         // Dispose tensor
         tfPreviousStep.dispose();
@@ -176,7 +176,7 @@ class DDPGAgent {
             }
             if (this.ddpg.memory.length == this.config.memorySize){
                 this.noisyActions = Math.max(0.1, this.noisyActions * this.config.noiseDecay);
-                this.ddpg.noise.desiredActionStddev = Math.min(0.5, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
+                this.ddpg.noise.desiredActionStddev = Math.max(0.1, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
                 let lossValuesCritic = [];
                 let lossValuesActor = [];
                 console.time("Training");                
