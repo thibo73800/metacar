@@ -24,14 +24,14 @@ function copyModel(model, instance){
  * @param stddev (number)
  * @return Copy of the model
  */
-function assignAndStd(actor, perturbedActor, stddev){
+function assignAndStd(actor, perturbedActor, stddev, seed){
     return tf.tidy(() => {
-        const weights = actor.model.weights;
+        const weights = actor.model.trainableWeights;
         for (let m=0; m < weights.length; m++){
-            let shape = perturbedActor.model.weights[m].val.shape;
-            let randomTensor = tf.randomNormal(shape, 0, stddev);
+            let shape = perturbedActor.model.trainableWeights[m].val.shape;
+            let randomTensor = tf.randomNormal(shape, 0, stddev, "float32", seed);
             let nValue = weights[m].val.add(randomTensor);
-            perturbedActor.model.weights[m].val.assign(nValue);
+            perturbedActor.model.trainableWeights[m].val.assign(nValue);
         }
     });
 }
@@ -44,10 +44,10 @@ function assignAndStd(actor, perturbedActor, stddev){
  */
 function assignModel(model, targetModel){
     return tf.tidy(() => {
-        const weights = model.model.weights;
+        const weights = model.model.trainableWeights;
         for (let m=0; m < weights.length; m++){
             let nValue = weights[m].val;
-            targetModel.model.weights[m].val.assign(nValue);
+            targetModel.model.trainableWeights[m].val.assign(nValue);
         }
     });
 }
@@ -62,15 +62,20 @@ function assignModel(model, targetModel){
  */
 function targetUpdate(target, original, config){
     return tf.tidy(() => {
-        const originalW = original.model.weights;
-        const targetW = target.model.weights;
+        const originalW = original.model.trainableWeights;
+        const targetW = target.model.trainableWeights;
     
         const one = tf.scalar(1);
         const tau = tf.scalar(config.tau);
     
         for (let m=0; m < originalW.length; m++){
+            const lastValue = target.model.trainableWeights[m].val.clone();
             let nValue = tau.mul(originalW[m].val).add(targetW[m].val.mul(one.sub(tau)));
-            target.model.weights[m].val.assign(nValue);
+            target.model.trainableWeights[m].val.assign(nValue);
+            const diff = lastValue.sub(target.model.trainableWeights[m].val).mean().buffer().values;
+            if (diff[0] == 0){
+                console.warn("targetUpdate: Nothing have been changed!")
+            }
         }
     });
 }
@@ -97,45 +102,23 @@ class Actor{
     buildModel(obs){
         this.obs = obs;
 
-
-        this.firstLayerBatchNorm = null;    
-        this.secondLayerBatchNorm = null;
-
-        this.relu1 = tf.layers.activation({activation: 'relu'});
-        //this.relu2 = tf.layers.activation({activation: 'relu'});
-
         // First layer with BatchNormalization
         this.firstLayer = tf.layers.dense({
             units: 64,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
-            activation: 'linear', // relu is add later
+            activation: 'relu', // relu is add later
             useBias: true,
             biasInitializer: "zeros"
         });
-        if (this.layerNorm){
-            // WARNING: BatchNormalization instead of layerNormalization
-            this.firstLayerBatchNorm = tf.layers.batchNormalization({
-                scale: true,
-                center: true
-            });
-        }
-        
-        /*
+
         // Second layer with BatchNormalization
         this.secondLayer = tf.layers.dense({
-            units: 64,
+            units: 32,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
-            activation: 'linear', // relu is add later
+            activation: 'relu', // relu is add later
             useBias: true,
             biasInitializer: "zeros"
         });
-        if (this.layerNorm){
-            // WARNING: BatchNormalization instead of layerNormalization
-            this.secondLayerBatchNorm = tf.layers.batchNormalization({
-                scale: true,
-                center: true
-            });
-        }*/
 
         // Ouput layer
         this.outputLayer = tf.layers.dense({
@@ -147,22 +130,15 @@ class Actor{
             biasInitializer: "zeros"
         });
 
-        this.predict = () => {
-            return tf.tidy(() => {
+        this.predict = (tfState) => {
+            return tf.tidy(() => {               
+                if (tfState){
+                    obs = tfState;
+                }
                 let l1 = this.firstLayer.apply(obs);
-                if (this.firstLayerBatchNorm){
-                    l1 = this.firstLayerBatchNorm.apply(l1);
-                }
-                l1 = this.relu1.apply(l1);
-                /*
                 let l2 = this.secondLayer.apply(l1);
-                if (this.secondLayerBatchNorm){
-                    l2 = this.secondLayerBatchNorm.apply(l2);
-                }
-                l2 = this.relu2.apply(l2);
-                */
-                
-                return this.outputLayer.apply(l1);
+
+                return this.outputLayer.apply(l2);
             });
         }
         const output = this.predict();
@@ -194,45 +170,35 @@ class Critic {
         this.obs = obs;
         this.action = action;
 
-        this.firstLayerBatchNorm = null;    
-        this.secondLayerBatchNorm = null;
-
-        this.relu1 = tf.layers.activation({activation: 'relu'});
-        this.relu2 = tf.layers.activation({activation: 'relu'});
-        this.concat = tf.layers.concatenate();
+        this.add = tf.layers.add();
 
         // First layer with BatchNormalization
-        this.firstLayer = tf.layers.dense({
+        this.firstLayerS = tf.layers.dense({
             units: 64,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
             activation: 'linear', // relu is add later
             useBias: true,
             biasInitializer: "zeros"
         });
-        if (this.layerNorm){
-            // WARNING: BatchNormalization instead of layerNormalization
-            this.firstLayerBatchNorm = tf.layers.batchNormalization({
-                scale: true,
-                center: true
-            });
-        }
+
+        // First layer with BatchNormalization
+        this.firstLayerA = tf.layers.dense({
+            units: 64,
+            kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
+            activation: 'linear', // relu is add later
+            useBias: true,
+            biasInitializer: "zeros"
+        });
 
         // Second layer with BatchNormalization
         this.secondLayer = tf.layers.dense({
             //inputShape: [this.config.batchSize, 64 + this.nbActions], // Previous layer + action
-            units: 64,
+            units: 32,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
-            activation: 'linear', // relu is add later
+            activation: 'relu',
             useBias: true,
             biasInitializer: "zeros"
         });
-        if (this.layerNorm){
-            // WARNING: BatchNormalization instead of layerNormalization
-            this.secondLayerBatchNorm = tf.layers.batchNormalization({
-                scale: true,
-                center: true
-            });
-        }
 
         // Ouput layer
         this.outputLayer = tf.layers.dense({
@@ -245,22 +211,21 @@ class Critic {
         });
         
         // Actor prediction
-        this.predict = () => {
+        this.predict = (tfState, tfActions) => {
             return tf.tidy(() => {
-                let l1 = this.firstLayer.apply(obs);
-                l1 = this.concat.apply([l1, action]);
-                if (this.firstLayerBatchNorm){
-                    l1 = this.firstLayerBatchNorm.apply(l1);
+                if (tfState && tfActions){
+                    obs = tfState;
+                    action = tfActions;
                 }
-                l1 = this.relu1.apply(l1);
+                
+                let l1A = this.firstLayerA.apply(action);
+                let l1S = this.firstLayerS.apply(obs)
 
-                let l2 = this.secondLayer.apply(l1);
-                if (this.secondLayerBatchNorm){
-                    l2 = this.secondLayerBatchNorm.apply(l2);
-                }
-                l2 = this.relu2.apply(l2);
+                let concat = this.add.apply([l1A, l1S])
 
-                return this.outputLayer.apply(l2);
+                let l2 = this.secondLayer.apply(concat);
+               
+               return this.outputLayer.apply(l2);
             });
         }
         const output = this.predict();

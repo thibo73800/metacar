@@ -140,6 +140,9 @@ export class AssetManger {
         }
         car.line = line;
 
+        car.a = 0;
+        car.v = 0;
+
         // Set the car on the road
         car.x = road.x;
         car.y = road.y;
@@ -158,7 +161,6 @@ export class AssetManger {
         let line_side_factor_t = line == 0 ? 0:Math.PI;
         car.x += line_side_factor*Math.round(x_m);
         car.y += line_side_factor*Math.round(y_m);
-
         // (x, y position) Relatif to the map
         car.mx = Math.floor(car.x / ROADSIZE);
         car.my = Math.floor(car.y / ROADSIZE);
@@ -166,6 +168,9 @@ export class AssetManger {
         car.rotation = (th+line_side_factor_t);
         // Set the new road of the car
         car.checkAndsetNewRoad(road);
+
+        
+
     }
 
     createAsset(img: string, info: AssetInfo, textures: any, type: string){

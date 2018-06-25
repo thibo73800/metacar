@@ -16,8 +16,8 @@ class AdaptiveParamNoiseSpec {
      */
     constructor(conf){
         conf = conf || {};
-        this.initialStddev = conf.initialStddev || 0.1;
-        this.desiredActionStddev = conf.initialStddev || 0.1;
+        this.initialStddev = conf.initialStddev || 0.3;
+        this.desiredActionStddev = conf.desiredActionStddev || 0.3;
         this.adoptionCoefficient = conf.adoptionCoefficient || 1.01;
         this.currentStddev = this.initialStddev;
     }

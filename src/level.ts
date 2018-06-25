@@ -110,7 +110,8 @@ export class Level extends World {
     }
 
     setReward(agent_col: any, on_road: any, action: any){
-        let reward = -0.8 + this.agent.core.v / this.agent.motion.maxSpeed;
+        let reward = 0;
+        //let reward = -0.8 + this.agent.core.v / this.agent.motion.maxSpeed;
         if (agent_col.length > 0){
             reward = -1;
         }

@@ -17,11 +17,10 @@ class DDPG {
      * @param memory (Memory class)
      * @param noise (Noise class)
      */
-    constructor(actor, critic, memoryPos, memoryNeg, noise, config){
+    constructor(actor, critic, memory, noise, config){
         this.actor = actor;
         this.critic = critic;
-        this.memoryPos = memoryPos;
-        this.memoryNeg = memoryNeg;
+        this.memory = memory;
         this.noise = noise;
         this.config = config;
         this.tfGamma = tf.scalar(config.gamma);
@@ -42,6 +41,7 @@ class DDPG {
         // Randomly Initialize critic network Q(s, a)
         this.critic.buildModel(obsInput, actionInput);
 
+ 
         // Define in js/DDPG/models.js
         // Init target network Q' and μ' with the same weights
         this.actorTarget = copyModel(this.actor, Actor);
@@ -50,35 +50,38 @@ class DDPG {
         this.perturbedActor = copyModel(this.actor, Actor);
         //this.adaptivePerturbedActor = copyModel(this.actor, Actor);
 
+        this.criticWithActor = (tfState) => {
+            return tf.tidy(() => {
+                const tfAct = this.actor.predict(tfState);
+                return this.critic.predict(tfState, tfAct);
+            });
+        };
+
+        this.criticTargetWithActorTarget = (tfState) => {
+            return tf.tidy(() => {
+                const tfAct = this.actorTarget.predict(tfState);
+                return this.criticTarget.predict(tfState, tfAct);
+            });
+        };
+
+
         this.actorOptimiser = tf.train.adam(this.config.actorLr);
         this.criticOptimiser = tf.train.adam(this.config.criticLr);
 
         this.criticWeights = [];
-        for (let w = 0; w < this.critic.model.weights.length; w++){
-            this.criticWeights.push(this.critic.model.weights[w].val);
+        for (let w = 0; w < this.critic.model.trainableWeights.length; w++){
+            this.criticWeights.push(this.critic.model.trainableWeights[w].val);
         }
 
         this.actorWeights = [];
-        for (let w = 0; w < this.actor.model.weights.length; w++){
-            this.actorWeights.push(this.actor.model.weights[w].val);
+        for (let w = 0; w < this.actor.model.trainableWeights.length; w++){
+            this.actorWeights.push(this.actor.model.trainableWeights[w].val);
         }
 
-        // Return a batch from positive and negative experiences
-        this.memory = {
-            getBatch: (size) => {
-                let batch1 = this.memoryPos.getBatch(size/2);
-                let batch2 = this.memoryNeg.getBatch(size/2);
-                return {
-                    'obs0': batch1.obs0.concat(batch2.obs0),
-                    'obs1': batch1.obs1.concat(batch2.obs1),
-                    'rewards': batch1.rewards.concat(batch2.rewards),
-                    'actions': batch1.actions.concat(batch2.actions),
-                    'terminals': batch1.terminals.concat(batch2.terminals),
-                };
-            }
-        };
+        assignAndStd(this.actor, this.perturbedActor, this.noise.currentStddev, this.config.seed);
 
-        assignAndStd(this.actor, this.perturbedActor, this.noise.currentStddev);
+        this.trainActorCt = 0;
+        this.trainCriticCt = 0;
     }
 
 
@@ -102,17 +105,22 @@ class DDPG {
      */
     adaptParamNoise(){
         const batch = this.memory.getBatch(this.config.batchSize);
-        const tfObs0 = tf.tensor2d(batch.obs0);
-        const distance = this.distanceMeasure(tfObs0);
+        let distanceV = null;
 
-        assignAndStd(this.actor, this.perturbedActor, this.noise.currentStddev);
+        if (batch.obs0.length > 0){
+            const tfObs0 = tf.tensor2d(batch.obs0);
+            const distance = this.distanceMeasure(tfObs0);
+    
+            assignAndStd(this.actor, this.perturbedActor, this.noise.currentStddev, this.config.seed);
+    
+            distanceV = distance.buffer().values;
+            this.noise.adapt(distanceV[0]);
 
-        const distanceV = distance.buffer().values;
-        this.noise.adapt(distanceV[0]);
-        setMetric("Distance", distanceV[0])
+            distance.dispose();
+            tfObs0.dispose();
+        }
 
-        distance.dispose();
-        tfObs0.dispose();
+        return distanceV;
     }
 
     /**
@@ -176,32 +184,59 @@ class DDPG {
 
         const criticLoss = this.criticOptimiser.minimize(() => {
                 const tfQPredictions0 = this.critic.model.predict([tfObs0, tfActions]);
-            
-                const tfAPredictions = this.actorTarget.model.predict(tfObs1);
-                const tfQPredictions = this.criticTarget.model.predict([tfObs1, tfAPredictions]);
+                const tfQPredictions1 = this.criticTargetWithActorTarget(tfObs1);
+                
+                const tfQTargets = tfRewards.add(tf.scalar(1).sub(tfTerminals).mul(this.tfGamma).mul(tfQPredictions1));
         
-                const tfQTargets = tfRewards.add(tf.scalar(1).sub(tfTerminals).mul(this.tfGamma).mul(tfQPredictions));
-        
-                const loss = tf.sub(tfQTargets, tfQPredictions0).square().mean();
-                return loss;
+                return tf.sub(tfQTargets, tfQPredictions0).square().mean();
         }, true, this.criticWeights);
 
-        setMetric("CriticLoss", criticLoss.buffer().values[0]);
+        const loss = criticLoss.buffer().values[0];
         criticLoss.dispose();
+
+        //if (this.trainCriticCt % 200 == 0 && this.trainCriticCt != 0){
+        targetUpdate(this.criticTarget, this.critic, this.config);
+            //console.log("Update");
+            // Saniity Check
+        //}
+        this.trainCriticCt += 1;
+
+        return loss;
     }
 
-    trainActor(tfObs0, it){
-        for (let i = 0; i < it; i++){
-            const actorLoss = this.actorOptimiser.minimize(() => {
-                const tfAPredictions0 = this.actor.model.predict(tfObs0); 
-                const tfQPredictions0 = this.critic.model.predict([tfObs0, tfAPredictions0]);
-                const loss = tf.mean(tfQPredictions0).mul(tf.scalar(-1));
-                return loss;
-            }, true, this.actorWeights);
-            const vLoss = actorLoss.buffer().values[0];
-            setMetric("ActorLoss", actorLoss.buffer().values[0]);
-            actorLoss.dispose(); 
+    trainActor(tfObs0){
+
+        const actorLoss = this.actorOptimiser.minimize(() => {
+            const tfQPredictions0 = this.criticWithActor(tfObs0); 
+            return tf.mean(tfQPredictions0).mul(tf.scalar(-1.))
+        }, true, this.actorWeights);
+
+        /*
+        const sanityTfLoss = tf.tidy(() => {
+                const tfQPredictions0 = this.criticTargetWithActor(tfObs0); 
+                const mn = tf.mean(tfQPredictions0);
+                const loss = mn.mul(tf.scalar(-1));
+                return loss; 
+        });
+
+        const sanityLoss = sanityTfLoss.buffer().values[0];
+        
+
+        if (sanityLoss == loss){
+            console.warn("Sanity check failed. The optimisation have no effet here.");
         }
+        */
+       
+        //if (this.trainActorCt % 200 == 0 && this.trainActorCt != 0){
+        targetUpdate(this.actorTarget, this.actor, this.config);
+        //}
+        //this.trainActorCt += 1;
+
+        const loss = actorLoss.buffer().values[0];
+        actorLoss.dispose(); 
+        //sanityTfLoss.dispose();
+
+        return loss;
     }
 
     getTfBatch(){
@@ -225,27 +260,74 @@ class DDPG {
         }
     }
 
-    async optimizeCritic(){
+    optimizeCritic(){
         const {tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
 
-        this.trainCritic(tfActions, tfObs0, tfObs1, tfRewards, tfTerminals);
+        const loss = this.trainCritic(tfActions, tfObs0, tfObs1, tfRewards, tfTerminals);
 
         tfActions.dispose();
         tfObs0.dispose();
         tfObs1.dispose(); 
         tfRewards.dispose();
         tfTerminals.dispose();
+
+        return loss;
     }
 
-    async optimizeActor(it=1){
+    optimizeActor(it=1){
         const {tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
 
-        this.trainActor(tfObs0, it);
+        const loss = this.trainActor(tfObs0, it);
 
         tfActions.dispose();
         tfObs0.dispose();
         tfObs1.dispose(); 
         tfRewards.dispose();
         tfTerminals.dispose();
+
+        return loss;
     }
+
+    optimizeCriticActor(){
+        const {tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
+
+        const lossC = this.trainCritic(tfActions, tfObs0, tfObs1, tfRewards, tfTerminals);
+        const lossA = this.trainActor(tfObs0);
+
+        tfActions.dispose();
+        tfObs0.dispose();
+        tfObs1.dispose(); 
+        tfRewards.dispose();
+        tfTerminals.dispose();
+
+        return {lossC, lossA};
+    }
+
+    trainRecord(){
+
+        let lossValues = [];
+
+        for (let i=0; i < 32; i++){
+
+            const {tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
+    
+            const actorLoss = this.actorOptimiser.minimize(() => {
+                const tfAPredictions0 = this.actor.model.predict(tfObs0); 
+                const loss = tfActions.sub(tfAPredictions0).square().mean();
+                return loss;
+            }, true, this.actorWeights);
+    
+            const loss = actorLoss.buffer().values[0];
+            lossValues.push(loss);
+
+            actorLoss.dispose(); 
+            tfActions.dispose();
+            tfObs0.dispose();
+            tfObs1.dispose(); 
+            tfRewards.dispose();
+            tfTerminals.dispose();
+        }
+        console.log("Mean loss", mean(lossValues));
+    }
+
 }

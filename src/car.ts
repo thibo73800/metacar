@@ -186,8 +186,6 @@ export class Car {
             Method used to restore the position of the car
             to the original position (as set into the json file)
         */
-        this.core.a = 0;
-        this.core.v = 0;
         this.core.mx = this.info.mx;
         this.core.my = this.info.my;
         let road = this.level.getRoad(this.core.my, this.core.mx);

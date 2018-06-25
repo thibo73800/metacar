@@ -10,7 +10,7 @@ import * as U from "./utils";
 export class ControlMotionEngine extends MotionEngine {
 
     private actions: (string|number)[];
-    private maxSpeed: number = 1.5;
+    private maxSpeed: number = 2.0;
 
     constructor(level: Level) {
         /*
@@ -144,12 +144,12 @@ export class ControlMotionEngine extends MotionEngine {
             this.car.v = Math.min(0, this.car.v + 0.01);
 
         if (this.car.a > 0 && this.car.v >= 0)
-            this.car.v = Math.min(this.maxSpeed, this.car.v + this.car.a*0.01);
+            this.car.v = Math.min(this.maxSpeed, this.car.v + this.car.a*0.005);
         else if (this.car.a > 0 && this.car.v < 0){
             this.car.v = Math.min(this.maxSpeed, this.car.v + this.car.a*0.03);
         }
         if (this.car.a < 0 && this.car.v <= 0)
-            this.car.v = Math.max(-this.maxSpeed, this.car.v + this.car.a*0.01);
+            this.car.v = Math.max(-this.maxSpeed, this.car.v + this.car.a*0.005);
         else if (this.car.a < 0 && this.car.v > 0){
             this.car.v = Math.max(-this.maxSpeed, this.car.v + this.car.a*0.03);
         }
