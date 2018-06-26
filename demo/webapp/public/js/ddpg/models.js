@@ -18,45 +18,29 @@ function copyModel(model, instance){
 }
 
 /**
- * Usefull method to copy a model
- * @param model Actor
- * @param perturbedActor Actor
+ * Copy the value of of the model into the perturbedModel and
+ * add a random pertubation
+ * @param model Actor|Critic instance
+ * @param perturbedActor Actor|Critic instance
  * @param stddev (number)
  * @return Copy of the model
  */
-function assignAndStd(actor, perturbedActor, stddev, seed){
-    return tf.tidy(() => {
-        const weights = actor.model.trainableWeights;
-        for (let m=0; m < weights.length; m++){
-            let shape = perturbedActor.model.trainableWeights[m].val.shape;
-            let randomTensor = tf.randomNormal(shape, 0, stddev, "float32", seed);
-            let nValue = weights[m].val.add(randomTensor);
-            perturbedActor.model.trainableWeights[m].val.assign(nValue);
-        }
-    });
-}
-
-/**
- * Usefull method to copy a model
- * @param model Actor
- * @param perturbedActor Actor
- * @return Copy of the model
- */
-function assignModel(model, targetModel){
+function assignAndStd(model, perturbedModel, stddev, seed){
     return tf.tidy(() => {
         const weights = model.model.trainableWeights;
         for (let m=0; m < weights.length; m++){
-            let nValue = weights[m].val;
-            targetModel.model.trainableWeights[m].val.assign(nValue);
+            let shape = perturbedModel.model.trainableWeights[m].val.shape;
+            let randomTensor = tf.randomNormal(shape, 0, stddev, "float32", seed);
+            let nValue = weights[m].val.add(randomTensor);
+            perturbedModel.model.trainableWeights[m].val.assign(nValue);
         }
     });
 }
 
-
 /**
- * Usefull method to copy a model
- * @param target Actor|Critic
- * @param perturbedActor Actor|Critic
+ * Update the target models
+ * @param target Actor|Critic instance
+ * @param perturbedActor Actor|Critic instance
  * @param config (Object)
  * @return Copy of the model
  */
@@ -90,6 +74,10 @@ class Actor{
         this.stateSize = config.stateSize;
         this.nbActions = config.nbActions;
         this.layerNorm = config.layerNorm;
+
+        this.firstLayerSize = config.actorFirstLayerSize;
+        this.secondLayerSize = config.actorSecondLayerSize;
+
         this.seed = config.seed;
         this.config = config;
         this.obs = null;
@@ -102,24 +90,22 @@ class Actor{
     buildModel(obs){
         this.obs = obs;
 
-        // First layer with BatchNormalization
+        // First layer
         this.firstLayer = tf.layers.dense({
-            units: 64,
+            units: this.firstLayerSize,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
-            activation: 'relu', // relu is add later
+            activation: 'relu',
             useBias: true,
             biasInitializer: "zeros"
         });
-
-        // Second layer with BatchNormalization
+        // Second layer
         this.secondLayer = tf.layers.dense({
-            units: 32,
+            units: this.secondLayerSize,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
-            activation: 'relu', // relu is add later
+            activation: 'relu',
             useBias: true,
             biasInitializer: "zeros"
         });
-
         // Ouput layer
         this.outputLayer = tf.layers.dense({
             units: this.nbActions,
@@ -129,12 +115,13 @@ class Actor{
             useBias: true,
             biasInitializer: "zeros"
         });
-
+        // Actor prediction
         this.predict = (tfState) => {
             return tf.tidy(() => {               
                 if (tfState){
                     obs = tfState;
                 }
+
                 let l1 = this.firstLayer.apply(obs);
                 let l2 = this.secondLayer.apply(l1);
 
@@ -155,6 +142,11 @@ class Critic {
         this.stateSize = config.stateSize;
         this.nbActions = config.nbActions;
         this.layerNorm = config.layerNorm;
+
+        this.firstLayerSSize = config.criticFirstLayerSSize
+        this.firstLayerASize = config.criticFirstLayerASize;
+        this.secondLayerSize = config.criticSecondLayerSize;
+
         this.seed = config.seed;
         this.config = config;
         this.obs = null;
@@ -170,30 +162,28 @@ class Critic {
         this.obs = obs;
         this.action = action;
 
+        // Used to merged the two first Layer later.
         this.add = tf.layers.add();
 
-        // First layer with BatchNormalization
+        // First layer
         this.firstLayerS = tf.layers.dense({
-            units: 64,
+            units: this.firstLayerSSize,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
             activation: 'linear', // relu is add later
             useBias: true,
             biasInitializer: "zeros"
         });
-
-        // First layer with BatchNormalization
+        // First layer
         this.firstLayerA = tf.layers.dense({
-            units: 64,
+            units: this.firstLayerASize,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
             activation: 'linear', // relu is add later
             useBias: true,
             biasInitializer: "zeros"
         });
-
-        // Second layer with BatchNormalization
+        // Second layer
         this.secondLayer = tf.layers.dense({
-            //inputShape: [this.config.batchSize, 64 + this.nbActions], // Previous layer + action
-            units: 32,
+            units: this.secondLayerSize,
             kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
             activation: 'relu',
             useBias: true,
@@ -210,7 +200,7 @@ class Critic {
             biasInitializer: "zeros"
         });
         
-        // Actor prediction
+        // Critic prediction
         this.predict = (tfState, tfActions) => {
             return tf.tidy(() => {
                 if (tfState && tfActions){
@@ -220,7 +210,7 @@ class Critic {
                 
                 let l1A = this.firstLayerA.apply(action);
                 let l1S = this.firstLayerS.apply(obs)
-
+                // Merged layers
                 let concat = this.add.apply([l1A, l1S])
 
                 let l2 = this.secondLayer.apply(concat);
@@ -228,6 +218,7 @@ class Critic {
                return this.outputLayer.apply(l2);
             });
         }
+
         const output = this.predict();
         this.model = tf.model({inputs: [obs, action], outputs: output});
     }

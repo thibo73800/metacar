@@ -1,36 +1,45 @@
-
 // This class is called from js/DDPG/index.js
 class DDPGAgent {
 
     /**
      * @param env (metacar.env) Set in js/DDPG/index.js
      */
-    constructor(env){
+    constructor(env, config){
+
         this.stopTraining = false;
         this.env = env;
+
+        config = config || {};
         // Default Config
         this.config = {
-            "stateSize": 17,
-            "nbActions": 2,
-            "layerNorm": false,
-            "normalizeObservations": true,
-            "seed": 0,
-            "criticL2Reg": 0.01,
-            "batchSize": 64,
-            "actorLr": 0.0001,
-            "criticLr": 0.001,
-            "memorySize": 20000,
-            "gamma": 0.99,
-            "noiseDecay": 0.99,
-            "rewardScale": 1,
-            "nbEpochs": 500,
-            "nbEpochsCycle": 20,
-            "nbTrainSteps": 50,
-            "tau": 0.01,
-            "paramNoiseAdaptionInterval": 50,
+            "stateSize": config.stateSize || 17,
+            "nbActions": config.nbActions || 2,
+            "seed": config.seed || 0,
+            "batchSize": config.batchSize || 128,
+            "actorLr": config.actorLr || 0.0001,
+            "criticLr": config .criticLr || 0.001,
+            "memorySize": config.memorySize || 30000,
+            "gamma": config.gamme || 0.99,
+            "noiseDecay": config.noiseDecay || 0.99,
+            "rewardScale": config.rewardScale || 1,
+            "nbEpochs": config.nbEpochs || 200,
+            "nbEpochsCycle": config.nbEpochsCycle || 10,
+            "nbTrainSteps": config.nbTrainSteps || 110,
+            "tau": config.tau || 0.01,
+            "initialStddev": config.initialStddev || 0.1,
+            "desiredActionStddev": config.desiredActionStddev || 0.1,
+            "adoptionCoefficient": config.adoptionCoefficient || 1.01,
+            "actorFirstLayerSize": config.actorFirstLayerSize || 64,
+            "actorSecondLayerSize": config.actorSecondLayerSize || 32,
+            "criticFirstLayerSSize": config.criticFirstLayerSSize || 64,
+            "criticFirstLayerASize": config.criticFirstLayerASize || 64,
+            "criticSecondLayerSize": config.criticSecondLayerSize || 32,
+            "maxStep": config.maxStep || 800,
+            "stopOnRewardError": config.stopOnRewardError != undefined ? config.stopOnRewardError:true,
+            "resetEpisode": config.resetEpisode != undefined ? config.resetEpisode:false
         };
         // From js/DDPG/noise.js
-        this.noise = new AdaptiveParamNoiseSpec();
+        this.noise = new AdaptiveParamNoiseSpec(this.config);
 
         // Configure components.
 
@@ -51,20 +60,20 @@ class DDPGAgent {
         this.ddpg = new DDPG(this.actor, this.critic, this.memory, this.noise, this.config);
     }
 
-    save(env){
+    save(name){
         /*
             Save the network
         */
-       this.ddpg.critic.model.save('downloads://critic-model-ddpg-agent');
-       this.ddpg.actor.model.save('downloads://actor-model-ddpg-agent');
+       this.ddpg.critic.model.save('downloads://critic-' + name);
+       this.ddpg.actor.model.save('downloads://actor-'+ name);
     }
 
-    async restore(){
+    async restore(folder, name){
         /*
             Restore the weights of the network
         */
-       this.ddpg.critic.model = await tf.loadModel('http://localhost:3000/public/models/ddpg/critic-model-ddpg-agent.json');
-       this.ddpg.actor.model = await tf.loadModel("http://localhost:3000/public/models/ddpg/actor-model-ddpg-agent.json");
+       this.ddpg.critic.model = await tf.loadModel('http://localhost:3000/public/models/'+folder+'/critic-'+name+'.json');
+       this.ddpg.actor.model = await tf.loadModel("http://localhost:3000/public/models/"+folder+"/actor-"+name+".json");
     }
 
     /**
@@ -103,11 +112,6 @@ class DDPGAgent {
     stepTrain(tfPreviousStep, mPreviousStep){
         // Get actions
         const tfActions = this.ddpg.perturbedPrediction(tfPreviousStep);
-        //const TruetfActions = this.ddpg.perturbedPrediction(tfPreviousStep);
-        //const rdNormal = tf.randomNormal(TruetfActions.shape, 0, this.noisyActions, "float32", this.config.seed);
-        //const noisyActions = TruetfActions.add(rdNormal);
-        //const tfActions = tf.clipByValue(noisyActions, -1, 1);
-
         // Step in the environment with theses actions
         let mAcions = tfActions.buffer().values;
         let mReward = this.env.step([mAcions[0], mAcions[1]]);
@@ -116,43 +120,31 @@ class DDPGAgent {
         let mState = this.env.getState().linear;
         let tfState = tf.tensor2d([mState]);
         let mDone = 0;
-
-        if (mReward == -1){
+        if (mReward == -1 && this.config.stopOnRewardError){
             mDone = 1;
         }
-
         // Add the new tuple to the buffer
         this.ddpg.memory.append(mPreviousStep, [mAcions[0], mAcions[1]], mReward, mState, mDone);
-
-        // Dispose tensor
+        // Dispose tensors
         tfPreviousStep.dispose();
-        //TruetfActions.dispose();
-        //noisyActions.dispose();
         tfActions.dispose();
-        //rdNormal.dispose();
-        //rd.dispose();
-        //trueTfActions.dispose();
-        return {mDone, mState, tfState}
-    }
 
-    initTrainParam(){
-        this.stopTraining = false;
-        this.noisyActions = 2.0;
+        return {mDone, mState, tfState};
     }
 
     /**
      * Train DDPG Agent
      */
     async train(realTime){
-        this.initTrainParam();
+        this.stopTraining = false;
         // One epoch
         for (let e=0; e < this.config.nbEpochs; e++){
             // Perform cycles.
             this.rewardsList = [];
             this.stepList = [];
             this.distanceList = [];
+            document.getElementById("trainingProgress").innerHTML = "Progression: "+e+"/"+this.config.nbEpochs+"<br>";
             for (let c=0; c < this.config.nbEpochsCycle; c++){
-
                 if (c%10==0){
                     logTfMemory();
                 }
@@ -164,11 +156,11 @@ class DDPGAgent {
                 let step = 0;
 
                 console.time("LoopTime");
-                for (step=0; step < 800; step++){
+                for (step=0; step < this.config.maxStep; step++){
                     let rel = this.stepTrain(tfPreviousStep, mPreviousStep);
                     mPreviousStep = rel.mState;
                     tfPreviousStep = rel.tfState;
-                    if (rel.mDone){
+                    if (rel.mDone && this.config.stopOnRewardError){
                         break;
                     }
                     if (this.stopTraining){
@@ -183,6 +175,9 @@ class DDPGAgent {
                 let distance = this.ddpg.adaptParamNoise();
                 this.distanceList.push(distance[0]);
 
+                if (this.config.resetEpisode){
+                    this.env.reset();
+                }
                 this.env.randomRoadPosition();
                 tfPreviousStep.dispose();
                 console.log("e="+ e +", c="+c);
@@ -190,28 +185,25 @@ class DDPGAgent {
                 //this.ddpg.targetUpdate();
                 await tf.nextFrame();
             }
-            if (this.ddpg.memory.length == this.config.memorySize){
-                this.noisyActions = Math.max(0.1, this.noisyActions * this.config.noiseDecay);
+            if (e > 5){
                 this.ddpg.noise.desiredActionStddev = Math.max(0.1, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
                 let lossValuesCritic = [];
                 let lossValuesActor = [];
-                console.time("Training");                
-                for (let t=0; t < 100; t++){
-                    let lossC = this.ddpg.optimizeCritic();
+                console.time("Training");
+                for (let t=0; t < this.config.nbTrainSteps; t++){
+                    let {lossC, lossA} = this.ddpg.optimizeCriticActor();
                     lossValuesCritic.push(lossC);
-                }
-                for (let t=0; t < 100; t++){
-                    let lossA = this.ddpg.optimizeActor();
                     lossValuesActor.push(lossA);
                 }
                 console.timeEnd("Training");
                 console.log("desiredActionStddev:", this.ddpg.noise.desiredActionStddev);
                 setMetric("CriticLoss", mean(lossValuesCritic));
                 setMetric("ActorLoss", mean(lossValuesActor));
-            } 
+            }
+
             setMetric("Reward", mean(this.rewardsList));
             setMetric("EpisodeDuration", mean(this.stepList));
-            setMetric("Distance", mean(this.distanceList));
+            setMetric("NoiseDistance", mean(this.distanceList));
             await tf.nextFrame();
         }
             

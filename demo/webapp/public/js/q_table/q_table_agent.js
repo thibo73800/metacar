@@ -54,7 +54,7 @@ class QTableAgent {
 
     play(){
         // Get the current state
-        let state = this.env.getState();
+        let state = this.env.getState().lidar;
         state = state.toString();
         // In this state in not in the Q(s, a) function
         if (!(state in this.Q)){
@@ -108,7 +108,7 @@ class QTableAgent {
                 console.log("episode=", ep, "eps=", eps, "mean_reward", mean(mean_reward));
             }
             mean_reward = [];
-            let st = this.env.getState().toString();
+            let st = this.env.getState().lidar.toString();
             let act;
             let gamma = 0.99;
             let st2;
@@ -117,7 +117,7 @@ class QTableAgent {
                 act = this.pickAction(st, eps);
                 let reward = this.env.step(act);
                 mean_reward.push(reward);
-                st2 = this.env.getState().toString();
+                st2 = this.env.getState().lidar.toString();
                 // Pick greedy action (eps = 0)
                 act2 = this.pickAction(st2, 0.);
                 this.createStateIfNotExist(st2);

@@ -29,13 +29,6 @@ class DDPG {
         let obsInput = tf.input({batchShape: [null, this.config.stateSize]});
         let actionInput = tf.input({batchShape: [null, this.config.nbActions]});
 
-        if (config.normalizeObservations){
-            tf.layers.batchNormalization({
-                scale: true,
-                center: true
-            }).apply(obsInput);
-        }
-
         // Randomly Initialize actor network μ(s)
         this.actor.buildModel(obsInput);
         // Randomly Initialize critic network Q(s, a)
@@ -56,14 +49,12 @@ class DDPG {
                 return this.critic.predict(tfState, tfAct);
             });
         };
-
         this.criticTargetWithActorTarget = (tfState) => {
             return tf.tidy(() => {
                 const tfAct = this.actorTarget.predict(tfState);
                 return this.criticTarget.predict(tfState, tfAct);
             });
         };
-
 
         this.actorOptimiser = tf.train.adam(this.config.actorLr);
         this.criticOptimiser = tf.train.adam(this.config.criticLr);
@@ -72,23 +63,19 @@ class DDPG {
         for (let w = 0; w < this.critic.model.trainableWeights.length; w++){
             this.criticWeights.push(this.critic.model.trainableWeights[w].val);
         }
-
         this.actorWeights = [];
         for (let w = 0; w < this.actor.model.trainableWeights.length; w++){
             this.actorWeights.push(this.actor.model.trainableWeights[w].val);
         }
 
         assignAndStd(this.actor, this.perturbedActor, this.noise.currentStddev, this.config.seed);
-
-        this.trainActorCt = 0;
-        this.trainCriticCt = 0;
     }
 
 
     /**
      * Distance Measure for DDPG
      * See parameter space noise Exploration paper
-     * obs (Tensor2d) Observations
+     * @param observations (Tensor2d) Observations
      */
      distanceMeasure(observations) {
         return tf.tidy(() => {
@@ -105,6 +92,11 @@ class DDPG {
      */
     adaptParamNoise(){
         const batch = this.memory.getBatch(this.config.batchSize);
+        if (batch.obs0.length == 0){
+            assignAndStd(this.actor, this.perturbedActor, this.noise.currentStddev, this.config.seed);
+            return [0];
+        }
+
         let distanceV = null;
 
         if (batch.obs0.length > 0){
@@ -121,17 +113,6 @@ class DDPG {
         }
 
         return distanceV;
-    }
-
-    /**
-     * Eval the actions and the Q function
-     * @param states (tf.tensor2d)
-     * @return actions and qValues
-     */
-    eval(observation){
-        const tfActions = this.perturbedActor.model.predict(observation);
-        const tfQValues = this.critic.model.predict([observation, tfActions]);
-        return {tfActions, tfQValues};
     }
 
     /**
@@ -174,13 +155,13 @@ class DDPG {
      */
     targetUpdate(){
         // Define in js/DDPG/models.js
-        //assignModel(this.critic, this.criticTarget);
-        //assignModel(this.actor, this.actorTarget);
         targetUpdate(this.criticTarget, this.critic, this.config);
         targetUpdate(this.actorTarget, this.actor, this.config);
     }
     
-    trainCritic(tfActions, tfObs0, tfObs1, tfRewards, tfTerminals){
+    trainCritic(batch, tfActions, tfObs0, tfObs1, tfRewards, tfTerminals){
+
+        let costs; 
 
         const criticLoss = this.criticOptimiser.minimize(() => {
                 const tfQPredictions0 = this.critic.model.predict([tfObs0, tfActions]);
@@ -188,18 +169,18 @@ class DDPG {
                 
                 const tfQTargets = tfRewards.add(tf.scalar(1).sub(tfTerminals).mul(this.tfGamma).mul(tfQPredictions1));
         
-                return tf.sub(tfQTargets, tfQPredictions0).square().mean();
+                const erros = tf.sub(tfQTargets, tfQPredictions0).square();
+                costs = erros.buffer().values;
+
+                return erros.mean();
         }, true, this.criticWeights);
+
+        this.memory.appendBackWithCost(batch, costs);
 
         const loss = criticLoss.buffer().values[0];
         criticLoss.dispose();
 
-        //if (this.trainCriticCt % 200 == 0 && this.trainCriticCt != 0){
         targetUpdate(this.criticTarget, this.critic, this.config);
-            //console.log("Update");
-            // Saniity Check
-        //}
-        this.trainCriticCt += 1;
 
         return loss;
     }
@@ -215,14 +196,13 @@ class DDPG {
 
         const loss = actorLoss.buffer().values[0];
         actorLoss.dispose(); 
-        //sanityTfLoss.dispose();
 
         return loss;
     }
 
     getTfBatch(){
         // Get batch
-        const batch = this.memory.getBatch(this.config.batchSize);
+        const batch = this.memory.popBatch(this.config.batchSize);
         // Convert to tensors
         const tfActions = tf.tensor2d(batch.actions);
         const tfObs0 = tf.tensor2d(batch.obs0);
@@ -237,12 +217,12 @@ class DDPG {
         _tfTerminals.dispose();
 
         return {
-            tfActions, tfObs0, tfObs1, tfRewards, tfTerminals
+            batch, tfActions, tfObs0, tfObs1, tfRewards, tfTerminals
         }
     }
 
     optimizeCritic(){
-        const {tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
+        const {batch, tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
 
         const loss = this.trainCritic(tfActions, tfObs0, tfObs1, tfRewards, tfTerminals);
 
@@ -255,10 +235,10 @@ class DDPG {
         return loss;
     }
 
-    optimizeActor(it=1){
-        const {tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
+    optimizeActor(){
+        const {batch, tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
 
-        const loss = this.trainActor(tfObs0, it);
+        const loss = this.trainActor(tfObs0);
 
         tfActions.dispose();
         tfObs0.dispose();
@@ -270,9 +250,9 @@ class DDPG {
     }
 
     optimizeCriticActor(){
-        const {tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
+        const {batch, tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
 
-        const lossC = this.trainCritic(tfActions, tfObs0, tfObs1, tfRewards, tfTerminals);
+        const lossC = this.trainCritic(batch, tfActions, tfObs0, tfObs1, tfRewards, tfTerminals);
         const lossA = this.trainActor(tfObs0);
 
         tfActions.dispose();
@@ -283,32 +263,4 @@ class DDPG {
 
         return {lossC, lossA};
     }
-
-    trainRecord(){
-
-        let lossValues = [];
-
-        for (let i=0; i < 32; i++){
-
-            const {tfActions, tfObs0, tfObs1, tfRewards, tfTerminals} = this.getTfBatch();
-    
-            const actorLoss = this.actorOptimiser.minimize(() => {
-                const tfAPredictions0 = this.actor.model.predict(tfObs0); 
-                const loss = tfActions.sub(tfAPredictions0).square().mean();
-                return loss;
-            }, true, this.actorWeights);
-    
-            const loss = actorLoss.buffer().values[0];
-            lossValues.push(loss);
-
-            actorLoss.dispose(); 
-            tfActions.dispose();
-            tfObs0.dispose();
-            tfObs1.dispose(); 
-            tfRewards.dispose();
-            tfTerminals.dispose();
-        }
-        console.log("Mean loss", mean(lossValues));
-    }
-
 }
