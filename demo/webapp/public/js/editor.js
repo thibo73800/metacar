@@ -16,5 +16,5 @@ editor.load().then(() => {
         localStorage.setItem('mylevel.json', JSON.stringify(content));
         window.open("/test_editor.html");
 
-    }, {download: false, name: "level.json"});
+    }, {download: true, name: "level.json"});
 });

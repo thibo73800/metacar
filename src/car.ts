@@ -11,6 +11,7 @@ import {
     CAR_IMG, Sprite, MAP, ROADSIZE, Container, Graphics
 } from "./global";
 import { RoadSprite } from "./asset_manager";
+import { runInThisContext } from "vm";
 
 var Global_carId = 0;
 
@@ -55,11 +56,25 @@ export interface CarSprite extends PIXI.Sprite {
     optionalTurn?: boolean;
     agent?: boolean;
     v?: number;
+    a?: number;
+    yaw_rate?: number;
+    last_a?: number;
+    last_yaw_rate?: number;
+    next_road?: any;
+    turnedRandom?: any;
 }
 
 export interface LidarChild extends PIXI.Graphics {
     // Is a lidar point
     pt?: boolean;
+}
+
+export interface State {
+    lidar?: number[][];
+    linear?: number[];
+    v?: number;
+    a?: number;
+    steering?: number;
 }
 
 export class Car {
@@ -70,7 +85,6 @@ export class Car {
     public motion: any;
 
     private info: CarInfo;
-    public turnedRandom: any;
 
     constructor(level: Level|Editor, info: CarInfo, textures: any, options:CarOptions={}) {
         /*
@@ -162,7 +176,8 @@ export class Car {
             // TOdo: CHECK something is strange here
             this.core.haveTurned = false;
             this.core.optionalTurn = false;
-            this.turnedRandom = undefined;
+            this.core.turnedRandom = undefined;
+            this.core.next_road = false;
             if (n_road)
                 n_road.cars.push(this.core.carId);
         }
@@ -181,19 +196,26 @@ export class Car {
         }
     }
 
-    getState(linear:boolean = false): number[][]|number[]{
+    getState(): State {
         /*
             Get the current state of the car
             The state is the current value of each point
             of the lidar.
         */
-        if (!linear)
-            return this.motion.state.map(function(arr: any) { return arr.slice(); });
-        else{
-            let state: number[] = [];
-            this.motion.state.map((row: number[]) => { state = state.concat(row);});
-            return state;
-        }
+        let nState: State = {};
+
+        let linear: number[] = [];
+        this.motion.state.map((row: number[]) => { linear = linear.concat(row);});
+        linear.push(this.core.v);
+
+        nState.linear = linear;
+        nState.lidar =  this.motion.state.map(function(arr: any) { return arr.slice(); });
+
+        nState.v = this.core.v;
+        nState.a = this.core.last_a;
+        nState.steering = this.core.last_yaw_rate;
+
+        return nState;
     }
 
     step(delta: number, action:number|number[]=null){

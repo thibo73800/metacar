@@ -12,8 +12,8 @@ var agent = new QTableAgent(env, 2);
 
 env.loop(() => {
     let state = env.getState();
-    displayState("realtime_viewer", state, 200, 200);
-    let scores = agent.getStateValues(state);
+    displayState("realtime_viewer", state.lidar, 200, 200);
+    let scores = agent.getStateValues(state.lidar);
     let reward = env.getLastReward();
     displayScores("realtime_viewer", scores, reward, ["Top", "Left", "Right"]);
 });

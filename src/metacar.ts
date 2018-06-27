@@ -8,7 +8,7 @@ import {UIEvent} from "./ui_event";
 import * as U from "./utils";
 import { BasicMotionEngine, BasicMotionOptions } from "./basic_motion_engine";
 import { ControlMotionEngine } from "./control_motion_engine";
-import { LidarInfoI } from "./car";
+import { LidarInfoI, State } from "./car";
 
 /**
  * @local Chooce whether to load a file from the computer.
@@ -16,6 +16,15 @@ import { LidarInfoI } from "./car";
  */
 export interface eventLoadOptions {
     local: boolean;
+}
+
+/**
+ * @cars Shuffle the position of the other cars (true default)
+ * @agent Shuffle the position of the agent (true default)
+ */
+export interface shuffleConfig{
+    agent: boolean;
+    cars: boolean;
 }
 
 export class MetaCar {
@@ -133,6 +142,14 @@ export class MetaCar {
     }
 
     /**
+     * Choose wheter the environment should step automaticly
+     * @param val True or False 
+     */
+    public steping(val: boolean){
+        this.level.setSteping(val);
+    }
+
+    /**
      * Usefull method to save/download a string as file.
      * @content The content of the file
      * @file_name The name of the file
@@ -157,8 +174,8 @@ export class MetaCar {
      * The size of the state depends of the size of the Lidar.
      * @return The state as a 2D Array or 1D Array (linear:true)
     */
-    public getState(linear:boolean = false): number[][]|number[]{
-        return this.level.agent.getState(linear);
+    public getState(): State{
+        return this.level.agent.getState();
     }
 
     /** 
@@ -167,7 +184,7 @@ export class MetaCar {
         @return Reward value
     */
     public step(action: number|number[]): number{
-        return this.level.step(1, action);
+        return this.level.step(1, action, false);
     }
 
     /**
@@ -181,21 +198,31 @@ export class MetaCar {
     }
 
     /**
-     * Set the agent on a new random road on the map.
+     * Shuffle the position of the agent and the others
+     * cars.
      */
-    randomRoadPosition(): void{
+    shuffle(config: shuffleConfig): void{
         /*
             This position
         */
-        let roads = this.level.getRoads();
-        let keys = Object.keys(roads);
-        keys.sort(function() {return Math.random()-0.5;});
-        for (let k in keys){
-            let road = roads[keys[k]];
-            if (road.cars.length == 0){
-                road.setCarPosition(this.level.agent.core);
-                break;
+        config = config || {cars: true, agent: true};
+        config.cars = config.cars != undefined ? config.cars:true;
+        config.agent = config.agent != undefined ? config.agent:true;
+
+        if (config.agent) {
+            let roads = this.level.getRoads();
+            let keys = Object.keys(roads);
+            keys.sort(function() {return Math.random()-0.5;});
+            for (let k in keys){
+                let road = roads[keys[k]];
+                if (road.cars.length == 0){
+                    road.setCarPosition(this.level.agent.core);
+                    break;
+                }
             }
+        }
+        if (config.cars){
+            this.level.shuffleCarsPositions();
         }
     }
 

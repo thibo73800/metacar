@@ -113,3 +113,50 @@ function displayState(id, state, width, height){
     }
 
 }
+
+METRICS = {};
+
+function initMetricsContainer(container, metrics){
+    container = document.getElementById(container);
+    for (let m=0; m < metrics.length; m++){
+        nDiv = document.createElement("div");
+        nDiv.id = 'metrics_'+metrics[m];
+        nDiv.style.width = "250px";
+        nDiv.style.height = "250px";
+        nDiv.style.display = "inline-block";
+        nDiv.style.marginRight = "10px";
+        container.appendChild(nDiv);
+
+        METRICS[metrics[m]] = new CanvasJS.Chart('metrics_'+metrics[m], {
+            width: 250,
+            height: 250,
+            animationEnabled: false,
+            theme: "light2",
+            title:{
+                text: metrics[m],
+            },
+            axisY:{
+                includeZero: false
+            },
+            data: [{        
+                type: "line",       
+                dataPoints: [{y: 0}]
+            }]
+        });
+        METRICS[metrics[m]].render();
+    }
+}
+
+function setMetric(name, value){
+    let chart = METRICS[name];
+    let size = chart.options.data[0].dataPoints.length - 1;
+
+    if (chart.options.data[0].dataPoints.length > 500){
+        chart.options.data[0].dataPoints = chart.options.data[0].dataPoints.slice(1, size);
+        size = size - 1;
+    }
+    
+    size = chart.options.data[0].dataPoints.length - 1;
+    chart.options.data[0].dataPoints.push({y: value, x: chart.options.data[0].dataPoints[size].x+1});
+    chart.render();
+}
