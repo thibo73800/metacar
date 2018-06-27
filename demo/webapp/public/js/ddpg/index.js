@@ -10,7 +10,7 @@ var agent = new DDPGAgent(env, {
     stateSize: 26,
     resetEpisode: true,
     saveDuringTraining: true,
-    saveInterval: 10
+    saveInterval: 10,
 });
 
 initMetricsContainer("statContainer", ["Reward", "ActorLoss", "CriticLoss", "EpisodeDuration", "NoiseDistance"]);
