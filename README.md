@@ -43,7 +43,7 @@ You can use Metacar with a direct link in your HTML file or install it from NPM.
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js"></script>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/metacar@0.0.5/dist/metacar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/combine/npm/metacar@0.0.1,npm/metacar@0.1.0"></script>
 </body>
 </html>
 ```
@@ -168,7 +168,16 @@ env.load().then(() => {
 
 During the training, the environment is not rendering on the screen anymore. Once your training is finish you have to notify the environment by calling env.render(true) to render the environment again. <br>
 
-The state of the environment is the value of each lidar point. 
+The state of the environment is made of four fields:
+
+```
+{
+    a: number|undefined // Acceleration of the car (if any)
+    lidar: number[][] // Lidar points values
+    linear: number[] // The flatten lidar values + the current speed of the car 
+    steering: number|undefined // Steering angle of the car (if any) 
+}
+```
 
 Here is an example of simple training loop. 
 
@@ -189,7 +198,7 @@ env.load().then(() => {
 });
 ```
 
-### Reset env
+### Reset and shuffle env
 
 To reset the environment, you can either call
 
@@ -208,6 +217,24 @@ env.load().then(() => {
     
 });
 ```
+
+You can also shuffle the position of vehicles (agent and other cars) on the map.
+
+
+```javascript
+env.load().then(() => {
+
+    env.addEvent("Shuffle only the agent", () => {
+        env.shuffle({cars: false});
+    });
+   
+    env.addEvent("Shuffle all", () => {
+        env.shuffle();
+    });
+   
+});
+```
+
 
 <a id='configure-env'></a>
 Custom the environement
