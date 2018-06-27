@@ -25,7 +25,7 @@ class DDPGAgent {
             "nbEpochs": config.nbEpochs || 200,
             "nbEpochsCycle": config.nbEpochsCycle || 10,
             "nbTrainSteps": config.nbTrainSteps || 110,
-            "tau": config.tau || 0.01,
+            "tau": config.tau || 0.008,
             "initialStddev": config.initialStddev || 0.1,
             "desiredActionStddev": config.desiredActionStddev || 0.1,
             "adoptionCoefficient": config.adoptionCoefficient || 1.01,
@@ -48,7 +48,7 @@ class DDPGAgent {
 
         // Buffer replay
         // The baseline use 1e6 but this size should be enough for this problem
-        this.memory = new Memory(this.config.memorySize);
+        this.memory = new PrioritizedMemory(this.config.memorySize);
         // Actor and Critic are from js/DDPG/models.js
         this.actor = new Actor(this.config);
         this.critic = new Critic(this.config);
@@ -75,8 +75,8 @@ class DDPGAgent {
         /*
             Restore the weights of the network
         */
-        const critic = await tf.loadModel('http://localhost:3000/public/models/'+folder+'/critic-'+name+'.json');
-        const actor = await tf.loadModel("http://localhost:3000/public/models/"+folder+"/actor-"+name+".json");
+        const critic = await tf.loadModel('https://metacar-project.com/public/models/'+folder+'/critic-'+name+'.json');
+        const actor = await tf.loadModel("https://metacar-project.com/public/models/"+folder+"/actor-"+name+".json");
 
         this.ddpg.critic = copyFromSave(critic, Critic, this.config, this.ddpg.obsInput, this.ddpg.actionInput);
         this.ddpg.actor = copyFromSave(actor, Actor, this.config, this.ddpg.obsInput, this.ddpg.actionInput);

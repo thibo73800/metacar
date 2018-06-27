@@ -7,10 +7,7 @@ env.setAgentLidar({pts: 5, width: 3, height: 7, pos: -0.5})
 
 // js/DDPG/ddpg.js
 var agent = new DDPGAgent(env, {
-    stateSize: 26,
-    resetEpisode: true,
-    saveDuringTraining: true,
-    saveInterval: 10,
+    stateSize: 26
 });
 
 initMetricsContainer("statContainer", ["Reward", "ActorLoss", "CriticLoss", "EpisodeDuration", "NoiseDistance"]);

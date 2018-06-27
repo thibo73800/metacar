@@ -63,8 +63,7 @@ env.load().then(() => {
     });
 
     env.addEvent("load", () => {
-        //agent.restore("ddpg-traffic", "model-ddpg-traffic")
-        agent.restore("four", "model-ddpg-traffic-epoch-120");
+        agent.restore("ddpg-traffic", "model-ddpg-traffic-epoch-120");
     });
 });
 

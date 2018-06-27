@@ -179,6 +179,7 @@ class DDPG {
                 return erros.mean();
         }, true, this.criticWeights);
 
+        // For experience Replay
         this.memory.appendBackWithCost(batch, costs);
 
         const loss = criticLoss.buffer().values[0];
