@@ -7,7 +7,7 @@ var env = new metacar.env("canvas", levelUrl);
 var agent = new PolicyAgent(env);
 
 env.loop(() => {
-    let state = env.getState();
+    let state = env.getState().lidar;
     displayState("realtime_viewer", state, 200, 200);
     let scores = agent.getStateValues(state);
     let reward = env.getLastReward();
@@ -30,6 +30,6 @@ env.load().then(() => {
     env.addEvent("save", () => agent.save());
     env.addEvent("load", () => {
         document.getElementById("metacar_canvas_button_train").style.display = "none";
-        agent.restore()
+        agent.restore();
     });
 });

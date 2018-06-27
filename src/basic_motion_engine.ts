@@ -21,6 +21,7 @@ export class BasicMotionEngine extends MotionEngine {
     */
     private rotationStep: number;
     private actions: string[];
+    private maxSpeed: number = 1.0;
 
     constructor(level: Level, options: BasicMotionOptions) {
         super(level);
@@ -49,6 +50,8 @@ export class BasicMotionEngine extends MotionEngine {
         this.setUpKeyboard();
         // Setup up velocity to 0
         this.car.v = 0;
+        this.car.a = 0; // Acceleration
+        this.car.yaw_rate = 0;
 
         this.detectInteractions();
     }

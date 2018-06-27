@@ -37,45 +37,70 @@
       <br><br><br>
 
       <div class="level_link_box" style="height: 300px;">
-        <a href="/level0.html"><img class="floatleft" src="/public/img/level0.png" /></a>
+        <a href="/qtable.html"><img class="floatleft" src="/public/img/level0.png" /></a>
         <h4>
-          <br><a href="/level0.html">Q-learning with table</a>
+          <br><a href="/qtable.html">Discrete Actions</a>
         </h4>
         <p>
+          Algorithm: <b>Q-learning with table</b> <br><br>
           In this example, the goal is to demonstrate a simple working example of a reinforcement learning 
           algorithm using the metacar environment. You can check out 
-          <a href="/level0.html">the demo</a> or take a look at the <a href="#">medium tutorial</a>.
+          <a href="/qtable.html">the demo</a> or take a look at the <a href="#">medium tutorial</a>.
         </p>
       </div>
 
-
       <div class="level_link_box" style="height: 298px;">
-          <a href="/level1.html"><img class="floatright" src="/public/img/level1.png" /></a>
+          <a href="/policy.html"><img class="floatright" src="/public/img/level1.png" /></a>
           <h4>
-            <br><a href="/level1.html">Policy Monte carlo</a>
+            <br><a href="/policy.html">Discrete Actions in traffic</a>
           </h4>
           <p>
-            Here is an axample of a policy gradient algorithm based on Monte Carlo exploration. 
-            The neural network is build using <a href="http://js.tensorflow.org">tensorflow.js</a>. Check out <a href="/level1.html"> the demo</a>.
+            Algorithm: <b>Policy gradient algorithm based on Monte Carlo exploration (REINFORCE).</b> <br><br>
+
+            The neural network is build using <a href="http://js.tensorflow.org">tensorflow.js</a>. Check out <a href="/policy.html"> the demo</a>.
             <br><br>
           </p>
         </div>
 
-      <div class="level_link_box" style="height: 312px;">
-          <a href="/level2.html"><img class="floatleft" src="/public/img/level2.png" /></a>
+      <div class="level_link_box" style="height: 263px;">
+          <a href="/ddpg.html"><img width="393px" class="floatleft" src="/public/img/ddpg.png" /></a>
           <h4>
-            <br><a href="/level2.html">Full control</a>
+            <br><a href="/ddpg.html">Continous Actions</a>
           </h4>
+          <br>
+          <ul style="margin:0;">
+              <li><b>Deep Deterministic Policy Gradients (DDPG): <a href="https://arxiv.org/abs/1509.02971">paper</a></b> </li>
+              <li><b>Parameter Space Noise for Exploration</b>: <a href="https://blog.openai.com/better-exploration-with-parameter-noise/">paper</a> </li>
+          </ul>
+
           <p>
-              This level is not solved yet (working on it). However, you can <a href="https://github.com/thibo73800/metacar/blob/master/CONTRIBUTE.md">contribute</a> to the project by solving it and sharing your implementation!<br><br>
-            <br><br>
+               The control is based on two continuous values for the throttle and steering angle of the car. 
+               The model is made using <a href="http://js.tensorflow.org">tensorflow.js</a>
           </p>
         </div>
 
+
+        <div class="level_link_box" style="height: 263px;">
+            <a href="/ddpg-traffic.html"><img width="366px" class="floatright" src="/public/img/ddpg-traffic.png" /></a>
+            <h4>
+              <br><a href="/ddpg-traffic.html">Continous Actions in traffic</a>
+            </h4>
+            <br>
+            <ul style="margin:0;">
+                <li><b>Deep Deterministic Policy Gradients (DDPG): <a href="https://arxiv.org/abs/1509.02971">paper</a></b> </li>
+                <li><b>Parameter Space Noise for Exploration</b>: <a href="https://blog.openai.com/better-exploration-with-parameter-noise/">paper</a> </li>
+            </ul>
+            <p>
+                 The control is based on two continuous values for the throttle and steering angle of the car. 
+                 The model is made using <a href="http://js.tensorflow.org">tensorflow.js</a>  
+              <br><br>
+            </p>
+          </div>
+  
 
 
         <div class="level_link_box" style="height: 261px;">
-            <a href="/editor.html"><img class="floatright" src="/public/img/editor.png" /></a>
+            <a href="/editor.html"><img class="floatleft" src="/public/img/editor.png" /></a>
             <h4>
               <br><a href="/editor.html">Create your own level!</a>
             </h4>

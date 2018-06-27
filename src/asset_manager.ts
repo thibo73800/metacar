@@ -133,12 +133,15 @@ export class AssetManger {
             @line is Optional. 0 By default.
         */
         if (line == undefined)
-            line = 0;
+            line = Math.min(1, Math.floor(Math.random() * 2));
         let carById = this.level.findCarById(road.cars[0]);
         if (!force && road.cars.length >= 1 && carById && carById.core.line == line){
             line = line == 0 ? 1:0;
         }
         car.line = line;
+
+        car.a = 0;
+        car.v = 0;
 
         // Set the car on the road
         car.x = road.x;
@@ -158,7 +161,6 @@ export class AssetManger {
         let line_side_factor_t = line == 0 ? 0:Math.PI;
         car.x += line_side_factor*Math.round(x_m);
         car.y += line_side_factor*Math.round(y_m);
-
         // (x, y position) Relatif to the map
         car.mx = Math.floor(car.x / ROADSIZE);
         car.my = Math.floor(car.y / ROADSIZE);

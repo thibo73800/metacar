@@ -179,14 +179,12 @@ class PolicyAgent {
         */
        this.valueModel = await tf.loadModel('https://metacar-project.com/public/models/policy/value-model-policy-agent.json');
        this.policyModel = await tf.loadModel("https://metacar-project.com/public/models/policy/policy-model-policy-agent.json");
-       //this.valueModel = await tf.loadModel('http://localhost:3000/public/models/policy/value-model-policy-agent.json');
-       //this.policyModel = await tf.loadModel("http://localhost:3000/public/models/policy/policy-model-policy-agent.json");
     }
 
     play(){
         tf.tidy(() => {
             // Get the current state
-            const st = tf.tensor2d(this.env.getState(), [this.lidarPts, this.lidarPts]).reshape([1, this.ttLidarPts]);
+            const st = tf.tensor2d(this.env.getState().lidar, [this.lidarPts, this.lidarPts]).reshape([1, this.ttLidarPts]);
             // Predict the policy
             const softmax = this.policyModel.predict(st);
             // Get the action
@@ -231,7 +229,8 @@ class PolicyAgent {
             console.time("Exploring");
             for (var step = 0; step < this.nb_step; step++) {
                 // Get the current state
-                const array_st = this.env.getState(true);
+                let array_st = this.env.getState().linear;
+                array_st = array_st.slice(0, array_st.length - 1);
                 // Convert the state into a tensor
                 //const st = tf.tensor(array_st, [this.lidarPts, this.lidarPts]).reshape([1, this.ttLidarPts]);
                 const st = tf.tensor2d([array_st]);
@@ -301,7 +300,7 @@ class PolicyAgent {
             tf_advantages.dispose();
 
             // Set the agent on a new free road
-            this.env.randomRoadPosition();
+            this.env.shuffle({cars: false});
             //env.reset();
             // Go to the next episode
             setTimeout(() => this.train(this.env, it+1), 1);

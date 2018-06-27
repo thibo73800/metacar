@@ -21,6 +21,7 @@ export class World {
     protected loop: any; // Loop method called for each render
     protected canvasId: string; // Id of the target canvas
     protected cars: Car[] = [];
+    protected steping: boolean = true;
 
     constructor(levelContent: LevelInfo, canvasId: string) {
         /*
@@ -124,9 +125,11 @@ export class World {
     render(val: boolean){
         if (val){
             this.app.ticker.start();
+            this.steping = true;
         }
         else{
             this.app.ticker.stop();
+            this.steping = false;
         }
     }
 
@@ -142,6 +145,30 @@ export class World {
 
     public getMousePosition(){
         return this.app.renderer.plugins.interaction.mouse.global;        
+    }
+
+    /**
+     * Stop stepping in the environment automaticly
+     */
+    public setSteping(val: boolean): void{
+        this.steping = val;
+    }
+
+    public shuffleCarsPositions(){
+        for (let c = 0; c < this.cars.length; c++){
+    
+            let roads = this.roads;
+            let keys = Object.keys(roads);
+            keys.sort(function() {return Math.random()-0.5;});
+            for (let k in keys){
+                let road = roads[keys[k]];
+                if (road.cars.length == 0){
+                    road.setCarPosition(this.cars[c].core);
+                    break;
+                }
+            }
+
+        }
     }
 
 }
