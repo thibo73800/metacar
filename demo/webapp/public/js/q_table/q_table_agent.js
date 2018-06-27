@@ -125,7 +125,7 @@ class QTableAgent {
                 this.Q[st][act] = this.Q[st][act] + 0.01*(reward + (gamma*this.Q[st2][act2]) - this.Q[st][act]);
                 st = st2;
             }
-            this.env.randomRoadPosition();
+            this.env.shuffle({cars: false});
         }
         this.env.render(true);
         for (let s=0; s < this.stateList.length; s++){

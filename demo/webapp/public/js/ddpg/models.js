@@ -4,6 +4,26 @@
  * @param instance Actor|Critic
  * @return Copy of the model
  */
+function copyFromSave(model, instance, config, obs, action){
+    return tf.tidy(() => {
+        nModel = new instance(config);
+        // action might be not required
+        nModel.buildModel(obs, action);
+        const weights = model.weights;
+        for (let m=0; m < weights.length; m++){
+            nModel.model.weights[m].val.assign(weights[m].val);
+        }
+        return nModel;
+    })
+}
+
+
+/**
+ * Copy a model
+ * @param model Actor|Critic instance
+ * @param instance Actor|Critic
+ * @return Copy of the model
+ */
 function copyModel(model, instance){
     return tf.tidy(() => {
         nModel = new instance(model.config);

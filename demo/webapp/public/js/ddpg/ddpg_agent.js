@@ -36,8 +36,11 @@ class DDPGAgent {
             "criticSecondLayerSize": config.criticSecondLayerSize || 32,
             "maxStep": config.maxStep || 800,
             "stopOnRewardError": config.stopOnRewardError != undefined ? config.stopOnRewardError:true,
-            "resetEpisode": config.resetEpisode != undefined ? config.resetEpisode:false
+            "resetEpisode": config.resetEpisode != undefined ? config.resetEpisode:false,
+            "saveDuringTraining": config.saveDuringTraining || false,
+            "saveInterval": config.saveInterval ||  20
         };
+        this.epoch = 0;
         // From js/DDPG/noise.js
         this.noise = new AdaptiveParamNoiseSpec(this.config);
 
@@ -72,8 +75,20 @@ class DDPGAgent {
         /*
             Restore the weights of the network
         */
-       this.ddpg.critic.model = await tf.loadModel('http://localhost:3000/public/models/'+folder+'/critic-'+name+'.json');
-       this.ddpg.actor.model = await tf.loadModel("http://localhost:3000/public/models/"+folder+"/actor-"+name+".json");
+        const critic = await tf.loadModel('http://localhost:3000/public/models/'+folder+'/critic-'+name+'.json');
+        const actor = await tf.loadModel("http://localhost:3000/public/models/"+folder+"/actor-"+name+".json");
+
+        this.ddpg.critic = copyFromSave(critic, Critic, this.config, this.ddpg.obsInput, this.ddpg.actionInput);
+        this.ddpg.actor = copyFromSave(actor, Actor, this.config, this.ddpg.obsInput, this.ddpg.actionInput);
+
+        // Define in js/DDPG/models.js
+        // Init target network Q' and μ' with the same weights
+        this.ddpg.actorTarget = copyModel(this.ddpg.actor, Actor);
+        this.ddpg.criticTarget = copyModel(this.ddpg.critic, Critic);
+        // Perturbed Actor (See parameter space noise Exploration paper)
+        this.ddpg.perturbedActor = copyModel(this.ddpg.actor, Actor);
+        //this.adaptivePerturbedActor = copyModel(this.actor, Actor);
+        this.ddpg.setLearningOp();
     }
 
     /**
@@ -133,24 +148,38 @@ class DDPGAgent {
     }
 
     /**
+     * Optimize models and log states
+     */
+    _optimize(){
+        this.ddpg.noise.desiredActionStddev = Math.max(0.1, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
+        let lossValuesCritic = [];
+        let lossValuesActor = [];
+        console.time("Training");
+        for (let t=0; t < this.config.nbTrainSteps; t++){
+            let {lossC, lossA} = this.ddpg.optimizeCriticActor();
+            lossValuesCritic.push(lossC);
+            lossValuesActor.push(lossA);
+        }
+        console.timeEnd("Training");
+        console.log("desiredActionStddev:", this.ddpg.noise.desiredActionStddev);
+        setMetric("CriticLoss", mean(lossValuesCritic));
+        setMetric("ActorLoss", mean(lossValuesActor));
+    }
+
+    /**
      * Train DDPG Agent
      */
     async train(realTime){
         this.stopTraining = false;
         // One epoch
-        for (let e=0; e < this.config.nbEpochs; e++){
+        for (this.epoch; this.epoch < this.config.nbEpochs; this.epoch++){
             // Perform cycles.
             this.rewardsList = [];
             this.stepList = [];
             this.distanceList = [];
-            document.getElementById("trainingProgress").innerHTML = "Progression: "+e+"/"+this.config.nbEpochs+"<br>";
+            document.getElementById("trainingProgress").innerHTML = "Progression: "+this.epoch+"/"+this.config.nbEpochs+"<br>";
             for (let c=0; c < this.config.nbEpochsCycle; c++){
-                if (c%10==0){
-                    logTfMemory();
-                }
-
-                // Perform rollouts.
-                // Get current observation
+                if (c%10==0){ logTfMemory(); }
                 let mPreviousStep = this.env.getState().linear;
                 let tfPreviousStep = tf.tensor2d([mPreviousStep]);
                 let step = 0;
@@ -178,29 +207,18 @@ class DDPGAgent {
                 if (this.config.resetEpisode){
                     this.env.reset();
                 }
-                this.env.randomRoadPosition();
+                this.env.shuffle({cars: false});
                 tfPreviousStep.dispose();
-                console.log("e="+ e +", c="+c);
+                console.log("e="+ this.epoch +", c="+c);
          
-                //this.ddpg.targetUpdate();
                 await tf.nextFrame();
             }
-            if (e > 5){
-                this.ddpg.noise.desiredActionStddev = Math.max(0.1, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
-                let lossValuesCritic = [];
-                let lossValuesActor = [];
-                console.time("Training");
-                for (let t=0; t < this.config.nbTrainSteps; t++){
-                    let {lossC, lossA} = this.ddpg.optimizeCriticActor();
-                    lossValuesCritic.push(lossC);
-                    lossValuesActor.push(lossA);
-                }
-                console.timeEnd("Training");
-                console.log("desiredActionStddev:", this.ddpg.noise.desiredActionStddev);
-                setMetric("CriticLoss", mean(lossValuesCritic));
-                setMetric("ActorLoss", mean(lossValuesActor));
+            if (this.epoch > 5){
+                this._optimize();
             }
-
+            if (this.config.saveDuringTraining && this.epoch % this.config.saveInterval == 0 && this.epoch != 0){
+                this.save("model-ddpg-traffic-epoch-"+this.epoch);
+            }
             setMetric("Reward", mean(this.rewardsList));
             setMetric("EpisodeDuration", mean(this.stepList));
             setMetric("NoiseDistance", mean(this.distanceList));
@@ -209,6 +227,6 @@ class DDPGAgent {
             
 
             this.env.render(true);
-        }
+    }
 
 };

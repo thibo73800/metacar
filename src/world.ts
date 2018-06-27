@@ -153,4 +153,22 @@ export class World {
     public setSteping(val: boolean): void{
         this.steping = val;
     }
+
+    public shuffleCarsPositions(){
+        for (let c = 0; c < this.cars.length; c++){
+    
+            let roads = this.roads;
+            let keys = Object.keys(roads);
+            keys.sort(function() {return Math.random()-0.5;});
+            for (let k in keys){
+                let road = roads[keys[k]];
+                if (road.cars.length == 0){
+                    road.setCarPosition(this.cars[c].core);
+                    break;
+                }
+            }
+
+        }
+    }
+
 }

@@ -300,7 +300,7 @@ class PolicyAgent {
             tf_advantages.dispose();
 
             // Set the agent on a new free road
-            this.env.randomRoadPosition();
+            this.env.shuffle({cars: false});
             //env.reset();
             // Go to the next episode
             setTimeout(() => this.train(this.env, it+1), 1);

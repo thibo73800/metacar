@@ -2,6 +2,7 @@ import {fullCity} from "./embedded/level/full_city";
 import {level1} from "./embedded/level/level_1";
 import {level0} from "./embedded/level/level_0";
 import {level2} from "./embedded/level/level_2";
+import {level3} from "./embedded/level/level_3";
 
 /**
  * Object used to enumerate each
@@ -17,6 +18,7 @@ export interface embeddedUrlI {
     fullCity: string;
     level1: string;
     level2: string;
+    level3: string;
     level0: string;
 };
 
@@ -24,6 +26,7 @@ export const embeddedUrl: embeddedUrlI = {
     fullCity: "embedded://level/fullCity",
     level1: "embedded://level/level1",
     level2: "embedded://level/level2",
+    level3: "embedded://level/level3",
     level0: "embedded://level/level0",
 }
 
@@ -32,6 +35,7 @@ export const embeddedContent: any = {
         fullCity: fullCity,
         level1: level1,
         level0: level0,
-        level2: level2
+        level2: level2,
+        level3: level3
     }
 }

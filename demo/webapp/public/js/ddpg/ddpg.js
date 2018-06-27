@@ -26,13 +26,13 @@ class DDPG {
         this.tfGamma = tf.scalar(config.gamma);
 
         // Inputs
-        let obsInput = tf.input({batchShape: [null, this.config.stateSize]});
-        let actionInput = tf.input({batchShape: [null, this.config.nbActions]});
+        this.obsInput = tf.input({batchShape: [null, this.config.stateSize]});
+        this.actionInput = tf.input({batchShape: [null, this.config.nbActions]});
 
         // Randomly Initialize actor network μ(s)
-        this.actor.buildModel(obsInput);
+        this.actor.buildModel(this.obsInput);
         // Randomly Initialize critic network Q(s, a)
-        this.critic.buildModel(obsInput, actionInput);
+        this.critic.buildModel(this.obsInput, this.actionInput);
 
  
         // Define in js/DDPG/models.js
@@ -43,6 +43,10 @@ class DDPG {
         this.perturbedActor = copyModel(this.actor, Actor);
         //this.adaptivePerturbedActor = copyModel(this.actor, Actor);
 
+        this.setLearningOp();
+    }
+
+    setLearningOp(){
         this.criticWithActor = (tfState) => {
             return tf.tidy(() => {
                 const tfAct = this.actor.predict(tfState);

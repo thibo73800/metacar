@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Metacar: Policy gradient demo</title>
+  <title>Metacar: Discrete Actions in traffic.</title>
   <link rel="icon" href="/public/img/icon.png">
   <link rel="stylesheet" href="/public/css/general.css">
   <link href="https://fonts.googleapis.com/css?family=Tajawal" rel="stylesheet">
@@ -25,7 +25,7 @@
 
     <div class="body_container">
         <h3 id="trainingProgress"></h3>
-        <h3 style="float: left">Current state (Lidar points)</h3><br><br>
+        <h3 style="float: left">Current state (Lidar points)</h3><br><br><br>
         <div id="realtime_viewer" style="float: left"></div>
         <p>
             <b>Policy Gradient</b> algorithm based on Monte Carlo exploration. <br>
@@ -45,9 +45,10 @@
     <script src="/dist/metacar.min.js"></script>
 
     <script type="text/javascript" src="/public/js/utils.js"></script>
-    <script type="text/javascript" src="/public/js/policy_agent.js"></script>
     <script type="text/javascript" src="/public/js/viewer.js"></script>
-    <script type="text/javascript" src="/public/js/level1.js"></script>
+
+    <script type="text/javascript" src="/public/js/policy_monte_carlo/policy_agent.js"></script>
+    <script type="text/javascript" src="/public/js/policy_monte_carlo/index.js"></script>
 
 </body>
 </html>

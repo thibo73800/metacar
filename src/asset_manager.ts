@@ -133,7 +133,7 @@ export class AssetManger {
             @line is Optional. 0 By default.
         */
         if (line == undefined)
-            line = 0;
+            line = Math.min(1, Math.floor(Math.random() * 2));
         let carById = this.level.findCarById(road.cars[0]);
         if (!force && road.cars.length >= 1 && carById && carById.core.line == line){
             line = line == 0 ? 1:0;
@@ -168,9 +168,6 @@ export class AssetManger {
         car.rotation = (th+line_side_factor_t);
         // Set the new road of the car
         car.checkAndsetNewRoad(road);
-
-        
-
     }
 
     createAsset(img: string, info: AssetInfo, textures: any, type: string){

@@ -60,6 +60,8 @@ export interface CarSprite extends PIXI.Sprite {
     yaw_rate?: number;
     last_a?: number;
     last_yaw_rate?: number;
+    next_road?: any;
+    turnedRandom?: any;
 }
 
 export interface LidarChild extends PIXI.Graphics {
@@ -83,7 +85,6 @@ export class Car {
     public motion: any;
 
     private info: CarInfo;
-    public turnedRandom: any;
 
     constructor(level: Level|Editor, info: CarInfo, textures: any, options:CarOptions={}) {
         /*
@@ -175,7 +176,8 @@ export class Car {
             // TOdo: CHECK something is strange here
             this.core.haveTurned = false;
             this.core.optionalTurn = false;
-            this.turnedRandom = undefined;
+            this.core.turnedRandom = undefined;
+            this.core.next_road = false;
             if (n_road)
                 n_road.cars.push(this.core.carId);
         }

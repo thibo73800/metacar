@@ -105,7 +105,7 @@ export class Level extends World {
         */
         this.agent.reset();
         for (var c = 0; c < this.cars.length; c++) {
-           //this.cars[c].reset();
+            this.cars[c].reset();
         }  
     }
 

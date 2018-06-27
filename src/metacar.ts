@@ -18,6 +18,15 @@ export interface eventLoadOptions {
     local: boolean;
 }
 
+/**
+ * @cars Shuffle the position of the other cars (true default)
+ * @agent Shuffle the position of the agent (true default)
+ */
+export interface shuffleConfig{
+    agent: boolean;
+    cars: boolean;
+}
+
 export class MetaCar {
 
     private level: Level;
@@ -189,21 +198,31 @@ export class MetaCar {
     }
 
     /**
-     * Set the agent on a new random road on the map.
+     * Shuffle the position of the agent and the others
+     * cars.
      */
-    randomRoadPosition(): void{
+    shuffle(config: shuffleConfig): void{
         /*
             This position
         */
-        let roads = this.level.getRoads();
-        let keys = Object.keys(roads);
-        keys.sort(function() {return Math.random()-0.5;});
-        for (let k in keys){
-            let road = roads[keys[k]];
-            if (road.cars.length == 0){
-                road.setCarPosition(this.level.agent.core);
-                break;
+        config = config || {cars: true, agent: true};
+        config.cars = config.cars != undefined ? config.cars:true;
+        config.agent = config.agent != undefined ? config.agent:true;
+
+        if (config.agent) {
+            let roads = this.level.getRoads();
+            let keys = Object.keys(roads);
+            keys.sort(function() {return Math.random()-0.5;});
+            for (let k in keys){
+                let road = roads[keys[k]];
+                if (road.cars.length == 0){
+                    road.setCarPosition(this.level.agent.core);
+                    break;
+                }
             }
+        }
+        if (config.cars){
+            this.level.shuffleCarsPositions();
         }
     }
 

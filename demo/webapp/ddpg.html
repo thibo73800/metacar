@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Metacar: Continous control</title>
+  <link rel="icon" href="/public/img/icon.png">
+  <link rel="stylesheet" href="/public/css/general.css">
+  <link href="https://fonts.googleapis.com/css?family=Tajawal" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <div class="header_container">
+          <h1><a href="/">Metacar</a></h1>
+          <a href="https://github.com/thibo73800/metacar"><img src="/public/img/github-logo.png" /></a>
+      </div>
+      </header>
+
+    <div class="canvas_container">
+        <!--
+          You just have to add a div with an ID as bellow and include the js to start
+          using metacar. -->
+        <div class="canvas" id="canvas"></div>
+    </div>
+
+    <div class="body_container">
+        <h3 id="trainingProgress"></h3>
+        <h3 style="float: left" >Current state (Lidar points)</h3><br><br><br>
+        <div id="realtime_viewer" style="float: left"></div>
+        <p>
+                The algorithm is based on the following papers:
+                <ul style="margin:0;">
+                        <li><b>Deep Deterministic Policy Gradients (DDPG): <a href="https://arxiv.org/abs/1509.02971">paper</a></b> </li>
+                        <li><b>Parameter Space Noise for Exploration</b>: <a href="https://blog.openai.com/better-exploration-with-parameter-noise/">paper</a> </li>
+                        <li><b>Prioritized Experience Replay</b>: <a href="https://arxiv.org/abs/1511.05952">paper</a> </li>
+                </ul>
+                <br>
+                You can use the <b>arrow keys</b> to control the car by yourself.<br><br>
+    
+                The motion control is based on two continuous values for the throttle and steering angle of the car.
+                
+                <br><br>The left window gives you an overview of what the autonomous vehicle (in red) sees.<br><br>
+    
+                You can find the code of this demo <a href="https://github.com/thibo73800/metacar/tree/master/demo/webapp/public/js/ddpg/">here</a>.
+            </p>
+    </div>
+
+    <br>
+    <div class="body_container" id="statContainer" style="position:relative"></div>
+
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.6"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js"></script>
+    <script src="/dist/metacar.min.js"></script>
+
+    <script type="text/javascript" src="/public/js/utils.js"></script>
+    <script type="text/javascript" src="/public/js/viewer.js"></script>
+
+    <script type="text/javascript" src="/public/js/ddpg/models.js"></script>
+    <script type="text/javascript" src="/public/js/ddpg/memory.js"></script>
+    <script type="text/javascript" src="/public/js/ddpg/noise.js"></script>
+    <script type="text/javascript" src="/public/js/ddpg/ddpg.js"></script>
+    <script type="text/javascript" src="/public/js/ddpg/ddpg_agent.js"></script>
+    <script type="text/javascript" src="/public/js/ddpg/index.js"></script>
+</body>
+</html>
