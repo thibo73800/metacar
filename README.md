@@ -8,7 +8,7 @@
 <b>Metacar</b> is a 2D reinforcement learning environment for autonomous vehicles running in the browser. The project aims to let reinforcement learning be more accessible to everyone through solving fun problems. Metacar comes with a set of a predefined levels, some harder to address than others. More levels and possibile scenarios will be added soon (pedestrian, bikes...). Furthermore, the library let you create your own levels and personalize the environment to create your desired scenario.
 
 If you want to be part of the project, whether to implement features in the environment or demonstrate algorithms, feel free to join
-the [slack channel](https://join.slack.com/t/metacar/shared_invite/enQtMzgyODI4NDMzMDc0LTY1MjIwNzk1MTAzOTBiZjJlOGUwM2YyYjA3MzBmNjQyNjUyMDZkOGNkYmU0MmUyYzUzNGRhNGJhZDE1M2EzNzM) to ask questions and talk about all your fantastic ideas! 
+the [slack channel](https://join.slack.com/t/metacar/shared_invite/enQtMzgyODI4NDMzMDc0LTY1MjIwNzk1MTAzOTBiZjJlOGUwM2YyYjA3MzBmNjQyNjUyMDZkOGNkYmU0MmUyYzUzNGRhNGJhZDE1M2EzNzM) to ask questions and talk about all your fantastic ideas!
 
 To start developing with metacar check out the Documentation and the [API Reference](http://metacar-project.com/docs/modules/_index_.html)
 
@@ -27,7 +27,7 @@ You can also take a look at the <b>[online demo](https://www.metacar-project.com
 Getting started
 ------------
 
-### Installing Metacar 
+### Installing Metacar
 
 You can use Metacar with a direct link in your HTML file or install it from NPM. However, metacar is based on [Pixi.js](http://www.pixijs.com/): 4.7.1, then you need to include pixi.js as a global dependency in your HTML.
 
@@ -43,7 +43,7 @@ You can use Metacar with a direct link in your HTML file or install it from NPM.
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js"></script>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/combine/npm/metacar@0.0.1,npm/metacar@0.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/combine/npm/metacar@0.1.1,npm/metacar@0.1.1"></script>
 </body>
 </html>
 ```
@@ -139,7 +139,7 @@ env.load().then(() => {
         // Log the reward
         console.log(reward);
     });
-    
+
 });
 ```
 
@@ -174,12 +174,12 @@ The state of the environment is made of four fields:
 {
     a: number|undefined // Acceleration of the car (if any)
     lidar: number[][] // Lidar points values
-    linear: number[] // The flatten lidar values + the current speed of the car 
-    steering: number|undefined // Steering angle of the car (if any) 
+    linear: number[] // The flatten lidar values + the current speed of the car
+    steering: number|undefined // Steering angle of the car (if any)
 }
 ```
 
-Here is an example of simple training loop. 
+Here is an example of simple training loop.
 
 ```javascript
 env.load().then(() => {
@@ -214,7 +214,7 @@ env.load().then(() => {
     env.addEvent("custom", () => {
         env.reset();
     });
-    
+
 });
 ```
 
@@ -227,11 +227,11 @@ env.load().then(() => {
     env.addEvent("Shuffle only the agent", () => {
         env.shuffle({cars: false});
     });
-   
+
     env.addEvent("Shuffle all", () => {
         env.shuffle();
     });
-   
+
 });
 ```
 
@@ -240,12 +240,12 @@ env.load().then(() => {
 Custom the environement
 ------------
 
-<b>!WARNING:</b> The method presented in this section must be called <b>BEFORE</b> loading the environment. 
+<b>!WARNING:</b> The method presented in this section must be called <b>BEFORE</b> loading the environment.
 
 <a id='change-motion'></a>
 ### Change the motion engine
 
-There are two motion engine available: BasicMotion and ControlMotion. 
+There are two motion engine available: BasicMotion and ControlMotion.
 
 #### BasicMotion
 
@@ -295,7 +295,7 @@ Other methods
 
 ### Load a file from your computer
 
-This features can be useful to load the content of one file from your computer (the result of a trained model for 
+This features can be useful to load the content of one file from your computer (the result of a trained model for
 instance).
 
 ```javascript
@@ -358,6 +358,3 @@ editor.load().then(() => {
 
 });
 ```
-
-
-

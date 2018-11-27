@@ -72,7 +72,7 @@ export class Level extends World {
     }
 
     /**
-     * 
+     *
      * options Options to change the lidar options of the agent.
      * Changing the lidar change the state representation of the car in the
      * environement.
@@ -106,11 +106,17 @@ export class Level extends World {
         this.agent.reset();
         for (var c = 0; c < this.cars.length; c++) {
             this.cars[c].reset();
-        }  
+        }
     }
 
     setReward(agent_col: any, on_road: any, action: any){
-        let reward = 0 + Math.max(0., this.agent.core.v) / this.agent.motion.maxSpeed;
+        let reward;
+        if (isNaN(action) || action == null){
+            reward = 0 + Math.max(0., this.agent.core.v) / this.agent.motion.maxSpeed;
+        }
+        else{
+            reward = action == 0 ? 1 : 0;
+        }
         if (agent_col.length > 0){
             reward = -1;
         }
