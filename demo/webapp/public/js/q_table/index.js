@@ -1,6 +1,6 @@
 // Get the url of the desired level
 let levelUrl = metacar.level.level0;
-// Create the environement (canvasID, levelUrl)
+// Create the environment (canvasID, levelUrl)
 var env = new metacar.env("canvas", levelUrl);
 
 env.setAgentMotion(metacar.motion.BasicMotion, {rotationStep: 0.25});

@@ -119,7 +119,7 @@ class DDPGAgent {
     }
 
     /**
-     * Step into the training environement
+     * Step into the training environment
      * @param tfPreviousStep (tf.tensor2d) Current state
      * @param mPreviousStep number[]
      * @return {done, state} One boolean and the new state

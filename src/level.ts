@@ -64,7 +64,7 @@ export class Level extends World {
     /**
      * Change the motion engine of the agent. BasicMotionEngine by default.
      * This method should be called before to called 'load'.
-     * @motion The motion engine to used for the agent when the environement is loaded.
+     * @motion The motion engine to used for the agent when the environment is loaded.
      * @options Options to change the behavior of the motion engine.
      */
     public setAgentMotion(motion: typeof BasicMotionEngine|typeof ControlMotionEngine, options: BasicMotionOptions){
@@ -75,7 +75,7 @@ export class Level extends World {
      *
      * options Options to change the lidar options of the agent.
      * Changing the lidar change the state representation of the car in the
-     * environement.
+     * environment.
      */
     public setAgentLidar(options: LidarInfoI){
         this.am.setAgentLidar(options);
@@ -127,7 +127,7 @@ export class Level extends World {
     }
 
     /**
-     * Return the last reward given by the environement
+     * Return the last reward given by the environment
      */
     public getLastReward(): number{
         return this.lastReward;
@@ -136,7 +136,7 @@ export class Level extends World {
 
     step(delta: number, action:number|number[]=null, auto: boolean = true){
         /*
-            Process one step into the environement
+            Process one step into the environment
             @delta (Float) time since the last update
             @action: (Integer) The action to take (can be null if no action)
         */

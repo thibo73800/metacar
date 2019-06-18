@@ -42,7 +42,7 @@ export class MetaCar {
     private loopCallback: any = undefined;
 
     /**
-     * Class used to create a new environement.
+     * Class used to create a new environment.
      * @canvasId: HTML canvas ID
      * @levelToLoad: URL of the level or directly the level's object.
      *  URL format: embedded://... or http(s)://...
@@ -77,7 +77,7 @@ export class MetaCar {
     }
 
     /**
-     * Return the last reward given by the environement
+     * Return the last reward given by the environment
      */
     public getLastReward(): number{
         return this.level.getLastReward();
@@ -87,7 +87,7 @@ export class MetaCar {
      * options Options to change the lidar options of the agent.
      * This method should be called before to called 'load'.
      * Changing the lidar change the state representation of the car in the
-     * environement.
+     * environment.
      */
     public setAgentLidar(options: LidarInfoI){
         this.agentLidarInfo = options;
@@ -96,7 +96,7 @@ export class MetaCar {
     /**
      * Change the motion engine of the agent. BasicMotionEngine by default.
      * This method should be called before to called 'load'.
-     * @motion The motion engine to used for the agent when the environement is loaded.
+     * @motion The motion engine to used for the agent when the environment is loaded.
      * @options Options to change the behavior of the motion engine.
      */
     public setAgentMotion(motion: typeof BasicMotionEngine|typeof ControlMotionEngine, options: BasicMotionOptions){
@@ -107,12 +107,12 @@ export class MetaCar {
     /**
      * This method is used to add a button under the canvas. When a
      * click is detected on the window, the associated @fc is called.
-     * Some events are recognized by the environement, others can be custom.
+     * Some events are recognized by the environment, others can be custom.
      * The following are recognized:
      * - train: The render is stopped before to called @fc. You must called render(true) once your training is done.
      * - play: Your function (@fc) will be called at each frame update.
      * - stop: The last function passed to the play event will not be called anymore. Then @fc is called.
-     * - reset_env: Reset the environement. Then, @fc is called.
+     * - reset_env: Reset the environment. Then, @fc is called.
      * - load: Load: @fc is called. You can set @options to {local:true} to load the content of a file from your computer.
      * If @options is set, a content variable will be passed to the @fc function (the content of the selected file).
      * @eventName Name of the event to listen.
@@ -134,7 +134,7 @@ export class MetaCar {
     }
 
     /**
-     * Choose whether to render the environement.
+     * Choose whether to render the environment.
      * @val: True or False.
      */
     public render(val: boolean){
@@ -162,7 +162,7 @@ export class MetaCar {
     }
 
     /**
-     * Get the action space of the environement
+     * Get the action space of the environment
      * @return The Description of the action space.
      */
     public actionSpace(): actionSpaceDescription{
@@ -170,7 +170,7 @@ export class MetaCar {
     }
 
     /**
-     * Return the current state of the environement.
+     * Return the current state of the environment.
      * The size of the state depends of the size of the Lidar.
      * @return The state as a 2D Array or 1D Array (linear:true)
     */
@@ -179,7 +179,7 @@ export class MetaCar {
     }
 
     /** 
-        Step into the environement
+        Step into the environment
         @action Action to process to step 
         @return Reward value
     */
@@ -188,7 +188,7 @@ export class MetaCar {
     }
 
     /**
-     * Reset the environement
+     * Reset the environment
      */
     public reset(): void{
         /*
@@ -267,7 +267,7 @@ export class MetaCar {
     }
 
     /*
-        Load the environement with the parameters passed in the constructor.
+        Load the environment with the parameters passed in the constructor.
     */
    public load(): Promise<void>{
 

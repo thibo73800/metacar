@@ -81,7 +81,7 @@ export class MotionEngine {
         /*
             If all is false then we assume the car is alwais on a road
             and never collision with other car (this behavior is used for bot cars only)
-            Detect the interaction with the environement
+            Detect the interaction with the environment
             - Car collisions
             - Lidar collisions
             - Road position (Is the vehicle on the road)
