@@ -106,7 +106,7 @@ export class ControlMotionEngine extends MotionEngine {
 
     actionStep(delta: number, actions: number[]){
         /*
-            Step into the environement with one action
+            Step into the environment with one action
             @delta (Float) time since the last update
             @action: (Array of Float) The throttle and the steering angle
         */
@@ -131,7 +131,7 @@ export class ControlMotionEngine extends MotionEngine {
 
     step(delta: number){
         /*
-            Step into the environement
+            Step into the environment
             @delta (Float) time since the last update
         */
        this.car.last_a = this.car.a;
@@ -178,7 +178,7 @@ export class ControlMotionEngine extends MotionEngine {
         this.lidar.y = this.car.y;
         this.lidar.rotation = this.car.rotation;
 
-        // Detection the new collision with the environement
+        // Detection the new collision with the environment
         let {agentCollisions, onRoad} = this.detectInteractions(true, true);
 
         if (agentCollisions.length > 0){ // Stop the vehicle if a collision is detected

@@ -228,7 +228,7 @@ export class BotMotionEngine extends MotionEngine {
 
     step(delta: number){
         /*
-            Step into the environement
+            Step into the environment
             @delta (Float) time since the last update
         */
         // Possible collision detected
@@ -269,7 +269,7 @@ export class BotMotionEngine extends MotionEngine {
         this.lidar.y = this.car.y;
         this.lidar.rotation = this.car.rotation;
 
-        // Detection the new collision with the environement
+        // Detection the new collision with the environment
         let {agentCollisions, onRoad} = this.detectInteractions(false);
 
         return {agentCollisions, onRoad};

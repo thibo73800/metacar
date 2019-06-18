@@ -220,7 +220,7 @@ export class Car {
 
     step(delta: number, action:number|number[]=null){
         /*
-            Take one step into the environement
+            Take one step into the environment
             @delta (Float) time since the last update
             @action: (Integer) The action to take (can be null if no action)
         */

@@ -20,7 +20,7 @@ You can also take a look at the <b>[online demo](https://www.metacar-project.com
 1. [Getting Started](#getting-started)
 2. [Your first environment](#first-env)
 3. [Interact with the environment](#interact-env)
-4. [Custom the environment](#configure-env)
+4. [Customize the environment](#configure-env)
 5. [Edit your own level](#create-level)
 
 <a id='getting-started'></a>
@@ -82,7 +82,7 @@ Even if you can [create your own level](#create-level), Metacar comes up with a 
 ```javascript
 // Select a level
 const level = metacar.level.level1;
-// Create the environement
+// Create the environment
 const env = new metacar.env("env", level);
 // Load it
 env.load();
@@ -237,7 +237,7 @@ env.load().then(() => {
 
 
 <a id='configure-env'></a>
-Custom the environement
+Customize the environment
 ------------
 
 <b>!WARNING:</b> The method presented in this section must be called <b>BEFORE</b> loading the environment.
@@ -285,7 +285,7 @@ You can choose to move or stop the other vehicles with env.carsMoving()
 
 ```javascript
 env.carsMoving(false);
-// Load the environement after changing the propeties.
+// Load the environment after changing the propeties.
 env.load();
 ```
 

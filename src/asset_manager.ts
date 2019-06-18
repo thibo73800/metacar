@@ -68,7 +68,7 @@ export class AssetManger {
      * 
      * options Options to change the lidar options of the agent.
      * Changing the lidar change the state representation of the car in the
-     * environement.
+     * environment.
      */
     public setAgentLidar(options: LidarInfoI){
         this.agentLidarInfo = options;
@@ -77,7 +77,7 @@ export class AssetManger {
     /**
      * Change the motion engine of the agent. BasicMotionEngine by default.
      * This method should be called before to called 'load'.
-     * @motion The motion engine to used for the agent when the environement is loaded.
+     * @motion The motion engine to used for the agent when the environment is loaded.
      * @options Options to change the behavior of the motion engine.
      */
     public setAgentMotion(motion: any, options: Object){

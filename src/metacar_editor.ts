@@ -28,7 +28,7 @@ export class MetaCarEditor {
 
     public load(): Promise<void>{
         /*
-            Load the environement
+            Load the environment
             @level (String) Name of the json level to load
             @agent (Agent class)
         */
@@ -75,7 +75,7 @@ export class MetaCarEditor {
     /**
      * This method is used to add button under the canvas. When a
      * click is detected on the window, the associated @fc is called.
-     * Some events are recognized by the environement, others can be custom.
+     * Some events are recognized by the environment, others can be custom.
      * @eventName Name of the event to listen.
      * @fc Function to call each time this event is raised.
      * @options: eventEditorLoadOptions {download: true|false}. Use to download the file as a json for the "save" event.

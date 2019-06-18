@@ -255,7 +255,7 @@ class PolicyAgent {
                 }
                 softmax.dispose();
                 st.dispose();
-                // Step in the environement with this action
+                // Step in the environment with this action
                 reward = this.env.step(action);
                 if (reward == -1){
                     reward = -10;

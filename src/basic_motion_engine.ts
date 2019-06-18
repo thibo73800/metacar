@@ -16,7 +16,7 @@ export interface BasicMotionOptions{
 export class BasicMotionEngine extends MotionEngine {
     /*
         Basic Motion Engine
-        In this configuration the possible action of the environement are
+        In this configuration the possible action of the environment are
         either left, right, up, down or wait.
     */
     private rotationStep: number;
@@ -118,7 +118,7 @@ export class BasicMotionEngine extends MotionEngine {
 
     actionStep(delta: number, action: number){
         /*
-            Step into the environement with one action
+            Step into the environment with one action
             @delta (Float) time since the last update
             @action: (Integer) The action to take (can be null if no action)
         */
@@ -145,7 +145,7 @@ export class BasicMotionEngine extends MotionEngine {
 
     step(delta: number){
         /*
-            Step into the environement
+            Step into the environment
             @delta (Float) time since the last update
         */
         // Update the x and y position according to the velocity
@@ -183,7 +183,7 @@ export class BasicMotionEngine extends MotionEngine {
         //this.car.mybound.x = this.car.x + x_m;
         //this.car.mybound.y = this.car.y + y_m;
 
-        // Detection the new collision with the environement
+        // Detection the new collision with the environment
         let {agentCollisions, onRoad} = this.detectInteractions(true, true);
 
         if (agentCollisions.length > 0){ // Stop the vehicle if a collision is detected
