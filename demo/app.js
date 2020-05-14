@@ -38,7 +38,12 @@ app.get('/', (req, res) => {
  * **/
 const files = fromDir(path.join(__dirname, "webapp/"),'.html');
 files.forEach(file => {
-  let route = file.split("/");
+  let route;
+  if (file.includes("/")) { // quick check if unix
+    route = file.split("/");
+  } else { // windows uses \ instead of /
+    route = file.split("\\");
+  }
   route = route[route.length - 1];
 
   console.log("Open route:", route, file);
